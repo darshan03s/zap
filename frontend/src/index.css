@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+button,
+a {
+  cursor: pointer;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
