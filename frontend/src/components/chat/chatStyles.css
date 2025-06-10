@@ -1,0 +1,79 @@
+:root {
+    --markdown-pre-bg: #edf2f7;
+    --markdown-pre-color: #2d3748;
+    --markdown-blockquote-border: #cbd5e0;
+    --markdown-blockquote-color: #4a5568;
+}
+
+[data-theme="dark"] {
+    --markdown-pre-bg: #1d1d1d;
+    --markdown-pre-color: #f8f8f2;
+    --markdown-blockquote-border: #4a5568;
+    --markdown-blockquote-color: #a0aec0;
+}
+
+#chat-markdown pre {
+    background-color: var(--markdown-pre-bg);
+    color: var(--markdown-pre-color);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    position: relative;
+    scrollbar-width: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#chat-markdown code {
+    font-family: 'Courier New', Courier, monospace;
+    scrollbar-width: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+
+}
+
+#chat-markdown h1,
+#chat-markdown h2,
+#chat-markdown h3,
+#chat-markdown h4,
+#chat-markdown h5,
+#chat-markdown h6 {
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+#chat-markdown h1 {
+    font-size: 1.5rem;
+}
+
+#chat-markdown h2 {
+    font-size: 1.25rem;
+}
+
+#chat-markdown h3 {
+    font-size: 1.1rem;
+}
+
+#chat-markdown p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+#chat-markdown ul,
+#chat-markdown ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+    list-style-type: disc;
+}
+
+#chat-markdown li {
+    margin-bottom: 0.5rem;
+}
+
+#chat-markdown blockquote {
+    border-left: 4px solid var(--markdown-blockquote-border);
+    padding-left: 1rem;
+    margin-left: 0;
+    color: var(--markdown-blockquote-color);
+}

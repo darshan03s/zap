@@ -1,6 +1,7 @@
 import { MoveUp, Paperclip, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import * as smd from "streaming-markdown"
+import "./chatStyles.css"
 
 const Chat = () => {
 

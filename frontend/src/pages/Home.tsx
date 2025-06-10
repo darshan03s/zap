@@ -1,4 +1,4 @@
-import Chat from "@/components/Chat";
+import Chat from "@/components/chat/Chat";
 import DarkModeToggleButton from "@/features/dark-mode/DarkModeToggleButton";
 import WCWorkspace from "@/features/react-wc-workspace";
 const Home = () => {
