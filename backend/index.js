@@ -50,6 +50,10 @@ app.post("/chat", async (req, res) => {
         const response = await ai.models.generateContentStream({
             model: "gemini-2.5-flash-preview-05-20",
             contents: [{ role: "user", parts: [{ text: prompt }] }],
+            config: {
+                systemInstruction:
+                    "You are a helpful assistant that can answer questions and help with tasks. Give shell commands and file contents in markdown format.",
+            },
         });
 
         for await (const chunk of response) {

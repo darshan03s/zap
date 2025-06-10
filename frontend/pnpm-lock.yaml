@@ -38,6 +38,9 @@ importers:
       react-scan:
         specifier: ^0.3.4
         version: 0.3.4(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react-router@7.6.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)(rollup@4.41.1)
+      streaming-markdown:
+        specifier: ^0.2.15
+        version: 0.2.15
       tailwindcss:
         specifier: ^4.1.8
         version: 4.1.8
@@ -1377,6 +1380,10 @@ packages:
   state-local@1.0.7:
     resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
 
+  streaming-markdown@0.2.15:
+    resolution: {integrity: sha512-eSWjdvLSTznl2+FIzuxw1TRXwhjZiY1RfSygGCMpcNY8CrsaUM2zHtxe/JFcPoXCQxeO3TSJ72QMDIN5B/Ui1w==}
+    engines: {node: '>=20'}
+
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
@@ -2709,6 +2716,8 @@ snapshots:
   source-map-js@1.2.1: {}
 
   state-local@1.0.7: {}
+
+  streaming-markdown@0.2.15: {}
 
   strip-json-comments@3.1.1: {}
 
