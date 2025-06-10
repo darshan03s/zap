@@ -1,3 +1,4 @@
+import { scan } from "react-scan";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import App from "@/App";
@@ -6,6 +7,11 @@ import { DarkModeProvider } from "@/features/dark-mode/DarkModeProvider";
 import WebContainerProvider from "@/features/react-wc-workspace/webcontainer/WebContainerProvider";
 import TerminalProvider from "@/features/react-wc-workspace/terminal/TerminalProvider";
 
+if (import.meta.env.DEV) {
+  scan({
+    enabled: true,
+  });
+}
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <DarkModeProvider>

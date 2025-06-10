@@ -2,12 +2,11 @@
     "name": "backend",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/index.js",
+    "main": "index.js",
     "type": "module",
     "scripts": {
-        "build": "tsc",
-        "start": "node dist/index.js",
-        "dev": "nodemon --exec node --loader ts-node/esm src/index.ts"
+        "start": "node index.js",
+        "dev": "nodemon --config nodemon.json"
     },
     "keywords": [],
     "author": "",
@@ -18,12 +17,5 @@
         "dotenv": "^16.5.0",
         "express": "^5.1.0",
         "nodemon": "^3.1.10"
-    },
-    "devDependencies": {
-        "@types/cors": "^2.8.19",
-        "@types/express": "^5.0.3",
-        "@types/node": "^22.15.30",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.8.3"
     }
 }
