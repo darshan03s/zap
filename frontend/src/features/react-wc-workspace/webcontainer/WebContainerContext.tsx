@@ -5,8 +5,8 @@ import type { WebContainerFiles } from "./types"
 const WebContainerContext = createContext<{
     webContainer: WebContainer | null
     setWebContainer: (webContainer: WebContainer | null) => void
-    wcFiles: WebContainerFiles | null
-    setWcFiles: (wcFiles: WebContainerFiles | null) => void
+    wcFiles: WebContainerFiles
+    setWcFiles: (wcFiles: WebContainerFiles) => void
     error: string | null
     wcReady: boolean
     wcServerUrl: string | undefined
@@ -25,7 +25,7 @@ const WebContainerContext = createContext<{
 }>({
     webContainer: null,
     setWebContainer: () => { },
-    wcFiles: null,
+    wcFiles: {},
     setWcFiles: () => { },
     error: null,
     wcReady: false,

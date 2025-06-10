@@ -1,6 +1,4 @@
-import type { WebContainerFiles } from "../types";
-
-export const files: WebContainerFiles = {
+export const files = {
     ".gitignore": {
         file: {
             contents:

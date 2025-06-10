@@ -40,7 +40,7 @@ const WCWorkspace = () => {
                 setInitialMount(true)
             })
         }
-    }, [initialMount])
+    }, [initialMount, webContainer, wcFiles, setInitialMount])
 
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         e.preventDefault()

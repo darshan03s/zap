@@ -13,7 +13,7 @@ const WebContainerProvider = ({ children }: { children: React.ReactNode }) => {
     const [webContainer, setWebContainer] = useState<WebContainer | null>(
         window.__webContainer || null
     )
-    const [wcFiles, setWcFiles] = useState<WebContainerFiles | null>(null)
+    const [wcFiles, setWcFiles] = useState<WebContainerFiles>({})
     const [error, setError] = useState<string | null>(null)
     const [wcReady, setWcReady] = useState<boolean>(false)
     const [wcServerUrl, setWcServerUrl] = useState<string | undefined>(undefined)

@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+import { basePrompt, getSystemPrompt } from "../llm/prompts.js";
 
 dotenv.config();
 
@@ -29,6 +30,26 @@ app.get("/", async (req: Request, res: Response) => {
         message: "Server is running, GEMINI_API_KEY is set",
         gemini_response: response?.text,
     });
+});
+
+app.post("/test-template", async (req: Request, res: Response) => {
+    const { prompt } = req.body;
+
+    const completePrompt = `${basePrompt}\n\n${prompt}`;
+
+    const response = await ai.models.generateContentStream({
+        model: "gemini-2.5-flash-preview-05-20",
+        contents: completePrompt,
+        config: {
+            systemInstruction: getSystemPrompt(),
+        },
+    });
+
+    for await (const chunk of response) {
+        res.write(chunk.text);
+    }
+
+    res.end();
 });
 
 app.listen(PORT, () => {
