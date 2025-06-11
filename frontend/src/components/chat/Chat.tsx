@@ -1,12 +1,15 @@
-import { MoveUp, Paperclip, Trash } from 'lucide-react';
+import { Loader, MoveUp, Paperclip, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import * as smd from "streaming-markdown"
 import "./chatStyles.css"
 
 const Chat = () => {
+    const baseUrl = import.meta.env.VITE_API_URL;
+    const chatUrl = `${baseUrl}/chat`;
 
     const [userPromptText, setUserPromptText] = useState("");
     const [parser, setParser] = useState<smd.Parser | null>(null);
+    const [isStreaming, setIsStreaming] = useState(false);
 
     useEffect(() => {
         const element = document.getElementById("chat-markdown")
@@ -16,17 +19,20 @@ const Chat = () => {
     }, []);
 
     const handleSendPrompt = async () => {
+        if (userPromptText.trim() === "") return;
+
         const userPrompt = userPromptText;
         setUserPromptText("");
+        setIsStreaming(true);
         try {
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/chat`,
+                chatUrl,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ prompt: userPrompt }),
+                    body: JSON.stringify({ prompt: userPrompt, id: "1" }),
                 }
             );
 
@@ -42,6 +48,7 @@ const Chat = () => {
 
             const decoder = new TextDecoder();
 
+
             while (true) {
                 const { done, value } = await reader.read();
 
@@ -53,6 +60,9 @@ const Chat = () => {
 
         } catch (error) {
             console.error(error);
+        } finally {
+            smd.parser_end(parser!)
+            setIsStreaming(false);
         }
     };
     return (
@@ -72,7 +82,8 @@ const Chat = () => {
                     onChange={(e) => setUserPromptText(e.target.value)}
                     value={userPromptText}
                     onKeyDown={(e) => {
-                        if (e.key === "Enter") {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
                             handleSendPrompt();
                         }
                     }}
@@ -89,8 +100,9 @@ const Chat = () => {
                             onClick={() => {
                                 handleSendPrompt();
                             }}
+                            disabled={isStreaming}
                         >
-                            <MoveUp size={16} />
+                            {isStreaming ? <Loader size={16} className="animate-spin" /> : <MoveUp size={16} />}
                         </button>
 
                         {import.meta.env.DEV ? <>
