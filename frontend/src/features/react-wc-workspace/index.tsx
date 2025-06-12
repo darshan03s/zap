@@ -229,7 +229,7 @@ const WCWorkspace = () => {
                 style={{ width: `calc(100% - ${explorerWidth}px)` }}
             >
 
-                <div className="preview-header w-full h-10 bg-gray-200 dark:bg-gray-800 flex items-center justify-between px-4">
+                <div className={`preview-header w-full h-10 bg-gray-200 dark:bg-gray-800 flex items-center justify-between px-4 ${isCollapsed ? 'rounded-t-lg' : "rounded-tr-lg"}`}>
                     <div className="preview-header-left flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 rounded-lg">
                         {isCollapsed ? (
                             <button onClick={handleCollapseExplorer}>
