@@ -5,7 +5,7 @@ import "./chatStyles.css"
 
 const Chat = () => {
     const baseUrl = import.meta.env.VITE_API_URL;
-    const chatUrl = `${baseUrl}/chat`;
+    const chatUrl = `${baseUrl}/template`;
 
     const [userPromptText, setUserPromptText] = useState("");
     const [parser, setParser] = useState<smd.Parser | null>(null);

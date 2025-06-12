@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import { basePrompt, getSystemPrompt } from "./llm/prompts.js";
-
+import projectTemplate from "./project-templates/reacttsx.js";
 dotenv.config();
 
 const app = express();
@@ -99,7 +99,11 @@ app.post("/template", async (req, res) => {
         return res.status(400).send("Prompt is missing from the request body.");
     }
 
-    const completePrompt = `${basePrompt}\n\n${prompt}`;
+    const completePrompt = `${basePrompt}\n\n${prompt}
+    
+    Here is the project template:
+    ${JSON.stringify(projectTemplate)}
+    `;
 
     try {
         const response = await ai.models.generateContentStream({
