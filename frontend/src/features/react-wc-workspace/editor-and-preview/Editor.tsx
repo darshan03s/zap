@@ -34,6 +34,7 @@ const Editor = () => {
                 theme={isDarkMode ? 'vs-dark' : 'vs'}
                 onChange={handleEditorChange}
                 value={value}
+                path={selectedFile?.path}
                 options={{
                     wordWrap: "on",
                     suggest: {
