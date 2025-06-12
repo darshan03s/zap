@@ -10,3 +10,15 @@ a {
 .hide-scrollbar {
   scrollbar-width: none;
 }
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.cm-scroller {
+  scrollbar-width: none;
+}
+
+.cm-scroller::-webkit-scrollbar {
+  display: none;
+}
