@@ -16,7 +16,6 @@ const WCWorkspace = () => {
     const [isTransitioning, setIsTransitioning] = useState(false)
     const [terminalHeight, setTerminalHeight] = useState(200) // Initial terminal height
     const [isTerminalResizing, setIsTerminalResizing] = useState(false)
-    const [showTerminal, setShowTerminal] = useState(false)
     const [showCode, setShowCode] = useState(true)
     const [filterText, setFilterText] = useState('')
     const fileTreeRef = useRef<FileTreeRef>(null)
@@ -24,7 +23,7 @@ const WCWorkspace = () => {
     const [url, setUrl] = useState('')
     const [previewUrl, setPreviewUrl] = useState('')
     const { wcFiles, wcReady, webContainer, wcServerUrl, initialMount, setInitialMount, selectedFile } = useWebContainer()
-    const { fitAddon, deleteTerminal: exitTerminal } = useTerminal();
+    const { fitAddon, deleteTerminal: exitTerminal, showTerminal, setShowTerminal } = useTerminal();
 
     useEffect(() => {
         if (wcServerUrl) {
@@ -305,14 +304,17 @@ const WCWorkspace = () => {
                     </div>
 
                     <div className="preview-header-right flex items-center gap-2">
-                        <button onClick={() => {
-                            if (deleteTerminal) {
-                                setDeleteTerminal(false);
-                                setShowTerminal(true);
-                            } else {
-                                setShowTerminal(!showTerminal)
-                            }
-                        }}>
+                        <button
+                            disabled={!wcReady}
+                            className='disabled:opacity-50 disabled:cursor-not-allowed!'
+                            onClick={() => {
+                                if (deleteTerminal) {
+                                    setDeleteTerminal(false);
+                                    setShowTerminal(true);
+                                } else {
+                                    setShowTerminal(!showTerminal)
+                                }
+                            }}>
                             <SquareTerminal className='size-5 text-gray-500 dark:text-gray-400' />
                         </button>
                         <span title='Webcontainer ready status' className={`webcontainer-readt-indicator size-4 rounded-full ${wcReady ? 'bg-green-500/60' : 'bg-red-500/60'}`}></span>

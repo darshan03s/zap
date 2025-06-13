@@ -14,6 +14,8 @@ const TerminalContext = createContext<{
     inputProcess: WritableStreamDefaultWriter | null;
     setInputProcess: (inputProcess: WritableStreamDefaultWriter | null) => void;
     deleteTerminal: () => void;
+    showTerminal: boolean;
+    setShowTerminal: (showTerminal: boolean) => void;
 } | null>(null);
 
 export default TerminalContext;

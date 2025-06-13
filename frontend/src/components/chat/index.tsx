@@ -1,18 +1,24 @@
-import { Loader, MoveUp, Paperclip, Trash } from 'lucide-react';
+import { ArrowUp, Loader, Paperclip, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import * as smd from "streaming-markdown"
 import "./chatStyles.css"
 import { useWebContainer } from '@/features/react-wc-workspace/webcontainer/useWebContainer';
+import { v4 as uuidv4 } from 'uuid';
+import { useTerminal } from '@/features/react-wc-workspace/terminal/useTerminal';
+import { devLog } from '@/utils';
+
+const chatId = uuidv4();
 
 const Chat = () => {
     const baseUrl = import.meta.env.VITE_API_URL;
-    const chatUrl = `${baseUrl}/template`;
+    const chatUrl = `${baseUrl}/template-chat`;
 
     const [userPromptText, setUserPromptText] = useState("");
     const [parser, setParser] = useState<smd.Parser | null>(null);
     const [isStreaming, setIsStreaming] = useState(false);
     const { webContainer, ensureDirectoryExists } = useWebContainer();
     const [projectName, setProjectName] = useState("Project");
+    const { inputProcess } = useTerminal();
 
     useEffect(() => {
         const element = document.getElementById("chat-markdown")
@@ -83,7 +89,7 @@ const Chat = () => {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ prompt: userPrompt, id: "1" }),
+                    body: JSON.stringify({ prompt: userPrompt, id: chatId }),
                 }
             );
 
@@ -108,15 +114,18 @@ const Chat = () => {
 
                 const chunk = decoder.decode(value, { stream: true });
                 chunks += chunk;
-                smd.parser_write(parser!, `${chunk}`);
+                smd.parser_write(parser!, `${chunk} `);
             }
 
-            console.log(chunks);
             const { fileObject, projectName, commandsArr } = parseZapArtifact(chunks);
             setProjectName(projectName);
-            console.log(commandsArr);
+            const command = commandsArr.join(" && ");
+            command.concat(`\\r`);
+            inputProcess?.write(command);
+
             for (const [filePath, content] of Object.entries(fileObject)) {
                 await ensureDirectoryExists(filePath);
+                devLog(`Writing file: ${filePath} `);
                 await webContainer?.fs.writeFile(filePath, content);
             }
 
@@ -152,23 +161,23 @@ const Chat = () => {
                 ></textarea>
                 <div className="prompt-actions h-10 px-2 flex items-center justify-between">
                     <div className="prompt-actions-left flex items-center gap-2">
-                        <button className="text-gray-500 hover:text-gray-700 bg-gray-200 dark:bg-black rounded-full p-2">
+                        <button className="text-black hover:text-gray-500 transition-colors duration-200 dark:text-white bg-gray-200 dark:bg-black rounded-full p-2">
                             <Paperclip size={16} />
                         </button>
                     </div>
 
                     <div className="prompt-actions-right flex items-center gap-2">
-                        <button className="send-prompt text-gray-500 hover:text-gray-700 bg-gray-200 dark:bg-black rounded-full p-2"
+                        <button className="send-prompt text-black hover:text-gray-500 transition-colors duration-200 dark:text-white bg-gray-200 dark:bg-black rounded-full p-2"
                             onClick={() => {
                                 handleSendPrompt();
                             }}
                             disabled={isStreaming}
                         >
-                            {isStreaming ? <Loader size={16} className="animate-spin" /> : <MoveUp size={16} />}
+                            {isStreaming ? <Loader size={16} className="animate-spin" /> : <ArrowUp size={16} />}
                         </button>
 
                         {import.meta.env.DEV ? <>
-                            <button className="text-gray-500 hover:text-gray-700 bg-gray-200 dark:bg-black rounded-full p-2"
+                            <button className="text-black hover:text-gray-500 transition-colors duration-200 dark:text-white bg-gray-200 dark:bg-black rounded-full p-2"
                                 onClick={() => {
                                     const element = document.getElementById("chat-markdown")
                                     element!.innerHTML = "";

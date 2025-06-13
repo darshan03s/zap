@@ -3,7 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import { basePrompt, getSystemPrompt } from "./llm/prompts.js";
-import projectTemplate from "./project-templates/reacttsx-wc.js";
+import starterTemplateXML from "./project-templates/templates/reacttsx-xml.js";
+import starterTemplateWC from "./project-templates/templates/reacttsx-wc.js";
 import exampleResponse from "./llm/example-response.js";
 dotenv.config();
 
@@ -15,6 +16,14 @@ const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 let ai;
+
+const GEMINI_MODELS = {
+    flash: "gemini-2.5-flash-preview-05-20",
+    pro: "gemini-2.5-pro-preview-06-05",
+};
+
+const THINKING_BUDGET = 1024;
+
 try {
     console.log("Initializing GoogleGenAI...");
     if (!GEMINI_API_KEY) {
@@ -28,19 +37,19 @@ try {
     console.error("Failed to initialize GoogleGenAI:", error.message);
 }
 
-const histories = new Map();
-
-function getHistory(sessionId) {
-    if (!histories.has(sessionId)) histories.set(sessionId, []);
-    return histories.get(sessionId);
-}
-
 app.get("/", async (req, res) => {
     res.send({
         message: "Server is running",
         ai_initialized: !!ai,
     });
 });
+
+const chatHistories = new Map();
+
+function getChatHistory(sessionId) {
+    if (!chatHistories.has(sessionId)) chatHistories.set(sessionId, []);
+    return chatHistories.get(sessionId);
+}
 
 app.post("/chat", async (req, res) => {
     if (!ai) {
@@ -59,13 +68,13 @@ app.post("/chat", async (req, res) => {
             .send("Session ID is missing from the request body.");
     }
 
-    const history = getHistory(id);
+    const history = getChatHistory(id);
 
     history.push({ role: "user", parts: [{ text: prompt }] });
 
     try {
         const stream = await ai.models.generateContentStream({
-            model: "gemini-2.5-flash-preview-05-20",
+            model: GEMINI_MODELS.flash,
             contents: history,
             config: {
                 systemInstruction:
@@ -90,38 +99,84 @@ app.post("/chat", async (req, res) => {
     }
 });
 
-app.post("/template", async (req, res) => {
+const templateChatHistories = new Map();
+
+console.log(templateChatHistories);
+
+function getTemplateChatHistory(sessionId) {
+    if (!templateChatHistories.has(sessionId))
+        templateChatHistories.set(sessionId, []);
+    return templateChatHistories.get(sessionId);
+}
+
+app.post("/template-chat", async (req, res) => {
     if (!ai) {
         return res.status(500).send("AI service is not available.");
     }
 
-    const { prompt } = req.body;
+    const { prompt, id } = req.body;
     if (!prompt) {
         return res.status(400).send("Prompt is missing from the request body.");
     }
 
-    const completePrompt = `${basePrompt}\n\n${prompt}
-    
-    Here is the project template:
-    ${JSON.stringify(projectTemplate)}
-    `;
+    if (!id) {
+        return res
+            .status(400)
+            .send("Session ID is missing from the request body.");
+    }
+
+    const history = getTemplateChatHistory(id);
+    const systemPrompt = getSystemPrompt();
+
+    console.log(
+        `${basePrompt}\n\n${prompt}\n\nHere is the project template:\n\n${starterTemplateXML}\n\n${systemPrompt}`
+    );
+
+    if (history.length === 0) {
+        console.log(
+            "Pushing base prompt and project template with user prompt"
+        );
+        history.push({
+            role: "user",
+            parts: [
+                {
+                    text: `${basePrompt}\n\n${prompt}\n\nHere is the project template:\n\n${starterTemplateXML}`,
+                },
+            ],
+        });
+    } else {
+        console.log("Pushing user prompt with previous history");
+        history.push({
+            role: "user",
+            parts: [{ text: prompt }],
+        });
+    }
 
     try {
-        const response = await ai.models.generateContentStream({
-            model: "gemini-2.5-flash-preview-05-20",
-            contents: [{ role: "user", parts: [{ text: completePrompt }] }],
+        const stream = await ai.models.generateContentStream({
+            model: GEMINI_MODELS.flash,
+            contents: history,
             config: {
-                systemInstruction: getSystemPrompt(),
+                systemInstruction: systemPrompt,
                 maxOutputTokens: 1_000_000,
                 temperature: 0.5,
+                thinkingConfig: {
+                    thinkingBudget: THINKING_BUDGET,
+                },
             },
         });
 
-        for await (const chunk of response) {
+        let modelReply = "";
+        for await (const chunk of stream) {
+            modelReply += chunk.text;
             res.write(chunk.text);
         }
 
         res.end();
+
+        history.push({ role: "model", parts: [{ text: modelReply }] });
+        templateChatHistories.set(id, history);
+        console.log("Template chat history:", templateChatHistories);
     } catch (error) {
         console.error("Error during AI content generation:", error);
         res.status(500).send(
@@ -139,7 +194,7 @@ app.post("/project-template", async (req, res) => {
     }
 
     if (template === "reacttsx") {
-        res.send(projectTemplate);
+        res.send(starterTemplateWC);
     } else {
         res.status(400).send("Invalid template.");
     }

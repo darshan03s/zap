@@ -129,14 +129,15 @@ const WebContainerProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (dirParts.length === 0) return;
 
-        let currentPath = '';
-        for (const part of dirParts) {
-            currentPath = currentPath ? `${currentPath}/${part}` : part;
+        const dirPath = dirParts.join('/');
 
-            try {
-                await webContainer?.fs.mkdir(currentPath);
-            } catch (error) {
-                console.error('Failed to create directory:', error);
+        try {
+            await webContainer?.fs.mkdir(dirPath, { recursive: true });
+        } catch (error: unknown) {
+            const fsError = error as { code?: string; message: string };
+            if (fsError.code !== 'EEXIST') {
+                console.error('Failed to create directory:', fsError);
+                throw error;
             }
         }
     };
