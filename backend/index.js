@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import { basePrompt, getSystemPrompt } from "./llm/prompts.js";
 import projectTemplate from "./project-templates/reacttsx-wc.js";
+import exampleResponse from "./llm/example-response.js";
 dotenv.config();
 
 const app = express();
@@ -130,12 +131,27 @@ app.post("/template", async (req, res) => {
 });
 
 app.post("/project-template", async (req, res) => {
+    const { template } = req.body;
+    if (!template) {
+        return res
+            .status(400)
+            .send("Template is missing from the request body.");
+    }
+
+    if (template === "reacttsx") {
+        res.send(projectTemplate);
+    } else {
+        res.status(400).send("Invalid template.");
+    }
+});
+
+app.post("/test-response", async (req, res) => {
     const { prompt } = req.body;
     if (!prompt) {
         return res.status(400).send("Prompt is missing from the request body.");
     }
 
-    res.send(projectTemplate);
+    res.send(exampleResponse);
 });
 
 app.listen(PORT, () => {

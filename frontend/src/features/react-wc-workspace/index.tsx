@@ -23,7 +23,7 @@ const WCWorkspace = () => {
     const [deleteTerminal, setDeleteTerminal] = useState(false)
     const [url, setUrl] = useState('')
     const [previewUrl, setPreviewUrl] = useState('')
-    const { wcFiles, wcReady, webContainer, wcServerUrl, initialMount, setInitialMount } = useWebContainer()
+    const { wcFiles, wcReady, webContainer, wcServerUrl, initialMount, setInitialMount, selectedFile } = useWebContainer()
     const { fitAddon, deleteTerminal: exitTerminal } = useTerminal();
 
     useEffect(() => {
@@ -132,6 +132,10 @@ const WCWorkspace = () => {
             setIsTransitioning(false)
         }, 300)
     }
+
+    useEffect(() => {
+        setShowCode(true);
+    }, [selectedFile?.path]);
 
     const handleFilterItems = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
@@ -314,9 +318,9 @@ const WCWorkspace = () => {
                         <span title='Webcontainer ready status' className={`webcontainer-readt-indicator size-4 rounded-full ${wcReady ? 'bg-green-500/60' : 'bg-red-500/60'}`}></span>
                     </div>
                 </div>
-                <div className="preview-and-code flex-1 overflow-y-auto hide-scrollbar">
+                <div className={`preview-and-code flex-1 overflow-y-auto hide-scrollbar`}>
                     <div className={`code ${showCode ? 'block' : 'hidden'}`}>
-                        <Editor />
+                        <Editor explorerWidth={explorerWidth} />
                     </div>
                     <div className={`preview w-full h-full ${!showCode ? 'block' : 'hidden'} ${wcServerUrl ? 'bg-white' : ''}`}>
                         <Preview url={previewUrl} />

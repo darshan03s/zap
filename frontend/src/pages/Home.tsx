@@ -16,7 +16,7 @@ const Home = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt: "test" }),
+        body: JSON.stringify({ template: "reacttsx" }),
       });
 
       if (!response.ok) {
@@ -29,7 +29,7 @@ const Home = () => {
     }
     getProjectTemplate();
   }, []);
-  
+
   return (
     <>
       <div

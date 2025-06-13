@@ -22,6 +22,7 @@ const WebContainerContext = createContext<{
         contents: string
         path: string
     } | null) => void
+    ensureDirectoryExists: (filePath: string) => Promise<void>
 }>({
     webContainer: null,
     setWebContainer: () => { },
@@ -33,7 +34,8 @@ const WebContainerContext = createContext<{
     initialMount: false,
     setInitialMount: () => { },
     selectedFile: null,
-    setSelectedFile: () => { }
+    setSelectedFile: () => { },
+    ensureDirectoryExists: () => Promise.resolve()
 })
 
 export default WebContainerContext;

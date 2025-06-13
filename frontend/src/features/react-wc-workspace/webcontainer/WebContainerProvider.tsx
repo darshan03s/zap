@@ -123,6 +123,24 @@ const WebContainerProvider = ({ children }: { children: React.ReactNode }) => {
         return tree
     }
 
+    const ensureDirectoryExists = async (filePath: string) => {
+        const pathParts = filePath.split('/');
+        const dirParts = pathParts.slice(0, -1);
+
+        if (dirParts.length === 0) return;
+
+        let currentPath = '';
+        for (const part of dirParts) {
+            currentPath = currentPath ? `${currentPath}/${part}` : part;
+
+            try {
+                await webContainer?.fs.mkdir(currentPath);
+            } catch (error) {
+                console.error('Failed to create directory:', error);
+            }
+        }
+    };
+
     return (
         <WebContainerContext.Provider
             value={{
@@ -137,6 +155,7 @@ const WebContainerProvider = ({ children }: { children: React.ReactNode }) => {
                 setSelectedFile,
                 initialMount,
                 setInitialMount,
+                ensureDirectoryExists,
             }}
         >
             {children}

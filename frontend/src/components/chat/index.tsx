@@ -2,6 +2,7 @@ import { Loader, MoveUp, Paperclip, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import * as smd from "streaming-markdown"
 import "./chatStyles.css"
+import { useWebContainer } from '@/features/react-wc-workspace/webcontainer/useWebContainer';
 
 const Chat = () => {
     const baseUrl = import.meta.env.VITE_API_URL;
@@ -10,6 +11,8 @@ const Chat = () => {
     const [userPromptText, setUserPromptText] = useState("");
     const [parser, setParser] = useState<smd.Parser | null>(null);
     const [isStreaming, setIsStreaming] = useState(false);
+    const { webContainer, ensureDirectoryExists } = useWebContainer();
+    const [projectName, setProjectName] = useState("Project");
 
     useEffect(() => {
         const element = document.getElementById("chat-markdown")
@@ -17,6 +20,54 @@ const Chat = () => {
         const parser = smd.parser(renderer)
         setParser(parser);
     }, []);
+
+    function parseZapArtifact(zapArtifactText: string): {
+        fileObject: Record<string, string>,
+        projectName: string,
+        commandsArr: string[]
+    } {
+        const fileObject: Record<string, string> = {};
+        const commandsArr: string[] = [];
+        let projectName = "";
+
+        // Extract title from zapArtifact element
+        const titleRegex = /<zapArtifact[^>]+title="([^"]+)"/;
+        const titleMatch = zapArtifactText.match(titleRegex);
+        if (titleMatch) {
+            projectName = titleMatch[1];
+        }
+
+        // Extract file actions
+        const fileActionRegex = /<zapAction\s+type="file"\s+filePath="([^"]+)">[\s\S]*?<\/zapAction>/g;
+        let match;
+        while ((match = fileActionRegex.exec(zapArtifactText)) !== null) {
+            const filePath = match[1];
+            const fullMatch = match[0];
+
+            const contentStart = fullMatch.indexOf('>') + 1;
+            const contentEnd = fullMatch.lastIndexOf('</zapAction>');
+            const content = fullMatch.substring(contentStart, contentEnd).trim();
+
+            fileObject[filePath] = content;
+        }
+
+        // Extract shell commands
+        const shellActionRegex = /<zapAction\s+type="shell">[\s\S]*?<\/zapAction>/g;
+        let shellMatch;
+        while ((shellMatch = shellActionRegex.exec(zapArtifactText)) !== null) {
+            const fullMatch = shellMatch[0];
+
+            const contentStart = fullMatch.indexOf('>') + 1;
+            const contentEnd = fullMatch.lastIndexOf('</zapAction>');
+            const command = fullMatch.substring(contentStart, contentEnd).trim();
+
+            if (command) {
+                commandsArr.push(command);
+            }
+        }
+
+        return { fileObject, projectName, commandsArr };
+    }
 
     const handleSendPrompt = async () => {
         if (userPromptText.trim() === "") return;
@@ -49,13 +100,24 @@ const Chat = () => {
             const decoder = new TextDecoder();
 
 
+            let chunks = "";
             while (true) {
                 const { done, value } = await reader.read();
 
                 if (done) break;
 
                 const chunk = decoder.decode(value, { stream: true });
-                smd.parser_write(parser!, chunk);
+                chunks += chunk;
+                smd.parser_write(parser!, `${chunk}`);
+            }
+
+            console.log(chunks);
+            const { fileObject, projectName, commandsArr } = parseZapArtifact(chunks);
+            setProjectName(projectName);
+            console.log(commandsArr);
+            for (const [filePath, content] of Object.entries(fileObject)) {
+                await ensureDirectoryExists(filePath);
+                await webContainer?.fs.writeFile(filePath, content);
             }
 
         } catch (error) {
@@ -69,7 +131,7 @@ const Chat = () => {
         <div className="chat-section h-full flex flex-col gap-2 rounded-lg text-black dark:text-white">
             <div className="chat h-[450px] flex flex-col border border-gray-300 dark:border-gray-700 rounded-lg">
                 <div className="chat-header flex items-center justify-center h-[30px] border-b border-gray-300 dark:border-gray-700">
-                    <h1 className='text-sm font-bold'>Project</h1>
+                    <h1 className='text-sm font-bold'>{projectName}</h1>
                 </div>
 
                 <div className="chat-content flex-1 overflow-y-auto break-words p-2 hide-scrollbar text-sm">
