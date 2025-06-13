@@ -24,7 +24,7 @@ const WCWorkspace = () => {
     const [url, setUrl] = useState('')
     const [previewUrl, setPreviewUrl] = useState('')
     const { wcFiles, wcReady, webContainer, wcServerUrl, initialMount, setInitialMount } = useWebContainer()
-    const { fitAddon } = useTerminal();
+    const { fitAddon, deleteTerminal: exitTerminal } = useTerminal();
 
     useEffect(() => {
         if (wcServerUrl) {
@@ -34,7 +34,7 @@ const WCWorkspace = () => {
     }, [wcServerUrl])
 
     useEffect(() => {
-        if (webContainer && !initialMount) {
+        if (webContainer && !initialMount && Object.keys(wcFiles).length !== 0) {
             webContainer.mount(wcFiles as WebContainerFiles).then(() => {
                 console.log('Files mounted')
                 setInitialMount(true)
@@ -154,12 +154,17 @@ const WCWorkspace = () => {
         fileTreeRef.current?.addFolder()
     }
 
+    const handleDeleteTerminal = () => {
+        setDeleteTerminal(true)
+        exitTerminal()
+    }
+
     return (
         <div ref={containerRef} className='w-full h-full flex flex-row relative rounded-lg border border-gray-300 dark:border-gray-700'>
             {/* Explorer Panel */}
             <div
-                className={`explorer h-full rounded-r-none overflow-y-auto hide-scrollbar bg-gray-50 dark:bg-gray-900 relative rounded-lg ${isTransitioning ? 'transition-all duration-300 ease-in-out' : ''}`}
-                style={{ width: `${explorerWidth}px` }}
+                className={`explorer h-full rounded-r-none flex flex-col hide-scrollbar bg-gray-50 dark:bg-gray-900 relative rounded-lg ${isTransitioning ? 'transition-all duration-300 ease-in-out' : ''}`}
+                style={{ width: `${explorerWidth}px`, minWidth: 0 }}
             >
                 <div className="explorer-header h-10 flex items-center justify-between px-2 py-2">
                     <button onClick={handleCollapseExplorer}>
@@ -170,7 +175,7 @@ const WCWorkspace = () => {
                 </div>
                 {
                     !isCollapsed && (
-                        <div className="explorer-main p-2 h-full">
+                        <div className="explorer-main p-2 flex flex-col flex-1 min-h-0">
                             <div className='flex gap-2 items-center w-full'>
                                 <div className="filter-items flex-1 ">
                                     <input type="text" className='w-full h-full outline-none bg-gray-300 dark:bg-gray-700 rounded-md p-1 px-2 text-xs text-gray-500 dark:text-gray-200' placeholder='Search'
@@ -207,7 +212,7 @@ const WCWorkspace = () => {
                                 </div>
                             </div>
 
-                            <div className='file-tree mt-2 text-sm w-full h-full overflow-y-auto hide-scrollbar select-none'>
+                            <div className='file-tree mt-2 text-sm w-full overflow-y-auto flex-1 min-h-0 hide-scrollbar select-none'>
                                 <FileTree ref={fileTreeRef} filterText={filterText} />
                             </div>
                         </div>
@@ -262,9 +267,13 @@ const WCWorkspace = () => {
                                 </button>
                                 <button className={`p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-150 flex-shrink-0`}
                                     onClick={() => {
+                                        console.log(wcServerUrl)
+                                        console.log(url)
                                         if (wcServerUrl) {
+                                            console.log("Resetting preview url to wcServerUrl")
                                             setPreviewUrl(wcServerUrl)
                                         } else {
+                                            console.log("Resetting preview url to url")
                                             setPreviewUrl(url)
                                         }
                                     }}
@@ -309,7 +318,7 @@ const WCWorkspace = () => {
                     <div className={`code ${showCode ? 'block' : 'hidden'}`}>
                         <Editor />
                     </div>
-                    <div className={`preview w-full h-full ${!showCode ? 'block' : 'hidden'}`}>
+                    <div className={`preview w-full h-full ${!showCode ? 'block' : 'hidden'} ${wcServerUrl ? 'bg-white' : ''}`}>
                         <Preview url={previewUrl} />
                     </div>
                 </div>
@@ -335,7 +344,7 @@ const WCWorkspace = () => {
 
                                 <div className="terminal-header-right px-2 flex items-center gap-4">
                                     <button
-                                        onClick={() => setDeleteTerminal(true)}
+                                        onClick={handleDeleteTerminal}
                                     >
                                         <Trash className='w-4 h-4 text-red-500/80' />
                                     </button>

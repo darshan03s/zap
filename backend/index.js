@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import { basePrompt, getSystemPrompt } from "./llm/prompts.js";
-import projectTemplate from "./project-templates/reacttsx.js";
+import projectTemplate from "./project-templates/reacttsx-wc.js";
 dotenv.config();
 
 const app = express();
@@ -127,6 +127,15 @@ app.post("/template", async (req, res) => {
             "An error occurred while generating the AI response."
         );
     }
+});
+
+app.post("/project-template", async (req, res) => {
+    const { prompt } = req.body;
+    if (!prompt) {
+        return res.status(400).send("Prompt is missing from the request body.");
+    }
+
+    res.send(projectTemplate);
 });
 
 app.listen(PORT, () => {

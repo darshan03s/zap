@@ -1,7 +1,35 @@
-import Chat from "@/components/chat/Chat";
+import Chat from "@/components/chat";
 import DarkModeToggleButton from "@/features/dark-mode/DarkModeToggleButton";
 import WCWorkspace from "@/features/react-wc-workspace";
+import { useWebContainer } from "@/features/react-wc-workspace/webcontainer/useWebContainer";
+import { useEffect } from "react";
 const Home = () => {
+  const { setWcFiles } = useWebContainer();
+
+  useEffect(() => {
+    const baseUrl = import.meta.env.VITE_API_URL;
+    const projectTemplateUrl = `${baseUrl}/project-template`;
+
+    async function getProjectTemplate() {
+      const response = await fetch(projectTemplateUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: "test" }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setWcFiles(data);
+
+    }
+    getProjectTemplate();
+  }, []);
+  
   return (
     <>
       <div

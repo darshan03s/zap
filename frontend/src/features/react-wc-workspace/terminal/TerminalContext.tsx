@@ -13,6 +13,7 @@ const TerminalContext = createContext<{
     terminalEl: React.RefObject<HTMLDivElement | null>;
     inputProcess: WritableStreamDefaultWriter | null;
     setInputProcess: (inputProcess: WritableStreamDefaultWriter | null) => void;
+    deleteTerminal: () => void;
 } | null>(null);
 
 export default TerminalContext;

@@ -9,7 +9,7 @@ import './xtermTerminalStyles.css';
 
 const XTermTerminal = () => {
     const { webContainer } = useWebContainer()
-    const { terminalEl, setShellProcess, shellProcess, setTerminal, setFitAddon, setInputProcess, inputProcess } = useTerminal()
+    const { terminalEl, setShellProcess, setTerminal, setFitAddon, setInputProcess, deleteTerminal } = useTerminal()
 
     useEffect(() => {
         const terminalInit = async () => {
@@ -64,12 +64,7 @@ const XTermTerminal = () => {
             })
 
             return () => {
-                terminal.dispose();
-                fitAddon.dispose();
-                shellProcess?.exit.then((code: number) => {
-                    console.log('shell process exited', code)
-                });
-                inputProcess?.close();
+                deleteTerminal();
             }
         }
         terminalInit()
