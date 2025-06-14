@@ -128,14 +128,11 @@ app.post("/template-chat", async (req, res) => {
     const history = getTemplateChatHistory(id);
     const systemPrompt = getSystemPrompt();
 
-    console.log(
-        `${basePrompt}\n\n${prompt}\n\nHere is the project template:\n\n${starterTemplateXML}\n\n${systemPrompt}`
-    );
+    // console.log(
+    //     `${basePrompt}\n\n${prompt}\n\nHere is the project template:\n\n${starterTemplateXML}\n\n${systemPrompt}`
+    // );
 
     if (history.length === 0) {
-        console.log(
-            "Pushing base prompt and project template with user prompt"
-        );
         history.push({
             role: "user",
             parts: [
@@ -145,7 +142,6 @@ app.post("/template-chat", async (req, res) => {
             ],
         });
     } else {
-        console.log("Pushing user prompt with previous history");
         history.push({
             role: "user",
             parts: [{ text: prompt }],
