@@ -22,3 +22,7 @@ a {
 .cm-scroller::-webkit-scrollbar {
   display: none;
 }
+
+.cm-editor {
+  height: 100vh;
+}

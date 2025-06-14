@@ -47,12 +47,16 @@ const CodeMirrorEditor = () => {
         ]),
         EditorView.lineWrapping,
     ];
+
+    const lightTheme = themes.vscodeLight;
+    const darkTheme = themes.aura;
+
     const { isDarkMode } = useDarkMode();
-    const [theme, setTheme] = useState<"light" | "dark" | "none" | Extension>(themes.vscodeLight);
+    const [theme, setTheme] = useState<"light" | "dark" | "none" | Extension>(isDarkMode ? darkTheme : lightTheme);
 
     useEffect(() => {
-        setTheme(isDarkMode ? themes.vscodeDark : themes.vscodeLight);
-    }, [isDarkMode]);
+        setTheme(isDarkMode ? darkTheme : lightTheme);
+    }, [isDarkMode, lightTheme, darkTheme]);
 
     const onChange = (val: string) => {
         setValue(val || "");
@@ -62,6 +66,7 @@ const CodeMirrorEditor = () => {
     };
 
     return <CodeMirror
+        className='text-sm'
         value={value}
         height="600px"
         extensions={extensions}

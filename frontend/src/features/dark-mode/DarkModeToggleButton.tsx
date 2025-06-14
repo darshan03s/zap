@@ -7,9 +7,9 @@ const DarkModeToggleButton = () => {
     <button
       onClick={toggleDarkMode}
       type="button"
-      className="rounded-full size-7 bg-black text-white dark:bg-white dark:text-black flex justify-center items-center"
+      className="rounded-full size-6 bg-black text-white dark:bg-white dark:text-black flex justify-center items-center"
     >
-      {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+      {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
     </button>
   );
 };

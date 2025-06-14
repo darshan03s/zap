@@ -150,17 +150,17 @@ const Chat = () => {
     };
     return (
         <div className="chat-section h-full flex flex-col gap-2 rounded-lg text-black dark:text-white">
-            <div className="chat h-[450px] flex flex-col border border-gray-300 dark:border-gray-700 rounded-lg">
+            <div className="chat flex-1 flex flex-col border border-gray-300 dark:border-gray-700 rounded-lg">
                 <div className="chat-header flex items-center justify-center h-[30px] border-b border-gray-300 dark:border-gray-700">
                     <h1 className='text-sm font-bold'>{projectName}</h1>
                 </div>
 
-                <div className="chat-content flex-1 overflow-y-auto break-words p-2 hide-scrollbar text-sm">
+                <div className="chat-content overflow-y-auto break-words p-2 hide-scrollbar text-sm">
                     <div id="chat-markdown"></div>
                 </div>
             </div>
 
-            <div className="prompt-container flex-1 flex flex-col gap-1 border border-gray-300 dark:border-gray-700 rounded-lg">
+            <div className="prompt-container h-[150px] flex flex-col gap-1 border border-gray-300 dark:border-gray-700 rounded-lg">
                 <textarea id="user-prompt-area" className="w-full h-full flex-1 resize-none p-1 px-3 py-3 hide-scrollbar focus:border-none focus:outline-none placeholder:text-sm text-sm" placeholder="Enter your prompt here..."
                     onChange={(e) => setUserPromptText(e.target.value)}
                     value={userPromptText}
