@@ -1,11 +1,12 @@
 import { ArrowUp, Loader, Paperclip, Trash } from 'lucide-react';
-import { useEffect, useState } from 'react'
-import * as smd from "streaming-markdown"
+import { useState } from 'react'
 import "./chatStyles.css"
 import { useWebContainer } from '@/features/react-wc-workspace/webcontainer/useWebContainer';
 import { v4 as uuidv4 } from 'uuid';
 import { useTerminal } from '@/features/react-wc-workspace/terminal/useTerminal';
 import { devLog } from '@/utils';
+import { parseZapArtifact } from './chat-utils';
+import { MemoizedMarkdown } from './memoized-markdown';
 
 const chatId = uuidv4();
 
@@ -14,74 +15,11 @@ const Chat = () => {
     const chatUrl = `${baseUrl}/template-chat`;
 
     const [userPromptText, setUserPromptText] = useState("");
-    const [parser, setParser] = useState<smd.Parser | null>(null);
+    const [markdownContent, setMarkdownContent] = useState("");
     const [isStreaming, setIsStreaming] = useState(false);
     const { webContainer, ensureDirectoryExists } = useWebContainer();
     const [projectName, setProjectName] = useState("Project");
     const { inputProcess, setShowTerminal } = useTerminal();
-
-    useEffect(() => {
-        const element = document.getElementById("chat-markdown")
-        const renderer = smd.default_renderer(element!)
-        const parser = smd.parser(renderer)
-        setParser(parser);
-    }, []);
-
-    function parseZapArtifact(zapArtifactText: string): {
-        fileObject: Record<string, string>,
-        projectName: string,
-        commandsArr: string[],
-        infoContent: string
-    } {
-        const fileObject: Record<string, string> = {};
-        const commandsArr: string[] = [];
-        let projectName = "";
-        let infoContent = "";
-
-        // Extract title from zapArtifact element
-        const titleRegex = /<zapArtifact[^>]+title="([^"]+)"/;
-        const titleMatch = zapArtifactText.match(titleRegex);
-        if (titleMatch) {
-            projectName = titleMatch[1];
-        }
-
-        const infoRegex = /<info>([\s\S]*?)<\/info>/;
-        const infoMatch = zapArtifactText.match(infoRegex);
-        if (infoMatch) {
-            infoContent = infoMatch[1].trim();
-        }
-
-        // Extract file actions
-        const fileActionRegex = /<zapAction\s+type="file"\s+filePath="([^"]+)">[\s\S]*?<\/zapAction>/g;
-        let match;
-        while ((match = fileActionRegex.exec(zapArtifactText)) !== null) {
-            const filePath = match[1];
-            const fullMatch = match[0];
-
-            const contentStart = fullMatch.indexOf('>') + 1;
-            const contentEnd = fullMatch.lastIndexOf('</zapAction>');
-            const content = fullMatch.substring(contentStart, contentEnd).trim();
-
-            fileObject[filePath] = content;
-        }
-
-        // Extract shell commands
-        const shellActionRegex = /<zapAction\s+type="shell">[\s\S]*?<\/zapAction>/g;
-        let shellMatch;
-        while ((shellMatch = shellActionRegex.exec(zapArtifactText)) !== null) {
-            const fullMatch = shellMatch[0];
-
-            const contentStart = fullMatch.indexOf('>') + 1;
-            const contentEnd = fullMatch.lastIndexOf('</zapAction>');
-            const command = fullMatch.substring(contentStart, contentEnd).trim();
-
-            if (command) {
-                commandsArr.push(command);
-            }
-        }
-
-        return { fileObject, projectName, commandsArr, infoContent };
-    }
 
     const handleSendPrompt = async () => {
         if (userPromptText.trim() === "") return;
@@ -89,6 +27,8 @@ const Chat = () => {
         const userPrompt = userPromptText;
         setUserPromptText("");
         setIsStreaming(true);
+        setMarkdownContent(""); // Clear previous content
+        
         try {
             const response = await fetch(
                 chatUrl,
@@ -128,7 +68,7 @@ const Chat = () => {
             setShowTerminal(true);
             const { fileObject, projectName, commandsArr, infoContent } = parseZapArtifact(chunks);
             if (infoContent) {
-                smd.parser_write(parser!, `${infoContent} `);
+                setMarkdownContent(infoContent);
             }
             setProjectName(projectName);
             const command = commandsArr.join(" && ");
@@ -144,10 +84,10 @@ const Chat = () => {
         } catch (error) {
             console.error(error);
         } finally {
-            smd.parser_end(parser!)
             setIsStreaming(false);
         }
     };
+    
     return (
         <div className="chat-section h-full flex flex-col gap-2 rounded-lg text-black dark:text-white">
             <div className="chat flex-1 flex flex-col border border-gray-300 dark:border-gray-700 rounded-lg">
@@ -156,7 +96,14 @@ const Chat = () => {
                 </div>
 
                 <div className="chat-content overflow-y-auto break-words p-2 hide-scrollbar text-sm">
-                    <div id="chat-markdown"></div>
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                        {markdownContent && (
+                            <MemoizedMarkdown 
+                                content={markdownContent} 
+                                id={chatId} 
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -191,8 +138,7 @@ const Chat = () => {
                         {import.meta.env.DEV ? <>
                             <button className="text-black hover:text-gray-500 transition-colors duration-200 dark:text-white bg-gray-200 dark:bg-black rounded-full p-2"
                                 onClick={() => {
-                                    const element = document.getElementById("chat-markdown")
-                                    element!.innerHTML = "";
+                                    setMarkdownContent("");
                                 }}
                             >
                                 <Trash size={16} />

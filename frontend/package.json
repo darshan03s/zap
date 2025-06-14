@@ -21,11 +21,12 @@
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
     "lucide-react": "^0.511.0",
+    "marked": "^15.0.12",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
     "react-router": "^7.6.1",
     "react-scan": "^0.3.4",
-    "streaming-markdown": "^0.2.15",
     "tailwindcss": "^4.1.8",
     "uuid": "^11.1.0"
   },
