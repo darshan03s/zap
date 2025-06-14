@@ -8,6 +8,64 @@ export const basePrompt = `
   By default, this template supports TSX, JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons, React Router. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.
 
   IMPORTANT: You will be given a starter template of files for the project in React(JS or TS) with react-router, Tailwindcss v4, lucide-react for icons. Dark mode will be implemented, consider using it while styling. 
+
+  <starter_template>
+   ----- ABOUT THE STARTER TEMPLATE -----
+  - Vite project with React(TSX)
+  - Tailwindcss v4
+  - React Router
+  - Lucide React for icons
+  - Dark mode is implemented in the @features/dark-mode folder. Use the \`<DarkModeToggleButton/>\` component directly in the header.
+  - A starter Home.tsx file is already created.
+
+  ----- STARTER TEMPLATE FOLDER STRUCTURE -----
+    ├── eslint.config.js
+    ├── index.html
+    ├── package.json
+    ├── public
+    │   └── vite.svg
+    ├── src
+    │   ├── App.tsx
+    │   ├── assets
+    │   │   └── react.svg
+    │   ├── features
+    │   │   └── dark-mode
+    │   │       ├── DarkModeContext.ts
+    │   │       ├── DarkModeProvider.tsx
+    │   │       ├── DarkModeToggleButton.tsx
+    │   │       └── useDarkMode.ts
+    │   ├── index.css
+    │   ├── main.tsx
+    │   ├── pages
+    │   │   └── Home.tsx
+    │   ├── utils
+    │   │   └── utils.ts
+    │   └── vite-env.d.ts
+    ├── tsconfig.app.json
+    ├── tsconfig.json
+    ├── tsconfig.node.json
+    └── vite.config.ts
+
+
+  ----- MUST NOT DO -----
+  - DO NOT directly modify the 'package.json' file.
+  - DO NOT install 'react-router-dom' again, use the already installed version.
+  - DO NOT install tailwindcss again, use the already installed version.
+  - DO NOT create 'tailwind.config.js' or 'postcss.config.js' files.
+  - DO NOT add '@tailwind base;' or '@tailwind components;' or '@tailwind utilities;' to any CSS file.
+  - DO NOT install lucide-react again.
+  - DO NOT add a ThemeProvider. ONLY use the given dark mode implementation from the @features/dark-mode folder.
+  - DO NOT change the 'vite.config.ts', 'tsconfig.node.json', 'tsconfig.app.json', 'tsconfig.json' files.
+
+  ----- THINGS TO REMEMBER -----
+  - The given starter template works, build on top of it.
+  
+  ----- WORKFLOW -----
+  - Start building from Home.tsx file.
+  - For adding more routes, add them in the App.tsx file.
+  - Add the dark mode toggle button in the header.
+  - Continue building the project as per the user request.
+</starter_template>
 `;
 
 export const getSystemPrompt = (cwd = WORK_DIR) => `
@@ -93,64 +151,6 @@ You are Zap, an expert AI assistant and exceptional senior software developer wi
     </file>
   </${MODIFICATIONS_TAG_NAME}>
 </diff_spec>
-
-<starter_template>
-   ----- ABOUT THE STARTER TEMPLATE -----
-  - Vite project with React(TSX)
-  - Tailwindcss v4
-  - React Router
-  - Lucide React for icons
-  - Dark mode is implemented in the @features/dark-mode folder. Use the \`<DarkModeToggleButton/>\` component directly in the header.
-  - A starter Home.tsx file is already created.
-
-  ----- STARTER TEMPLATE FOLDER STRUCTURE -----
-    ├── eslint.config.js
-    ├── index.html
-    ├── package.json
-    ├── public
-    │   └── vite.svg
-    ├── src
-    │   ├── App.tsx
-    │   ├── assets
-    │   │   └── react.svg
-    │   ├── features
-    │   │   └── dark-mode
-    │   │       ├── DarkModeContext.ts
-    │   │       ├── DarkModeProvider.tsx
-    │   │       ├── DarkModeToggleButton.tsx
-    │   │       └── useDarkMode.ts
-    │   ├── index.css
-    │   ├── main.tsx
-    │   ├── pages
-    │   │   └── Home.tsx
-    │   ├── utils
-    │   │   └── utils.ts
-    │   └── vite-env.d.ts
-    ├── tsconfig.app.json
-    ├── tsconfig.json
-    ├── tsconfig.node.json
-    └── vite.config.ts
-
-
-  ----- MUST NOT DO -----
-  - DO NOT directly modify the 'package.json' file.
-  - DO NOT install 'react-router' again, DO NOT install 'react-router-dom', use the already installed version.
-  - DO NOT install tailwindcss again, use the already installed version.
-  - DO NOT create 'tailwind.config.js' or 'postcss.config.js' files.
-  - DO NOT add '@tailwind base;' or '@tailwind components;' or '@tailwind utilities;' to any CSS file.
-  - DO NOT install lucide-react again.
-  - DO NOT add a ThemeProvider. ONLY use the given dark mode implementation from the @features/dark-mode folder.
-  - DO NOT change the 'vite.config.ts', 'tsconfig.node.json', 'tsconfig.app.json', 'tsconfig.json' files.
-
-  ----- THINGS TO REMEMBER -----
-  - The given starter template works, build on top of it.
-  
-  ----- WORKFLOW -----
-  - Start building from Home.tsx file.
-  - For adding more routes, add them in the App.tsx file.
-  - Add the dark mode toggle button in the header.
-  - Continue building the project as per the user request.
-</starter_template>
 
 <artifact_info>
   Zap creates a SINGLE, comprehensive artifact for each project. The artifact contains all necessary steps and components, including:

@@ -18,7 +18,7 @@ const Chat = () => {
     const [isStreaming, setIsStreaming] = useState(false);
     const { webContainer, ensureDirectoryExists } = useWebContainer();
     const [projectName, setProjectName] = useState("Project");
-    const { inputProcess } = useTerminal();
+    const { inputProcess, setShowTerminal } = useTerminal();
 
     useEffect(() => {
         const element = document.getElementById("chat-markdown")
@@ -30,17 +30,25 @@ const Chat = () => {
     function parseZapArtifact(zapArtifactText: string): {
         fileObject: Record<string, string>,
         projectName: string,
-        commandsArr: string[]
+        commandsArr: string[],
+        infoContent: string
     } {
         const fileObject: Record<string, string> = {};
         const commandsArr: string[] = [];
         let projectName = "";
+        let infoContent = "";
 
         // Extract title from zapArtifact element
         const titleRegex = /<zapArtifact[^>]+title="([^"]+)"/;
         const titleMatch = zapArtifactText.match(titleRegex);
         if (titleMatch) {
             projectName = titleMatch[1];
+        }
+
+        const infoRegex = /<info>([\s\S]*?)<\/info>/;
+        const infoMatch = zapArtifactText.match(infoRegex);
+        if (infoMatch) {
+            infoContent = infoMatch[1].trim();
         }
 
         // Extract file actions
@@ -72,7 +80,7 @@ const Chat = () => {
             }
         }
 
-        return { fileObject, projectName, commandsArr };
+        return { fileObject, projectName, commandsArr, infoContent };
     }
 
     const handleSendPrompt = async () => {
@@ -114,10 +122,14 @@ const Chat = () => {
 
                 const chunk = decoder.decode(value, { stream: true });
                 chunks += chunk;
-                smd.parser_write(parser!, `${chunk} `);
             }
 
-            const { fileObject, projectName, commandsArr } = parseZapArtifact(chunks);
+
+            setShowTerminal(true);
+            const { fileObject, projectName, commandsArr, infoContent } = parseZapArtifact(chunks);
+            if (infoContent) {
+                smd.parser_write(parser!, `${infoContent} `);
+            }
             setProjectName(projectName);
             const command = commandsArr.join(" && ");
             command.concat(`\\r`);
