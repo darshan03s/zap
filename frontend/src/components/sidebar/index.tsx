@@ -17,7 +17,7 @@ export default function Sidebar() {
             <SheetTrigger asChild>
                 <div className="sidebar-trigger fixed top-[50%] left-1 h-full z-50">
                     <button className="sidebar-trigger-button">
-                        <ArrowRight size={28} className="dark:text-white dark:bg-gray-800 text-black bg-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700  colors-smooth rounded-full p-2" />
+                        <ArrowRight size={28} className="text-primary-foreground bg-primary dark:text-primary-foreground dark:bg-primary colors-smooth rounded-full p-2" />
                     </button>
                 </div>
             </SheetTrigger>
@@ -28,7 +28,7 @@ export default function Sidebar() {
                     <Separator className="" />
                 </SheetHeader>
                 <div className="projects-list overflow-y-auto h-full hide-scrollbar px-2">
-                    
+
                 </div>
                 <SheetFooter>
                     <div className="flex items-center gap-4">
