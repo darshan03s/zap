@@ -1,4 +1,3 @@
-import { ArrowUp, Loader, Paperclip, Trash } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react'
 import "./chatStyles.css"
 import { useWebContainer } from '@/features/react-wc-workspace/webcontainer/useWebContainer';
@@ -6,33 +5,50 @@ import { v4 as uuidv4 } from 'uuid';
 import { devLog } from '@/utils';
 import { parseZapArtifact } from './chat-utils';
 import { MemoizedMarkdown } from './memoized-markdown';
+import { useRootContext } from '@/contexts/root-context';
+import { ArrowUp, Loader, Paperclip, Trash } from 'lucide-react';
 
-const chatId = uuidv4();
-
-interface Message {
+export interface Message {
     id: string;
     type: 'user' | 'ai';
     content: string;
     isLoading?: boolean;
 }
 
-const Chat = () => {
+const ChatLayout = ({ chatId }: { chatId: string }) => {
     const baseUrl = import.meta.env.VITE_API_URL;
     const chatUrl = `${baseUrl}/template-chat`;
 
-    const [userPromptText, setUserPromptText] = useState("");
     const [messages, setMessages] = useState<Message[]>([]);
-    const [isStreaming, setIsStreaming] = useState(false);
+    const [isStreaming, setIsStreaming] = useState<boolean>(false);
     const { webContainer, ensureDirectoryExists } = useWebContainer();
-    const [projectName, setProjectName] = useState("Project");
+    const [projectName, setProjectName] = useState<string>("Project");
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const { initialPromptText } = useRootContext();
+    const [userPromptText, setUserPromptText] = useState<string>(initialPromptText);
+    const { wcReady } = useWebContainer();
 
     useEffect(() => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
     }, [messages]);
+
+    useEffect(() => {
+        if (!wcReady) return;
+        setTimeout(() => {
+            handleSendPrompt();
+        }, 500);
+    }, [wcReady]);
+
+    const updateFiles = async (fileObject: Record<string, string>) => {
+        for (const [filePath, content] of Object.entries(fileObject)) {
+            await ensureDirectoryExists(filePath);
+            devLog(`Writing file: ${filePath} `);
+            await webContainer?.fs.writeFile(filePath, content);
+        }
+    }
 
     const handleSendPrompt = async () => {
         if (userPromptText.trim() === "") return;
@@ -109,11 +125,7 @@ const Chat = () => {
                 }]);
             });
 
-            for (const [filePath, content] of Object.entries(fileObject)) {
-                await ensureDirectoryExists(filePath);
-                devLog(`Writing file: ${filePath} `);
-                await webContainer?.fs.writeFile(filePath, content);
-            }
+            await updateFiles(fileObject);
 
         } catch (error) {
             console.error(error);
@@ -170,7 +182,7 @@ const Chat = () => {
                 </div>
             </div>
 
-            <div className="prompt-container h-[150px] flex flex-col gap-1 bg-gray-200 dark:bg-gray-800 rounded-lg">
+            <div className="prompt-container h-[150px] flex flex-col gap-1 bg-gray-200 dark:bg-gray-800 rounded-lg colors-smooth">
                 <textarea id="user-prompt-area" className="w-full h-full flex-1 resize-none p-1 px-3 py-3 hide-scrollbar focus:border-none focus:outline-none placeholder:text-sm text-sm" placeholder="Enter your prompt here..."
                     onChange={(e) => setUserPromptText(e.target.value)}
                     value={userPromptText}
@@ -183,13 +195,13 @@ const Chat = () => {
                 ></textarea>
                 <div className="prompt-actions h-10 px-2 flex items-center justify-between">
                     <div className="prompt-actions-left flex items-center gap-2">
-                        <button className="text-black hover:text-gray-500 transition-colors duration-200 dark:text-white bg-white dark:bg-gray-900 rounded-full p-2">
+                        <button className="text-black hover:text-gray-500 colors-smooth dark:text-white bg-white dark:bg-gray-900 rounded-full p-2">
                             <Paperclip size={16} className="opacity-50" />
                         </button>
                     </div>
 
                     <div className="prompt-actions-right flex items-center gap-2">
-                        <button className="send-prompt text-black hover:text-gray-500 transition-colors duration-200 dark:text-white bg-white dark:bg-gray-900 rounded-full p-2"
+                        <button className="send-prompt text-black hover:text-gray-500 colors-smooth dark:text-white bg-white dark:bg-gray-900 rounded-full p-2"
                             onClick={() => {
                                 handleSendPrompt();
                             }}
@@ -199,7 +211,7 @@ const Chat = () => {
                         </button>
 
                         {import.meta.env.DEV ? <>
-                            <button className="text-black hover:text-gray-500 transition-colors duration-200 dark:text-white bg-white dark:bg-gray-900 rounded-full p-2"
+                            <button className="text-black hover:text-gray-500 colors-smooth dark:text-white bg-white dark:bg-gray-900 rounded-full p-2"
                                 onClick={() => {
                                     setMessages([]);
                                 }}
@@ -215,4 +227,4 @@ const Chat = () => {
     )
 }
 
-export default Chat
+export default ChatLayout;

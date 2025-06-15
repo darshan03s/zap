@@ -23,6 +23,7 @@ const WebContainerProvider = ({ children }: { children: React.ReactNode }) => {
         path: string
     } | null>(null)
     const [initialMount, setInitialMount] = useState<boolean>(false)
+    const [initializeWebContainer, setInitializeWebContainer] = useState<boolean>(false)
 
     const isMounted = useRef(true)
 
@@ -39,6 +40,8 @@ const WebContainerProvider = ({ children }: { children: React.ReactNode }) => {
             return
         }
         if (webContainer) return
+
+        if (!initializeWebContainer) return
 
         const initWebContainer = async () => {
             try {
@@ -68,7 +71,7 @@ const WebContainerProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         initWebContainer()
-    }, [])
+    }, [initializeWebContainer])
 
     useEffect(() => {
         if (!webContainer) return
@@ -157,6 +160,8 @@ const WebContainerProvider = ({ children }: { children: React.ReactNode }) => {
                 initialMount,
                 setInitialMount,
                 ensureDirectoryExists,
+                initializeWebContainer,
+                setInitializeWebContainer,
             }}
         >
             {children}

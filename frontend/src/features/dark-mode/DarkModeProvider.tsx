@@ -13,9 +13,9 @@ function getInitialDarkMode(): boolean {
 function applyTheme(isDark: boolean) {
   const html = document.documentElement;
   if (isDark) {
-    html.setAttribute("data-theme", "dark");
+    html.classList.add("dark");
   } else {
-    html.removeAttribute("data-theme");
+    html.classList.remove("dark");
   }
 }
 
