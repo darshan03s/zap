@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { DarkModeContext } from "./DarkModeContext";
+import DarkModeContext from "./DarkModeContext";
 
 const DARK_MODE_STORAGE_KEY = "theme";
 
@@ -19,7 +19,7 @@ function applyTheme(isDark: boolean) {
   }
 }
 
-export const DarkModeProvider = ({ children }: { children: ReactNode }) => {
+export default function DarkModeProvider({ children }: { children: ReactNode }) {
   const [isDarkMode, setIsDarkMode] = useState(getInitialDarkMode);
 
   useEffect(() => {

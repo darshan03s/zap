@@ -6,6 +6,8 @@ type DarkModeContextType = {
     setDarkMode: (value: boolean) => void;
 };
 
-export const DarkModeContext = createContext<DarkModeContextType | undefined>(
+const DarkModeContext = createContext<DarkModeContextType | undefined>(
     undefined
 );
+
+export default DarkModeContext;

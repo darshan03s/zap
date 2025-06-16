@@ -6,10 +6,9 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, PlusIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
 export default function Sidebar() {
     return (
@@ -23,23 +22,18 @@ export default function Sidebar() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px]">
                 <SheetHeader className="">
-                    <SheetTitle className="text-2xl font-bold text-center">Projects</SheetTitle>
-                    <Button className="w-full">New Project</Button>
+                    <SheetTitle className="text-2xl font-bold text-center">Chats</SheetTitle>
+                    <Button className="w-full">
+                        <PlusIcon className="w-4 h-4" />
+                        New Chat
+                    </Button>
                     <Separator className="" />
                 </SheetHeader>
                 <div className="projects-list overflow-y-auto h-full hide-scrollbar px-2">
-
                 </div>
                 <SheetFooter>
-                    <div className="flex items-center gap-4">
-                        <Avatar className="w-10 h-10">
-                            <AvatarImage src="https://github.com/shadcn.png" />
-                            <AvatarFallback>CN</AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                            <p className="text-sm font-medium">John Doe</p>
-                            <p className="text-xs text-gray-500">john.doe@example.com</p>
-                        </div>
+                    <div className="flex items-center justify-center gap-4">
+                        Zap
                     </div>
                 </SheetFooter>
             </SheetContent>

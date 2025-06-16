@@ -1,5 +1,5 @@
 import ChatLayout from "@/components/chat";
-import DarkModeToggleButton from "@/features/dark-mode/DarkModeToggleButton";
+import { DarkModeToggleButton } from "@/features/dark-mode";
 import WCWorkspace from "@/features/react-wc-workspace";
 import { useWebContainer } from "@/features/react-wc-workspace/webcontainer/useWebContainer";
 import { HomeIcon } from "lucide-react";

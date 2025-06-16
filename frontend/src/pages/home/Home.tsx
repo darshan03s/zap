@@ -2,10 +2,10 @@ import Sidebar from "@/components/sidebar";
 import { useRootContext } from "@/contexts/root-context";
 import { Paperclip, Send } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { v4 as uuidv4 } from "uuid";
-import DarkModeToggleButton from "@/features/dark-mode/DarkModeToggleButton";
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
+import Header from "@/components/header";
 
 const PromptWindow = () => {
   const newChatId = uuidv4();
@@ -64,19 +64,7 @@ const Home = () => {
   return (
     <div className="flex flex-col min-h-screen h-full">
       <Sidebar />
-      <header className="flex items-center justify-between p-2 h-[50px] dark:bg-background dark:text-foreground bg-background text-foreground px-4 colors-smooth">
-        <div className="header-left">
-          <Link to="/">
-            <span className="logo font-bold text-2xl">
-              Zap
-            </span>
-          </Link>
-        </div>
-        <div className="header-right">
-          <DarkModeToggleButton />
-        </div>
-      </header>
-
+      <Header />
       <main className="flex-1 flex justify-center items-center dark:bg-background dark:text-foreground bg-background text-foreground colors-smooth">
         <div className="home-center flex flex-col gap-16 justify-between items-center w-[800px] h-[300px]">
           <div className="home-center-cta">

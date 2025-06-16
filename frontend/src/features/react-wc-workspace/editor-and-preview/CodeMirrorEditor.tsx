@@ -4,7 +4,7 @@ import * as themes from '@uiw/codemirror-themes-all';
 import { acceptCompletion, autocompletion } from '@codemirror/autocomplete';
 import { EditorView, keymap } from '@codemirror/view';
 import { langs } from '@uiw/codemirror-extensions-langs';
-import { useDarkMode } from '@/features/dark-mode/useDarkMode';
+import { useDarkMode } from '@/features/dark-mode';
 import { useWebContainer } from '../webcontainer/useWebContainer';
 import { mapExtToLanguage } from './utils';
 

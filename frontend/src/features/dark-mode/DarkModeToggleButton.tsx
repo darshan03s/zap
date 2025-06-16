@@ -1,4 +1,4 @@
-import { useDarkMode } from "./useDarkMode";
+import useDarkMode from "./useDarkMode";
 import { Sun, Moon } from "lucide-react";
 
 const DarkModeToggleButton = () => {
@@ -7,9 +7,9 @@ const DarkModeToggleButton = () => {
     <button
       onClick={toggleDarkMode}
       type="button"
-      className="rounded-full size-7 dark:bg-accent dark:text-accent-foreground bg-accent text-accent-foreground colors-smooth flex justify-center items-center"
+      className="rounded-full size-8 dark:bg-accent dark:text-accent-foreground bg-accent text-accent-foreground colors-smooth flex justify-center items-center"
     >
-      {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
+      {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
     </button>
   );
 };
