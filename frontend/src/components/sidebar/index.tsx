@@ -9,15 +9,24 @@ import {
 import { ArrowRight, PlusIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipTrigger } from "../ui/tooltip"
+import { TooltipContent } from "@radix-ui/react-tooltip"
 
 export default function Sidebar() {
     return (
         <Sheet>
             <SheetTrigger asChild>
                 <div className="sidebar-trigger fixed top-[50%] left-1 h-full z-50">
-                    <button className="sidebar-trigger-button">
-                        <ArrowRight size={28} className="text-primary-foreground bg-primary dark:text-primary-foreground dark:bg-primary colors-smooth rounded-full p-2" />
-                    </button>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button className="sidebar-trigger-button">
+                                <ArrowRight size={28} className="text-primary-foreground bg-primary dark:text-primary-foreground dark:bg-primary colors-smooth rounded-full p-2" />
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" align="center" className="tooltip-content">
+                            See chats
+                        </TooltipContent>
+                    </Tooltip>
                 </div>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px]">
