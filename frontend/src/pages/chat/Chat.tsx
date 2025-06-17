@@ -4,39 +4,15 @@ import WCWorkspace from "@/features/react-wc-workspace";
 import { useWebContainer } from "@/features/react-wc-workspace/webcontainer/useWebContainer";
 import { HomeIcon } from "lucide-react";
 import { useEffect } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams } from "react-router-dom";
 
 const Chat = () => {
-    const { setWcFiles, setInitializeWebContainer } = useWebContainer();
+    const { setInitializeWebContainer } = useWebContainer();
     const { id: chatId } = useParams();
 
     useEffect(() => {
         setInitializeWebContainer(true)
     }, [chatId])
-
-    useEffect(() => {
-        const baseUrl = import.meta.env.VITE_API_URL;
-        const projectTemplateUrl = `${baseUrl}/project-template`;
-
-        async function getProjectTemplate() {
-            const response = await fetch(projectTemplateUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ template: "reacttsx" }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            setWcFiles(data);
-
-        }
-        getProjectTemplate();
-    }, [chatId]);
 
     return (
         <>

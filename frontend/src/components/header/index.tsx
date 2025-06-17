@@ -1,6 +1,6 @@
 import { AvatarFallback, AvatarImage, Avatar } from '@/components/ui/avatar';
 import { useAuth } from '@/features/auth';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import { DarkModeToggleButton } from '@/features/dark-mode';
 import {
     Popover,

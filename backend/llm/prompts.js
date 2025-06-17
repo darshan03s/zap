@@ -7,7 +7,7 @@ export const basePrompt = `
 
   By default, this template supports TSX, JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons, React Router. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.
 
-  IMPORTANT: You will be given a starter template of files for the project in React(JS or TS) with react-router, Tailwindcss v4, lucide-react for icons. Dark mode will be implemented, consider using it while styling. 
+  IMPORTANT: You will be given a starter template of files for the project in React(JS or TS) with react-router-dom, Tailwindcss v4, lucide-react for icons. Dark mode will be implemented, consider using it while styling. 
 
   <starter_template>
    ----- ABOUT THE STARTER TEMPLATE -----

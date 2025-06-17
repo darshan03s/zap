@@ -1,14 +1,15 @@
 import Sidebar from "@/components/sidebar";
 import { useRootContext } from "@/contexts/root-context";
 import { Paperclip, Send } from "lucide-react";
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
 import Header from "@/components/header";
-import { Tooltip } from "@/components/ui/tooltip";
-import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
+import { toast } from "sonner";
+import { useAuth } from "@/features/auth";
 
 const PromptWindow = () => {
   const newChatId = uuidv4();
@@ -31,6 +32,7 @@ const PromptWindow = () => {
 
   const handleStartChat = () => {
     if (userPromptText.trim() === "") {
+      toast.error("Please enter a prompt")
       return;
     }
     setInitialPromptText(userPromptText);
@@ -75,7 +77,7 @@ const PromptWindow = () => {
               <Paperclip size={16} className="" />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" align="center" className="tooltip-content">
+          <TooltipContent side="bottom" align="center">
             Add images
           </TooltipContent>
         </Tooltip>
@@ -101,7 +103,7 @@ const PromptWindow = () => {
               <Send size={16} className="" />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" align="center" className="tooltip-content">
+          <TooltipContent side="bottom" align="center">
             Send prompt
           </TooltipContent>
         </Tooltip>
@@ -125,6 +127,46 @@ const TextArea = ({ handleStartChat, userPromptText, setUserPromptText }: { hand
 }
 
 const Home = () => {
+  const baseUrl = import.meta.env.VITE_API_URL;
+  const { session, authLoading } = useAuth();
+  const { setChats } = useRootContext();
+
+  const getChats = async () => {
+    if (!session) {
+      setChats([]);
+      return;
+    }
+    try {
+      const response = await fetch(`${baseUrl}/all-chats`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session?.access_token}`
+        },
+      });
+
+      if (!response.ok) {
+        toast.error("Error during chats retrieval");
+        return;
+      }
+
+      const data = await response.json();
+      console.log(data);
+      if (data.errorMessage) {
+        toast.error(data.errorMessage);
+        return;
+      }
+      setChats(data.chats);
+    } catch (error) {
+      console.error("Error during chats retrieval:", error);
+      toast.error("Error during chats retrieval");
+    }
+  }
+
+  useEffect(() => {
+    getChats();
+  }, [authLoading, session]);
+
   return (
     <div className="flex flex-col min-h-screen h-full">
       <Sidebar />
@@ -143,7 +185,7 @@ const Home = () => {
               </AnimatedShinyText>
             </p>
           </div>
-          <div className="home-center-prompt-window w-full h-[150px] flex-1 rounded-3xl relative">
+          <div className="home-center-prompt-window w-full h-full flex-1 rounded-3xl relative">
             <div className="absolute -inset-2 bg-primary rounded-3xl blur-md opacity-50 dark:opacity-100" />
             <PromptWindow />
           </div>

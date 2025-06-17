@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import "./chatStyles.css"
 import { useWebContainer } from '@/features/react-wc-workspace/webcontainer/useWebContainer';
 import { v4 as uuidv4 } from 'uuid';
 import { devLog } from '@/utils';
@@ -7,27 +6,33 @@ import { parseZapArtifact } from './chat-utils';
 import { MemoizedMarkdown } from './memoized-markdown';
 import { useRootContext } from '@/contexts/root-context';
 import { ArrowUp, Loader, Paperclip, Trash } from 'lucide-react';
+import { useAuth } from '@/features/auth';
+import { toast } from 'sonner';
 
 export interface Message {
     id: string;
-    type: 'user' | 'ai';
+    role: 'user' | 'model';
     content: string;
     isLoading?: boolean;
 }
 
 const ChatLayout = ({ chatId }: { chatId: string }) => {
     const baseUrl = import.meta.env.VITE_API_URL;
-    const chatUrl = `${baseUrl}/template-chat`;
+    const chatUrl = `${baseUrl}/chat`;
+    const messagesHistoryUrl = `${baseUrl}/messages`;
+    const createChatUrl = `${baseUrl}/create-chat`;
+    const projectFilesUrl = `${baseUrl}/project-files`;
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [isStreaming, setIsStreaming] = useState<boolean>(false);
-    const { webContainer, ensureDirectoryExists } = useWebContainer();
+    const { webContainer, ensureDirectoryExists, wcReady, setWcFiles } = useWebContainer();
     const [projectName, setProjectName] = useState<string>("Project");
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const { initialPromptText } = useRootContext();
     const [userPromptText, setUserPromptText] = useState<string>(initialPromptText);
-    const { wcReady } = useWebContainer();
+    const { session } = useAuth();
+    const [startChat, setStartChat] = useState<boolean>(false);
 
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -35,12 +40,84 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
         }
     }, [messages]);
 
+    async function createChat() {
+        const response = await fetch(createChatUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${session?.access_token}`
+            },
+            body: JSON.stringify({ chat_id: chatId })
+        });
+
+        if (!response.ok) {
+            toast.error("Error creating chat");
+        }
+
+        const data = await response.json();
+        if (data.errorMessage) {
+            toast.error(data.errorMessage);
+        } else {
+            return data;
+        }
+    }
+
+    const fetchMessagesHistory = async () => {
+        const response = await fetch(messagesHistoryUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${session?.access_token}`
+            },
+            body: JSON.stringify({ chat_id: chatId })
+        });
+        const data = await response.json();
+        if (data.errorMessage) {
+            toast.error(data.errorMessage);
+        } else {
+            setMessages(data.messagesHistory);
+        }
+    };
+
+    async function getProjectFiles(project_id: string) {
+        const response = await fetch(projectFilesUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${session?.access_token}`
+            },
+            body: JSON.stringify({ project_id: project_id, chat_id: chatId, template: "reacttsx" }),
+        });
+
+        if (!response.ok) {
+            toast.error("Error fetching project files");
+        }
+
+        const data = await response.json();
+        if (data.errorMessage) {
+            toast.error(data.errorMessage);
+        } else {
+            setWcFiles(data.files);
+        }
+    }
+
+    async function chatInit() {
+        const chat = await createChat();
+        await fetchMessagesHistory();
+        await getProjectFiles(chat.project_id);
+        setStartChat(true);
+    }
+
     useEffect(() => {
-        if (!wcReady) return;
+        chatInit();
+    }, [chatId]);
+
+    useEffect(() => {
+        if (!wcReady || !startChat) return;
         setTimeout(() => {
             handleSendPrompt();
         }, 500);
-    }, [wcReady]);
+    }, [wcReady, startChat]);
 
     const updateFiles = async (fileObject: Record<string, string>) => {
         for (const [filePath, content] of Object.entries(fileObject)) {
@@ -59,13 +136,13 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
 
         setMessages(prev => [...prev, {
             id: userMessageId,
-            type: 'user',
+            role: 'user',
             content: userPrompt
         }]);
 
         setMessages(prev => [...prev, {
             id: aiMessageId,
-            type: 'ai',
+            role: 'model',
             content: '',
             isLoading: true
         }]);
@@ -80,18 +157,20 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "Authorization": `Bearer ${session?.access_token}`
                     },
-                    body: JSON.stringify({ prompt: userPrompt, id: chatId }),
+                    body: JSON.stringify({ prompt: userPrompt, chat_id: chatId }),
                 }
             );
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                toast.error("Error sending prompt");
             }
 
             const reader = response.body?.getReader();
             if (!reader) {
-                throw new Error("ReadableStream not supported");
+                toast.error("ReadableStream not supported");
+                return;
             }
 
             const decoder = new TextDecoder();
@@ -119,7 +198,7 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
             commandsArr.forEach(command => {
                 setMessages(prev => [...prev, {
                     id: uuidv4(),
-                    type: 'ai',
+                    role: 'model',
                     content: `\`\`\`shell\n${command}\n\`\`\``,
                     isLoading: false
                 }]);
@@ -149,7 +228,7 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
                 <div className="chat-content overflow-y-auto break-words p-4 hide-scrollbar text-sm space-y-4" ref={chatContainerRef}>
                     {messages.map((message) => (
                         <div key={message.id} className="message-container">
-                            {message.type === 'user' ? (
+                            {message.role === 'user' ? (
                                 <div className="user-message flex justify-end">
                                     <div className="bg-blue-500 text-white px-4 py-2 rounded-lg max-w-[80%] break-words">
                                         {message.content}

@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { RootContext } from "./RootContext";
+import { RootContext, type Chat } from "./RootContext";
 
 export const RootProvider = ({ children }: { children: React.ReactNode }) => {
     const [initialPromptText, setInitialPromptText] = useState("");
     const [initialSelectedImages, setInitialSelectedImages] = useState<File[]>([]);
+    const [chats, setChats] = useState<Chat[]>([]);
 
     return <RootContext.Provider
         value={{
@@ -11,6 +12,8 @@ export const RootProvider = ({ children }: { children: React.ReactNode }) => {
             setInitialPromptText,
             initialSelectedImages,
             setInitialSelectedImages,
+            chats,
+            setChats,
         }}>
         {children}
     </RootContext.Provider>;

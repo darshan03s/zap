@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate } from "react-router";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Home, Chat, Auth } from "@/pages";
 import { useAuth } from "./features/auth";
+import { Toaster } from "./components/ui/sonner";
 
 const NotFound = () => {
   return <div className="flex items-center justify-center h-screen bg-white text-black dark:text-white dark:bg-black text-xl">
@@ -33,6 +34,7 @@ const App = () => {
         <Route path="/auth" element={<Auth />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
+      <Toaster />
     </>
   );
 };
