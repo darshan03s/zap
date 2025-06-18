@@ -162,6 +162,7 @@ const WebContainerProvider = ({ children }: { children: React.ReactNode }) => {
                 ensureDirectoryExists,
                 initializeWebContainer,
                 setInitializeWebContainer,
+                getFileSystemTree,
             }}
         >
             {children}

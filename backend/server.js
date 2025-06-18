@@ -14,6 +14,9 @@ import {
     getProjectFiles,
     createChat,
     getAllChats,
+    updateChatTitle,
+    deleteChat,
+    updateProjectFiles,
 } from "./utils/supabaseUtils.js";
 import { GEMINI_API_KEY, PORT } from "./constants.js";
 import { chatWithGemini } from "./llm/chat.js";
@@ -44,7 +47,7 @@ app.get("/", async (req, res) => {
     });
 });
 
-app.post("/create-chat", authenticate, async (req, res) => {
+app.post("/chat/create", authenticate, async (req, res) => {
     const { chat_id } = req.body;
     const user_id = req.user.id;
 
@@ -64,16 +67,17 @@ app.post("/chat", authenticate, async (req, res) => {
         });
     }
 
-    const { prompt, chat_id } = req.body;
+    const { prompt, chat_id, project_id } = req.body;
     if (!prompt) {
         return res.status(400).json({
             errorMessage: "Prompt is missing from the request body.",
         });
     }
 
-    if (!chat_id) {
+    if (!chat_id || !project_id) {
         return res.status(400).json({
-            errorMessage: "Chat ID is missing from the request body.",
+            errorMessage:
+                "Chat ID or Project ID is missing from the request body.",
         });
     }
 
@@ -88,7 +92,11 @@ app.post("/chat", authenticate, async (req, res) => {
     if (messagesHistory && messagesHistory.length === 0) {
         messages.push({
             role: "user",
-            parts: [{ text: prompt }],
+            parts: [
+                {
+                    text: `${basePrompt}\n\n${prompt}\n\nHere is the project template:\n\n${starterTemplateXML}`,
+                },
+            ],
         });
         await createMessage(user_id, chat_id, "user", [
             {
@@ -107,13 +115,14 @@ app.post("/chat", authenticate, async (req, res) => {
     await createMessage(user_id, chat_id, "user", [{ text: prompt }]);
 
     try {
-        const modelReply = await chatWithGemini(
+        const { projectName, infoContent } = await chatWithGemini(
             res,
             ai,
             messages,
             systemPrompt
         );
-        await createMessage(user_id, chat_id, "model", [{ text: modelReply }]);
+        await createMessage(user_id, chat_id, "model", [{ text: infoContent }]);
+        await updateChatTitle(user_id, chat_id, projectName);
     } catch (error) {
         console.error("Error during AI content generation:", error);
         res.status(500).send(
@@ -135,7 +144,7 @@ app.get("/all-chats", authenticate, async (req, res) => {
     }
 });
 
-app.post("/project-files", authenticate, async (req, res) => {
+app.post("/chat/project-files", authenticate, async (req, res) => {
     const { project_id, chat_id, template } = req.body;
     const user_id = req.user.id;
 
@@ -153,6 +162,7 @@ app.post("/project-files", authenticate, async (req, res) => {
     }
 
     const projectFiles = await getProjectFiles(user_id, project_id, chat_id);
+    console.dir(projectFiles, { depth: null });
     if (!projectFiles) {
         if (template === "reacttsx") {
             await addProjectFiles(
@@ -176,7 +186,57 @@ app.post("/project-files", authenticate, async (req, res) => {
     }
 });
 
-app.post("/messages", authenticate, async (req, res) => {
+app.post("/chat/update-project-files", authenticate, async (req, res) => {
+    const { project_id, chat_id, files } = req.body;
+    const user_id = req.user.id;
+
+    if (!project_id || !chat_id || !files) {
+        return res.status(400).json({
+            errorMessage:
+                "Project ID, Chat ID, or files are missing from the request body.",
+        });
+    }
+
+    try {
+        await updateProjectFiles(user_id, project_id, chat_id, files);
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error updating project files:", error);
+        res.status(500).json({
+            errorMessage: "Failed to update project files.",
+        });
+    }
+});
+
+app.post("/chat/rename", authenticate, async (req, res) => {
+    const { chat_id, title } = req.body;
+    const user_id = req.user.id;
+
+    if (!chat_id || !title) {
+        return res.status(400).json({
+            errorMessage: "Chat ID or title is missing from the request body.",
+        });
+    }
+
+    const chat = await updateChatTitle(user_id, chat_id, title);
+    res.json(chat);
+});
+
+app.post("/chat/delete", authenticate, async (req, res) => {
+    const { chat_id } = req.body;
+    const user_id = req.user.id;
+
+    if (!chat_id) {
+        return res.status(400).json({
+            errorMessage: "Chat ID is missing from the request body.",
+        });
+    }
+
+    const chat = await deleteChat(user_id, chat_id);
+    res.json(chat);
+});
+
+app.post("/chat/messages", authenticate, async (req, res) => {
     const { chat_id } = req.body;
     if (!chat_id) {
         return res.status(400).json({

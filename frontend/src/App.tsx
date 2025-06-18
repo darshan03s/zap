@@ -1,7 +1,11 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Home, Chat, Auth } from "@/pages";
 import { useAuth } from "./features/auth";
 import { Toaster } from "./components/ui/sonner";
+import { Home } from "./pages";
+import React from "react";
+
+const Chat = React.lazy(() => import("./pages/chat/Chat.tsx"));
+const Auth = React.lazy(() => import("./pages/auth/Auth.tsx"));
 
 const NotFound = () => {
   return <div className="flex items-center justify-center h-screen bg-white text-black dark:text-white dark:bg-black text-xl">

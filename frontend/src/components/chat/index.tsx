@@ -8,7 +8,7 @@ import { useRootContext } from '@/contexts/root-context';
 import { ArrowUp, Loader, Paperclip, Trash } from 'lucide-react';
 import { useAuth } from '@/features/auth';
 import { toast } from 'sonner';
-
+import { type Chat } from '@/contexts/root-context/RootContext';
 export interface Message {
     id: string;
     role: 'user' | 'model';
@@ -19,13 +19,13 @@ export interface Message {
 const ChatLayout = ({ chatId }: { chatId: string }) => {
     const baseUrl = import.meta.env.VITE_API_URL;
     const chatUrl = `${baseUrl}/chat`;
-    const messagesHistoryUrl = `${baseUrl}/messages`;
-    const createChatUrl = `${baseUrl}/create-chat`;
-    const projectFilesUrl = `${baseUrl}/project-files`;
-
+    const messagesHistoryUrl = `${baseUrl}/chat/messages`;
+    const createChatUrl = `${baseUrl}/chat/create`;
+    const projectFilesUrl = `${baseUrl}/chat/project-files`;
+    const updateProjectFilesUrl = `${baseUrl}/chat/update-project-files`;
     const [messages, setMessages] = useState<Message[]>([]);
     const [isStreaming, setIsStreaming] = useState<boolean>(false);
-    const { webContainer, ensureDirectoryExists, wcReady, setWcFiles } = useWebContainer();
+    const { webContainer, ensureDirectoryExists, wcReady, setWcFiles, getFileSystemTree } = useWebContainer();
     const [projectName, setProjectName] = useState<string>("Project");
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -33,6 +33,8 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
     const [userPromptText, setUserPromptText] = useState<string>(initialPromptText);
     const { session } = useAuth();
     const [startChat, setStartChat] = useState<boolean>(false);
+    const [chat, setChat] = useState<Chat | null>(null);
+    const { setChats } = useRootContext();
 
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -105,6 +107,7 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
         const chat = await createChat();
         await fetchMessagesHistory();
         await getProjectFiles(chat.project_id);
+        setChat(chat);
         setStartChat(true);
     }
 
@@ -119,7 +122,7 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
         }, 500);
     }, [wcReady, startChat]);
 
-    const updateFiles = async (fileObject: Record<string, string>) => {
+    const updateWCFiles = async (fileObject: Record<string, string>) => {
         for (const [filePath, content] of Object.entries(fileObject)) {
             await ensureDirectoryExists(filePath);
             devLog(`Writing file: ${filePath} `);
@@ -127,8 +130,35 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
         }
     }
 
+    const updateProjectFiles = async (project_id: string, chat_id: string) => {
+        if (!webContainer) return;
+        const newWCFiles = await getFileSystemTree(webContainer);
+        if (!newWCFiles) return;
+        const response = await fetch(updateProjectFilesUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${session?.access_token}`
+            },
+            body: JSON.stringify({ project_id: project_id, chat_id: chat_id, files: newWCFiles })
+        });
+
+        if (!response.ok) {
+            toast.error("Error updating project files");
+        }
+
+        const data = await response.json();
+        if (data.errorMessage) {
+            toast.error(data.errorMessage);
+            return;
+        }
+
+        return;
+    }
+
     const handleSendPrompt = async () => {
         if (userPromptText.trim() === "") return;
+        if (!chat) return;
 
         const userPrompt = userPromptText;
         const userMessageId = uuidv4();
@@ -159,7 +189,7 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${session?.access_token}`
                     },
-                    body: JSON.stringify({ prompt: userPrompt, chat_id: chatId }),
+                    body: JSON.stringify({ prompt: userPrompt, chat_id: chatId, project_id: chat?.project_id }),
                 }
             );
 
@@ -194,6 +224,11 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
             ));
 
             setProjectName(projectName);
+            setChats(prev => prev.map(chat =>
+                chat.chat_id === chatId
+                    ? { ...chat, title: projectName }
+                    : chat
+            ));
 
             commandsArr.forEach(command => {
                 setMessages(prev => [...prev, {
@@ -204,8 +239,8 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
                 }]);
             });
 
-            await updateFiles(fileObject);
-
+            await updateWCFiles(fileObject);
+            await updateProjectFiles(chat.project_id, chatId);
         } catch (error) {
             console.error(error);
             setMessages(prev => prev.map(msg =>

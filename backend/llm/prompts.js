@@ -61,6 +61,7 @@ export const basePrompt = `
   - The given starter template works, build on top of it.
   
   ----- WORKFLOW -----
+  - DO NOT modify the index.html file.
   - Start building from Home.tsx file.
   - For adding more routes, add them in the App.tsx file.
   - Add the dark mode toggle button in the header.

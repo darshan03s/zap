@@ -1,4 +1,5 @@
 import { GEMINI_THINKING_BUDGET, GEMINI_MODELS } from "../constants.js";
+import { parseZapArtifact } from "../utils/chatUtils.js";
 
 export async function chatWithGemini(
     res,
@@ -19,12 +20,15 @@ export async function chatWithGemini(
         },
     });
 
-    let modelReply = "";
+    let modelReplyRaw = "";
     for await (const chunk of stream) {
-        modelReply += chunk.text;
+        modelReplyRaw += chunk.text;
         res.write(chunk.text);
     }
 
+    const { fileObject, projectName, commandsArr, infoContent } =
+        parseZapArtifact(modelReplyRaw);
+
     res.end();
-    return modelReply;
+    return { modelReplyRaw, fileObject, projectName, commandsArr, infoContent };
 }

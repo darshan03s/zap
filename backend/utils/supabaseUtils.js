@@ -43,7 +43,8 @@ export async function getAllChats(user_id) {
     const { data, error } = await supabase
         .from("chats")
         .select("*")
-        .eq("user_id", user_id);
+        .eq("user_id", user_id)
+        .order("created_at", { ascending: true });
 
     if (error) {
         throw new Error(error.message);
@@ -69,6 +70,36 @@ export async function createChat(user_id, chat_id) {
 
         return data;
     }
+}
+
+export async function updateChatTitle(user_id, chat_id, title) {
+    const { data, error } = await supabase
+        .from("chats")
+        .update({ title })
+        .eq("user_id", user_id)
+        .eq("chat_id", chat_id)
+        .select()
+        .single();
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
+}
+
+export async function deleteChat(user_id, chat_id) {
+    const { data, error } = await supabase
+        .from("chats")
+        .delete()
+        .eq("user_id", user_id)
+        .eq("chat_id", chat_id);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
 }
 
 export async function messagesHistory(user_id, chat_id) {
@@ -104,7 +135,7 @@ export async function getProjectFiles(user_id, project_id, chat_id) {
 export async function addProjectFiles(user_id, project_id, chat_id, files) {
     const { data, error } = await supabase
         .from("project_files")
-        .upsert({ user_id, project_id, chat_id, files })
+        .insert({ user_id, project_id, chat_id, files })
         .select()
         .single();
 
