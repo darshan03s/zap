@@ -73,6 +73,10 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
             },
             body: JSON.stringify({ chat_id: chatId })
         });
+        if (!response.ok) {
+            toast.error("Error fetching messages history");
+            return;
+        }
         const data = await response.json();
         if (data.errorMessage) {
             toast.error(data.errorMessage);

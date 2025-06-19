@@ -17,6 +17,7 @@ import {
     updateChatTitle,
     deleteChat,
     updateProjectFiles,
+    chatExists,
 } from "./utils/supabaseUtils.js";
 import { GEMINI_API_KEY, PORT } from "./constants.js";
 import { chatWithGemini } from "./llm/chat.js";
@@ -57,6 +58,8 @@ app.post("/chat/create", authenticate, async (req, res) => {
             errorMessage: "Server error creating chat.",
         });
     }
+    const messages = await getMessagesHistory(user_id, chat_id);
+    console.log(`Messages for ${chat_id}:`, messages.length);
     res.json(chat);
 });
 
@@ -84,6 +87,7 @@ app.post("/chat", authenticate, async (req, res) => {
     const user_id = req.user.id;
 
     const messagesHistory = await getMessagesHistory(user_id, chat_id);
+    const chat = await chatExists(user_id, chat_id);
 
     let messages = [];
 
@@ -94,16 +98,23 @@ app.post("/chat", authenticate, async (req, res) => {
             role: "user",
             parts: [
                 {
-                    text: `${basePrompt}\n\n${prompt}\n\nHere is the project template:\n\n${starterTemplateXML}`,
+                    text: `${basePrompt}\n\nHere is the project template:\n\n${starterTemplateXML}`,
                 },
             ],
         });
-        await createMessage(user_id, chat_id, "user", [
-            {
-                text: `${basePrompt}\n\n${prompt}\n\nHere is the project template:\n\n${starterTemplateXML}`,
-            },
-        ]);
+        await createMessage(
+            user_id,
+            chat_id,
+            "user",
+            [
+                {
+                    text: `${basePrompt}\n\nHere is the project template:\n\n${starterTemplateXML}`,
+                },
+            ],
+            `${basePrompt}\n\nHere is the project template:\n\n${starterTemplateXML}`
+        );
     } else {
+        // add all previous messages
         messages = messagesHistory.map((message) => {
             return {
                 role: message.role,
@@ -112,17 +123,21 @@ app.post("/chat", authenticate, async (req, res) => {
         });
     }
     messages.push({ role: "user", parts: [{ text: prompt }] });
-    await createMessage(user_id, chat_id, "user", [{ text: prompt }]);
+    await createMessage(user_id, chat_id, "user", [{ text: prompt }], prompt);
 
     try {
-        const { projectName, infoContent } = await chatWithGemini(
-            res,
-            ai,
-            messages,
-            systemPrompt
+        const { projectName, modelReplyRaw, infoContent } =
+            await chatWithGemini(res, ai, messages, systemPrompt);
+        await createMessage(
+            user_id,
+            chat_id,
+            "model",
+            [{ text: modelReplyRaw }],
+            infoContent
         );
-        await createMessage(user_id, chat_id, "model", [{ text: infoContent }]);
-        await updateChatTitle(user_id, chat_id, projectName);
+        if (chat.title === "New Chat") {
+            await updateChatTitle(user_id, chat_id, projectName);
+        }
     } catch (error) {
         console.error("Error during AI content generation:", error);
         res.status(500).send(
@@ -162,7 +177,6 @@ app.post("/chat/project-files", authenticate, async (req, res) => {
     }
 
     const projectFiles = await getProjectFiles(user_id, project_id, chat_id);
-    console.dir(projectFiles, { depth: null });
     if (!projectFiles) {
         if (template === "reacttsx") {
             await addProjectFiles(
@@ -252,7 +266,7 @@ app.post("/chat/messages", authenticate, async (req, res) => {
             return {
                 id: message.id,
                 role: message.role,
-                content: message.parts[0].text,
+                content: message.message,
             };
         });
         const slicedMessagesHistory = messagesHistory.slice(1);

@@ -10,10 +10,10 @@ export async function getMessagesHistory(user_id, chat_id) {
     }
 }
 
-export async function createMessage(user_id, chat_id, role, parts) {
+export async function createMessage(user_id, chat_id, role, parts, message) {
     const { data, error } = await supabase
         .from("messages")
-        .insert({ user_id, chat_id, role, parts })
+        .insert({ user_id, chat_id, role, parts, message })
         .select()
         .single();
 
