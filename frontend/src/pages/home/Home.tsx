@@ -1,6 +1,5 @@
-import Sidebar from "@/components/sidebar";
 import { useRootContext } from "@/contexts/root-context";
-import { Paperclip, Send } from "lucide-react";
+import { ArrowRight, Paperclip, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -144,49 +143,27 @@ const TextArea = ({ handleStartChat, userPromptText, setUserPromptText }: { hand
 }
 
 const Home = () => {
-  const baseUrl = import.meta.env.VITE_API_URL;
-  const { session, authLoading } = useAuth();
-  const { setChats } = useRootContext();
-
-  const getChats = async () => {
-    if (!session) {
-      setChats([]);
-      return;
-    }
-    try {
-      const response = await fetch(`${baseUrl}/all-chats`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${session?.access_token}`
-        },
-      });
-
-      if (!response.ok) {
-        toast.error("Error during chats retrieval");
-        return;
-      }
-
-      const data = await response.json();
-      console.log(data);
-      if (data.errorMessage) {
-        toast.error(data.errorMessage);
-        return;
-      }
-      setChats(data.chats);
-    } catch (error) {
-      console.error("Error during chats retrieval:", error);
-      toast.error("Error during chats retrieval");
-    }
-  }
-
-  useEffect(() => {
-    getChats();
-  }, [authLoading, session]);
+  const { isSidebarOpen, setIsSidebarOpen } = useRootContext();
 
   return (
     <div className="flex flex-col min-h-screen h-full">
-      <Sidebar />
+      <div className="sidebar-trigger fixed top-[50%] left-1 h-full z-50">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => {
+                setIsSidebarOpen(!isSidebarOpen);
+              }}
+              className="sidebar-trigger-button"
+            >
+              <ArrowRight size={28} className="text-primary-foreground bg-primary dark:text-primary-foreground dark:bg-primary colors-smooth rounded-full p-2" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right" align="center">
+            See chats
+          </TooltipContent>
+        </Tooltip>
+      </div>
       <Header />
       <main className="flex-1 flex justify-center items-center dark:bg-background dark:text-foreground bg-background text-foreground colors-smooth">
         <div className="home-center flex flex-col gap-16 justify-between items-center w-[800px] h-[300px] -translate-y-12">

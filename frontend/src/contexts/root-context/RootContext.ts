@@ -14,6 +14,8 @@ export interface RootContextType {
     setInitialSelectedImages: Dispatch<SetStateAction<File[]>>;
     chats: Chat[];
     setChats: Dispatch<SetStateAction<Chat[]>>;
+    isSidebarOpen: boolean;
+    setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const RootContext = createContext<RootContextType>({
@@ -23,4 +25,6 @@ export const RootContext = createContext<RootContextType>({
     setInitialSelectedImages: () => {},
     chats: [],
     setChats: () => {},
+    isSidebarOpen: false,
+    setIsSidebarOpen: () => {},
 });

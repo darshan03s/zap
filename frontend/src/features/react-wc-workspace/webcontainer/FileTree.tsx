@@ -313,7 +313,7 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
                 return (
                     <div
                         key={currentPath}
-                        className="flex items-center gap-1 py-1 px-2 rounded text-gray-700 dark:text-gray-300"
+                        className="flex items-center gap-1 py-1 px-2 rounded text-black dark:text-white colors-smooth"
                         style={{ paddingLeft: `${paddingLeft + 8}px` }}
                     >
                         <File size={16} className="text-blue-500 flex-shrink-0" />
@@ -323,7 +323,7 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
                             onChange={(e) => setRenamingState({ ...renamingState, newName: e.target.value })}
                             onKeyDown={handleRenameKeyDown}
                             onBlur={handleRenameCancel}
-                            className="text-sm bg-transparent border-b border-gray-400 outline-none flex-1"
+                            className="text-sm bg-transparent border-b border-border outline-none flex-1 colors-smooth"
                             autoFocus
                         />
                     </div>
@@ -333,7 +333,7 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
             return (
                 <div
                     key={currentPath}
-                    className={`flex items-center gap-1 py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer rounded text-gray-700 dark:text-gray-300 group ${selectedFile?.name === node.name ? 'bg-gray-200 dark:bg-gray-700' : ''}`}
+                    className={`flex items-center gap-1 py-1 px-2 hover:bg-primary/10 dark:hover:bg-primary/10 cursor-pointer rounded text-black dark:text-white group colors-smooth ${selectedFile?.name === node.name ? 'bg-primary/10 dark:bg-primary/20' : ''}`}
                     style={{ paddingLeft: `${paddingLeft + 8}px` }}
                 >
                     <div
@@ -351,32 +351,32 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
                     </div>
                     <div className="relative">
                         <button
-                            className="p-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="p-1 rounded hover:bg-primary/20 dark:hover:bg-primary/20 opacity-0 group-hover:opacity-100"
                             onClick={(e) => {
                                 e.stopPropagation()
                                 setOpenDropdown(openDropdown === currentPath ? null : currentPath)
                             }}
                         >
-                            <MoreVertical size={12} className="text-gray-500 dark:text-gray-400" />
+                            <MoreVertical size={12} className="text-black dark:text-white colors-smooth" />
                         </button>
                         {/* File Options */}
                         {openDropdown === currentPath && (
                             <div
                                 ref={dropdownRef}
-                                className="absolute right-0 top-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded shadow-lg py-1 px-1 z-10 min-w-[120px]"
+                                className="absolute right-0 top-6 z-99 bg-secondary dark:bg-secondary border border-border dark:border-border rounded shadow-lg py-1 px-1 min-w-[140px] colors-smooth"
                             >
                                 <button
-                                    className="w-full px-3 py-1 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-md"
+                                    className="w-full px-3 py-2 text-left text-sm hover:bg-primary/20 dark:hover:bg-primary/20 flex items-center gap-2 rounded-md"
                                     onClick={() => handleRename(currentPath, 'file', node.name)}
                                 >
-                                    <Edit3 size={12} />
+                                    <Edit3 size={14} />
                                     Rename
                                 </button>
                                 <button
-                                    className="w-full px-3 py-1 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400"
+                                    className="w-full px-3 py-2 text-left text-sm hover:bg-primary/20 dark:hover:bg-primary/20 flex items-center gap-2 text-red-600 dark:text-red-400 rounded-md"
                                     onClick={() => handleDelete(currentPath, 'file')}
                                 >
-                                    <Trash2 size={12} />
+                                    <Trash2 size={14} />
                                     Delete
                                 </button>
                             </div>
@@ -396,14 +396,14 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
             return (
                 <div key={currentPath}>
                     <div
-                        className="flex items-center gap-1 py-1 px-2 rounded text-gray-700 dark:text-gray-300"
+                        className="flex items-center gap-1 py-1 px-2 rounded text-black dark:text-white colors-smooth"
                         style={{ paddingLeft: `${paddingLeft}px` }}
                     >
                         <div className="flex items-center gap-1 flex-1">
                             {isExpanded ? (
-                                <ChevronDown size={16} className="text-gray-400 flex-shrink-0" />
+                                <ChevronDown size={16} className="text-black dark:text-white flex-shrink-0 colors-smooth" />
                             ) : (
-                                <ChevronRight size={16} className="text-gray-400 flex-shrink-0" />
+                                <ChevronRight size={16} className="text-black dark:text-white flex-shrink-0 colors-smooth" />
                             )}
                             <Folder size={16} className="text-yellow-500 flex-shrink-0" />
                             <input
@@ -412,7 +412,7 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
                                 onChange={(e) => setRenamingState({ ...renamingState, newName: e.target.value })}
                                 onKeyDown={handleRenameKeyDown}
                                 onBlur={handleRenameCancel}
-                                className="text-sm bg-transparent border-b border-gray-400 outline-none flex-1"
+                                className="text-sm bg-transparent border-b border-border outline-none flex-1 colors-smooth"
                                 autoFocus
                             />
                         </div>
@@ -424,14 +424,14 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
         return (
             <div key={currentPath}>
                 <div
-                    className="flex items-center gap-1 py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-gray-700 dark:text-gray-300 group"
+                    className="flex items-center gap-1 py-1 px-2 hover:bg-primary/10 dark:hover:bg-primary/10 rounded text-black dark:text-white group colors-smooth"
                     style={{ paddingLeft: `${paddingLeft}px` }}
                 >
                     <div className="flex items-center gap-1 flex-1 cursor-pointer" onClick={() => toggleFolder(currentPath)}>
                         {isExpanded ? (
-                            <ChevronDown size={16} className="text-gray-400 flex-shrink-0" />
+                            <ChevronDown size={16} className="text-black dark:text-white flex-shrink-0 colors-smooth" />
                         ) : (
-                            <ChevronRight size={16} className="text-gray-400 flex-shrink-0" />
+                            <ChevronRight size={16} className="text-black dark:text-white flex-shrink-0 colors-smooth" />
                         )}
                         {isExpanded ? (
                             <FolderOpen size={16} className="text-yellow-500 flex-shrink-0" />
@@ -443,22 +443,22 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="relative">
                             <button
-                                className="p-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                                className="p-1 rounded hover:bg-primary/20 dark:hover:bg-primary/20"
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     setOpenDropdown(openDropdown === currentPath ? null : currentPath)
                                 }}
                             >
-                                <MoreVertical size={12} className="text-gray-500 dark:text-gray-400" />
+                                <MoreVertical size={12} className="text-black dark:text-white colors-smooth" />
                             </button>
                             {/* Directory Options */}
                             {openDropdown === currentPath && (
                                 <div
                                     ref={dropdownRef}
-                                    className="absolute right-0 top-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded shadow-lg py-1 px-1 z-10 min-w-[120px]"
+                                    className="absolute right-0 top-6 z-99 bg-secondary dark:bg-secondary border border-border dark:border-border rounded shadow-lg py-1 px-1 min-w-[140px] colors-smooth"
                                 >
                                     <button
-                                        className="w-full px-3 py-1 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-md"
+                                        className="w-full px-3 py-2 text-left text-sm hover:bg-primary/20 dark:hover:bg-primary/20 flex items-center gap-2 rounded-md"
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             setOpenDropdown(null)
@@ -470,11 +470,11 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
                                             addFolder(currentPath)
                                         }}
                                     >
-                                        <FolderPlusIcon size={12} />
+                                        <FolderPlusIcon size={14} />
                                         Add Folder
                                     </button>
                                     <button
-                                        className="w-full px-3 py-1 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-md"
+                                        className="w-full px-3 py-2 text-left text-sm hover:bg-primary/20 dark:hover:bg-primary/20 flex items-center gap-2 rounded-md"
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             setOpenDropdown(null)
@@ -486,21 +486,21 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
                                             addFile(currentPath)
                                         }}
                                     >
-                                        <FilePlus2 size={12} />
+                                        <FilePlus2 size={14} />
                                         Add File
                                     </button>
                                     <button
-                                        className="w-full px-3 py-1 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-md"
+                                        className="w-full px-3 py-2 text-left text-sm hover:bg-primary/20 dark:hover:bg-primary/20 flex items-center gap-2 rounded-md"
                                         onClick={() => handleRename(currentPath, 'folder', node.name)}
                                     >
-                                        <Edit3 size={12} />
+                                        <Edit3 size={14} />
                                         Rename
                                     </button>
                                     <button
-                                        className="w-full px-3 py-1 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400"
+                                        className="w-full px-3 py-2 text-left text-sm hover:bg-primary/20 dark:hover:bg-primary/20 flex items-center gap-2 text-red-600 dark:text-red-400 rounded-md"
                                         onClick={() => handleDelete(currentPath, 'directory')}
                                     >
-                                        <Trash2 size={12} />
+                                        <Trash2 size={14} />
                                         Delete
                                     </button>
                                 </div>
@@ -513,7 +513,7 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
                         {/* Render adding input if it matches this path */}
                         {addingState && addingState.path === currentPath && (
                             <div
-                                className="flex items-center gap-1 py-1 px-2 rounded text-gray-700 dark:text-gray-300"
+                                className="flex items-center gap-1 py-1 px-2 rounded text-black dark:text-white colors-smooth"
                                 style={{ paddingLeft: `${(depth + 1) * 16 + 8}px` }}
                             >
                                 {addingState.type === 'file' ? (
@@ -528,7 +528,7 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
                                     onKeyDown={handleInputKeyDown}
                                     onBlur={handleCancelAdd}
                                     placeholder={`Enter ${addingState.type} name`}
-                                    className="text-sm bg-transparent border-b border-gray-400 outline-none flex-1"
+                                    className="text-sm bg-transparent border-b border-border outline-none flex-1 colors-smooth"
                                     autoFocus
                                 />
                             </div>
@@ -553,7 +553,7 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
         <div className="file-tree">
             {/* Render adding input at root level */}
             {addingState && addingState.path === '' && (
-                <div className="flex items-center gap-1 py-1 px-2 rounded text-gray-700 dark:text-gray-300">
+                <div className="flex items-center gap-1 py-1 px-2 rounded text-black dark:text-white colors-smooth">
                     {addingState.type === 'file' ? (
                         <File size={16} className="text-blue-500 flex-shrink-0" />
                     ) : (
@@ -566,14 +566,14 @@ const FileTree = forwardRef<FileTreeRef, FileTreeProps>(({ filterText }, ref) =>
                         onKeyDown={handleInputKeyDown}
                         onBlur={handleCancelAdd}
                         placeholder={`Enter ${addingState.type} name`}
-                        className="text-sm bg-transparent border-b border-gray-400 outline-none flex-1"
+                        className="text-sm bg-transparent border-b border-border outline-none flex-1 colors-smooth"
                         autoFocus
                     />
                 </div>
             )}
             {filteredTree.map(node => renderNode(node))}
             {filteredTree.length === 0 && filterText && (
-                <div className="text-gray-500 dark:text-gray-400 text-sm p-2 text-center">
+                <div className="text-black dark:text-white text-sm p-2 text-center colors-smooth">
                     No files match "{filterText}"
                 </div>
             )}

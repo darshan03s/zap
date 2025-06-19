@@ -2,7 +2,10 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./features/auth";
 import { Toaster } from "./components/ui/sonner";
 import { Home } from "./pages";
-import React from "react";
+import React, { useEffect } from "react";
+import Sidebar from "./components/sidebar/index.tsx";
+import { toast } from "sonner";
+import { useRootContext } from "./contexts/root-context/useRootContext.ts";
 
 const Chat = React.lazy(() => import("./pages/chat/Chat.tsx"));
 const Auth = React.lazy(() => import("./pages/auth/Auth.tsx"));
@@ -31,6 +34,46 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
+  const { session, authLoading } = useAuth();
+  const { setChats } = useRootContext();
+  const baseUrl = import.meta.env.VITE_API_URL;
+
+  const getChats = async () => {
+    if (!session) {
+      setChats([]);
+      return;
+    }
+    try {
+      const response = await fetch(`${baseUrl}/all-chats`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session?.access_token}`
+        },
+      });
+
+      if (!response.ok) {
+        toast.error("Error during chats retrieval");
+        return;
+      }
+
+      const data = await response.json();
+      console.log(data);
+      if (data.errorMessage) {
+        toast.error(data.errorMessage);
+        return;
+      }
+      setChats(data.chats);
+    } catch (error) {
+      console.error("Error during chats retrieval:", error);
+      toast.error("Error during chats retrieval");
+    }
+  }
+
+  useEffect(() => {
+    getChats();
+  }, [authLoading, session]);
+
   return (
     <>
       <Routes>
@@ -39,6 +82,7 @@ const App = () => {
         <Route path="/auth" element={<Auth />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
+      <Sidebar />
       <Toaster />
     </>
   );

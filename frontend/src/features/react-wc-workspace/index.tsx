@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, FilePlus2, FolderPlusIcon, ListCollapseIcon, ListTreeIcon, RotateCcw, SquareArrowOutUpRight, SquareTerminal, Trash, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FilePlus2, FolderPlusIcon, ListCollapseIcon, ListTreeIcon, Maximize2, RotateCcw, SquareArrowOutUpRight, SquareTerminal, Trash, X } from 'lucide-react'
 import Editor from './editor-and-preview/Editor'
 import Preview from './editor-and-preview/Preview'
 import FileTree, { type FileTreeRef } from './webcontainer/FileTree'
@@ -8,15 +8,15 @@ import type { WebContainerFiles } from './webcontainer/types'
 import XTermTerminal from './terminal/XTermTerminal'
 import { useTerminal } from './terminal/useTerminal'
 
-const WCWorkspace = () => {
-    const [explorerWidth, setExplorerWidth] = useState(250) // Initial width in pixels
+const WCWorkspace = ({ hideChatSection, setHideChatSection }: { hideChatSection: boolean, setHideChatSection: (hideChatSection: boolean) => void }) => {
+    const [explorerWidth, setExplorerWidth] = useState(0) // Initial width in pixels
     const [isResizing, setIsResizing] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
-    const [isCollapsed, setIsCollapsed] = useState(false)
+    const [isCollapsed, setIsCollapsed] = useState(true)
     const [isTransitioning, setIsTransitioning] = useState(false)
     const [terminalHeight, setTerminalHeight] = useState(200) // Initial terminal height
     const [isTerminalResizing, setIsTerminalResizing] = useState(false)
-    const [showCode, setShowCode] = useState(true)
+    const [tab, setTab] = useState('preview')
     const [filterText, setFilterText] = useState('')
     const fileTreeRef = useRef<FileTreeRef>(null)
     const [deleteTerminal, setDeleteTerminal] = useState(false)
@@ -24,7 +24,6 @@ const WCWorkspace = () => {
     const [previewUrl, setPreviewUrl] = useState('')
     const { wcFiles, wcReady, webContainer, wcServerUrl, initialMount, setInitialMount, selectedFile } = useWebContainer()
     const { fitAddon, deleteTerminal: exitTerminal, showTerminal, setShowTerminal } = useTerminal();
-
     useEffect(() => {
         if (wcServerUrl) {
             setPreviewUrl(wcServerUrl)
@@ -133,8 +132,9 @@ const WCWorkspace = () => {
     }
 
     useEffect(() => {
-        setShowCode(true);
-    }, [selectedFile?.path]);
+        if (!selectedFile) return;
+        setTab('code');
+    }, [selectedFile]);
 
     const handleFilterItems = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
@@ -163,16 +163,16 @@ const WCWorkspace = () => {
     }
 
     return (
-        <div ref={containerRef} className='w-full h-full flex flex-row relative rounded-lg border border-gray-300 dark:border-gray-700'>
+        <div ref={containerRef} className='w-full h-full flex flex-row relative rounded-lg border border-border dark:border-border *:colors-smooth'>
             {/* Explorer Panel */}
             <div
-                className={`explorer h-full rounded-r-none flex flex-col hide-scrollbar bg-gray-50 dark:bg-gray-900 relative rounded-lg ${isTransitioning ? 'transition-all duration-300 ease-in-out' : ''}`}
+                className={`explorer h-full rounded-r-none flex flex-col hide-scrollbar bg-background dark:bg-background relative rounded-lg ${isTransitioning ? 'transition-all! duration-300! ease-in-out!' : ''}`}
                 style={{ width: `${explorerWidth}px`, minWidth: 0 }}
             >
                 <div className="explorer-header h-10 flex items-center justify-between px-2 py-2">
                     <button onClick={handleCollapseExplorer}>
                         {isCollapsed ? null : (
-                            <ChevronLeft className='w-4 h-4 text-gray-500 dark:text-gray-400' />
+                            <ChevronLeft className='w-4 h-4 text-secondary-foreground colors-smooth dark:text-secondary-foreground' />
                         )}
                     </button>
                 </div>
@@ -181,32 +181,32 @@ const WCWorkspace = () => {
                         <div className="explorer-main p-2 flex flex-col flex-1 min-h-0">
                             <div className='flex gap-2 items-center w-full'>
                                 <div className="filter-items flex-1 ">
-                                    <input type="text" className='w-full h-full outline-none bg-gray-300 dark:bg-gray-700 rounded-md p-1 px-2 text-xs text-gray-500 dark:text-gray-200' placeholder='Search'
+                                    <input type="text" className='w-full h-full outline-none bg-secondary dark:bg-secondary rounded-md p-1 px-2 text-xs text-secondary-foreground dark:text-secondary-foreground colors-smooth' placeholder='Search'
                                         value={filterText}
                                         onChange={handleFilterItems}
                                     />
                                 </div>
 
-                                <div className="collapse-expand text-gray-500 dark:text-gray-300 flex gap-1 items-center select-none">
-                                    <button className='p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-150'
+                                <div className="collapse-expand text-secondary-foreground colors-smooth dark:text-secondary-foreground flex gap-1 items-center select-none">
+                                    <button className='p-1 rounded-md hover:bg-secondary dark:hover:bg-secondary colors-smooth'
                                         title='Collapse All'
                                         onClick={handleCollapseAll}
                                     >
                                         <ListCollapseIcon size={14} />
                                     </button>
-                                    <button className='p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-150'
+                                    <button className='p-1 rounded-md hover:bg-secondary dark:hover:bg-secondary colors-smooth'
                                         title='Expand All'
                                         onClick={handleExpandAll}
                                     >
                                         <ListTreeIcon size={14} />
                                     </button>
-                                    <button className='p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-150'
+                                    <button className='p-1 rounded-md hover:bg-secondary dark:hover:bg-secondary colors-smooth'
                                         title='Add File'
                                         onClick={handleAddFile}
                                     >
                                         <FilePlus2 size={14} />
                                     </button>
-                                    <button className='p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-150'
+                                    <button className='p-1 rounded-md hover:bg-secondary dark:hover:bg-secondary colors-smooth'
                                         title='Add Folder'
                                         onClick={handleAddFolder}
                                     >
@@ -215,7 +215,7 @@ const WCWorkspace = () => {
                                 </div>
                             </div>
 
-                            <div className='file-tree mt-2 text-sm w-full overflow-y-auto flex-1 min-h-0 hide-scrollbar select-none'>
+                            <div className='file-tree mt-2 text-sm w-full overflow-y-auto flex-1 min-h-0 hide-scrollbar select-none colors-smooth'>
                                 <FileTree ref={fileTreeRef} filterText={filterText} />
                             </div>
                         </div>
@@ -224,7 +224,7 @@ const WCWorkspace = () => {
 
                 {/* Right Resize Handle */}
                 <div
-                    className={`absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent hover:bg-blue-500 hover:bg-opacity-50 transition-colors duration-150 ${isResizing ? 'bg-blue-500 bg-opacity-50' : ''
+                    className={`absolute top-0 right-0 h-full cursor-col-resize ${isCollapsed ? '' : 'border'} hover:bg-primary hover:bg-opacity-50 hover:w-1 transition-colors duration-150 ${isResizing ? 'bg-primary bg-opacity-50' : ''
                         }`}
                     onMouseDown={handleMouseDown}
                     title="Drag to resize"
@@ -233,62 +233,58 @@ const WCWorkspace = () => {
 
             {/* Terminal and Preview */}
             <div
-                className={`preview-and-terminal ${explorerWidth === 0 ? 'rounded-l-lg' : 'rounded-l-none'} rounded-r-lg h-full bg-gray-100 dark:bg-gray-800 hide-scrollbar relative flex flex-col ${isTransitioning ? 'transition-all duration-300 ease-in-out' : ''}`}
+                className={`preview-and-terminal flex-1 ${explorerWidth === 0 ? 'rounded-l-lg' : 'rounded-l-none'} rounded-r-lg h-full bg-background dark:bg-background hide-scrollbar relative flex flex-col ${isTransitioning ? 'transition-all duration-300 ease-in-out' : ''}`}
                 style={{ width: `calc(100% - ${explorerWidth}px)` }}
             >
 
-                <div className={`preview-header w-full h-10 bg-gray-200 dark:bg-gray-800 flex items-center justify-between px-4 ${isCollapsed ? 'rounded-t-lg' : "rounded-tr-lg"}`}>
-                    <div className="preview-header-left flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 rounded-lg">
+                <div className={`preview-header w-full h-10 bg-secondary dark:bg-secondary flex items-center justify-between px-4 colors-smooth ${isCollapsed ? 'rounded-t-lg' : "rounded-tr-lg"}`}>
+                    <div className="preview-header-left flex items-center gap-2 text-xs text-secondary-foreground dark:text-secondary-foreground colors-smooth rounded-lg">
                         {isCollapsed ? (
                             <button onClick={handleCollapseExplorer}>
-                                <ChevronRight className='w-4 h-4 text-gray-500 dark:text-gray-400' />
+                                <ChevronRight className='w-4 h-4 text-secondary-foreground colors-smooth dark:text-secondary-foreground' />
                             </button>
                         ) : null}
-                        <button onClick={() => setShowCode(true)}>
-                            <span className={`${showCode ? 'bg-white/50 text-black p-1 rounded-xl px-2' : 'p-1 px-2'}`}>
+                        <button onClick={() => setTab('code')}>
+                            <span className={`p-1 px-2 colors-smooth rounded-2xl ${tab === 'code' ? 'bg-primary text-primary-foreground dark:bg-primary dark:text-primary-foreground' : ''}`}>
                                 Code
                             </span>
                         </button>
                         <hr className='h-5 border-l border-gray-300 dark:border-gray-500' />
-                        <button onClick={() => setShowCode(false)}>
-                            <span className={`${!showCode ? 'bg-white/50 text-black p-1 rounded-xl px-2' : 'p-1 px-2'}`}>
+                        <button onClick={() => setTab('preview')}>
+                            <span className={`p-1 px-2 colors-smooth rounded-2xl ${tab === 'preview' ? 'bg-primary text-primary-foreground dark:bg-primary dark:text-primary-foreground' : ''}`}>
                                 Preview
                             </span>
                         </button>
                     </div>
 
-                    <div className={`preview-header-center items-center gap-2 flex-1 max-w-[700px] px-4 ${!showCode ? 'xl:flex' : 'hidden'}`}>
+                    <div className={`preview-header-center items-center gap-2 flex-1 max-w-[700px] px-4 ${tab === 'preview' ? 'xl:flex' : 'hidden'}`}>
                         <div
-                            className={`bg-gray-300 dark:bg-gray-700 rounded-xl p-1 text-xs text-gray-500 dark:text-gray-200 focus:outline-none flex-1 h-7 truncate px-2 text-center min-w-0 flex items-center`}>
+                            className={`bg-background dark:bg-background rounded-xl p-1 text-xs text-secondary-foreground dark:text-secondary-foreground focus:outline-none flex-1 h-8 truncate px-2 text-center min-w-0 flex items-center colors-smooth`}>
                             <div className="addressbar-right flex items-center gap-1">
-                                <button className={`p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-150 flex-shrink-0`}
+                                <button className={`p-1 rounded-lg hover:bg-secondary dark:hover:bg-secondary colors-smooth flex-shrink-0`}
                                     onClick={() => {
                                         window.open(url || "", "_blank")
                                     }}
                                 >
-                                    <SquareArrowOutUpRight className='text-gray-500 dark:text-gray-400 size-4' />
+                                    <SquareArrowOutUpRight className='text-secondary-foreground colors-smooth dark:text-secondary-foreground size-4' />
                                 </button>
-                                <button className={`p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-150 flex-shrink-0`}
+                                <button className={`p-1 rounded-lg hover:bg-secondary dark:hover:bg-secondary colors-smooth flex-shrink-0`}
                                     onClick={() => {
-                                        console.log(wcServerUrl)
-                                        console.log(url)
                                         if (wcServerUrl) {
-                                            console.log("Resetting preview url to wcServerUrl")
                                             setPreviewUrl(wcServerUrl)
                                         } else {
-                                            console.log("Resetting preview url to url")
                                             setPreviewUrl(url)
                                         }
                                     }}
                                 >
-                                    <RotateCcw className='text-gray-500 dark:text-gray-400 size-4' />
+                                    <RotateCcw className='text-secondary-foreground colors-smooth dark:text-secondary-foreground size-4' />
                                 </button>
 
                                 <hr className='h-5 border-l border-gray-400 dark:border-gray-500' />
 
                             </div>
                             <div className="addressbar-input w-full flex-1">
-                                <input type="text" className='w-full h-full outline-none bg-gray-300 dark:bg-gray-700 rounded-md p-1 px-2 text-xs text-gray-500 dark:text-gray-200 '
+                                <input type="text" className='w-full h-full outline-none bg-background dark:bg-background rounded-md p-1 px-2 text-xs text-secondary-foreground dark:text-secondary-foreground colors-smooth'
                                     placeholder='URL'
                                     value={url}
                                     onChange={(e) => setUrl(e.target.value)}
@@ -303,10 +299,17 @@ const WCWorkspace = () => {
 
                     </div>
 
-                    <div className="preview-header-right flex items-center gap-2">
+                    <div className="preview-header-right flex items-center gap-3">
+                        <button
+                            onClick={() => {
+                                setHideChatSection(!hideChatSection)
+                            }}
+                        >
+                            <Maximize2 className='size-7 text-muted-foreground colors-smooth dark:text-muted-foreground p-1.5 hover:bg-primary/20 rounded-md' />
+                        </button>
                         <button
                             disabled={!wcReady}
-                            className='disabled:opacity-50 disabled:cursor-not-allowed!'
+                            className='disabled:opacity-50 disabled:cursor-not-allowed! '
                             onClick={() => {
                                 if (deleteTerminal) {
                                     setDeleteTerminal(false);
@@ -315,17 +318,19 @@ const WCWorkspace = () => {
                                     setShowTerminal(!showTerminal)
                                 }
                             }}>
-                            <SquareTerminal className='size-5 text-gray-500 dark:text-gray-400' />
+                            <SquareTerminal className='size-7 text-muted-foreground colors-smooth dark:text-muted-foreground p-1.5 hover:bg-primary/20 rounded-md' />
                         </button>
-                        <span title='Webcontainer ready status' className={`webcontainer-readt-indicator size-4 rounded-full ${wcReady ? 'bg-green-500/60' : 'bg-red-500/60'}`}></span>
+                        <span title='Webcontainer ready status' className={`webcontainer-readt-indicator size-4 rounded-full ${wcReady ? 'bg-green-500' : 'bg-red-500'}`}></span>
                     </div>
                 </div>
                 <div className={`preview-and-code flex-1 overflow-y-auto hide-scrollbar`}>
-                    <div className={`code ${showCode ? 'block' : 'hidden'}`}>
+                    <div className={`code ${tab === 'code' ? 'block' : 'hidden'}`}>
                         <Editor explorerWidth={explorerWidth} />
                     </div>
-                    <div className={`preview w-full h-full ${!showCode ? 'block' : 'hidden'} ${wcServerUrl ? 'bg-white' : ''}`}>
-                        <Preview url={previewUrl} />
+                    <div className={`preview w-full h-full ${tab === 'preview' ? 'block' : 'hidden'}`}>
+                        {wcServerUrl ? <Preview url={previewUrl} /> : <div className='w-full h-full flex items-center justify-center'>
+                            <p className='text-secondary-foreground dark:text-secondary-foreground colors-smooth font-bold font-mono text-4xl animate-pulse'>Your preview will appear here</p>
+                        </div>}
                     </div>
                 </div>
 
@@ -337,7 +342,7 @@ const WCWorkspace = () => {
                         >
                             {/* Top Resize Handle */}
                             <div
-                                className={`absolute top-0 left-0 w-full h-1 cursor-row-resize bg-transparent hover:bg-blue-500 hover:bg-opacity-50 transition-colors duration-150 ${isTerminalResizing ? 'bg-blue-500 bg-opacity-50' : ''
+                                className={`absolute top-0 left-0 w-full h-1 cursor-row-resize bg-transparent hover:bg-primary colors-smooth ${isTerminalResizing ? 'bg-primary/20 bg-opacity-50' : ''
                                     }`}
                                 onMouseDown={handleTerminalMouseDown}
                                 title="Drag to resize"
@@ -366,7 +371,8 @@ const WCWorkspace = () => {
                                 <XTermTerminal />
                             </div>
                         </div>
-                    </>}
+                    </>
+                }
             </div>
         </div>
     )

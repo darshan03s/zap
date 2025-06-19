@@ -5,6 +5,7 @@ export const RootProvider = ({ children }: { children: React.ReactNode }) => {
     const [initialPromptText, setInitialPromptText] = useState("");
     const [initialSelectedImages, setInitialSelectedImages] = useState<File[]>([]);
     const [chats, setChats] = useState<Chat[]>([]);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return <RootContext.Provider
         value={{
@@ -14,6 +15,8 @@ export const RootProvider = ({ children }: { children: React.ReactNode }) => {
             setInitialSelectedImages,
             chats,
             setChats,
+            isSidebarOpen,
+            setIsSidebarOpen,
         }}>
         {children}
     </RootContext.Provider>;

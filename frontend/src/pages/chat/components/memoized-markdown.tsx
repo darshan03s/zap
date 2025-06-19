@@ -37,7 +37,7 @@ const MemoizedMarkdownBlock = memo(
               </SyntaxHighlighter>
             ) : (
               <code
-                className={`${className} bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono`}
+                className={`${className} bg-gray-100 dark:bg-gray-800 colors-smooth px-1 py-0.5 rounded text-sm font-mono`}
                 {...props}
               >
                 {children}
@@ -46,6 +46,9 @@ const MemoizedMarkdownBlock = memo(
           },
           pre({ children, ...props }) {
             return <div {...props}>{children}</div>;
+          },
+          p({ children, ...props }) {
+            return <p {...props} className='p-3'>{children}</p>;
           },
         }}
       >

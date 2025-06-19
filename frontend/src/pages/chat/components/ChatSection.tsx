@@ -17,7 +17,7 @@ export interface Message {
     isLoading?: boolean;
 }
 
-const ChatLayout = ({ chatId }: { chatId: string }) => {
+const ChatSection = ({ chatId }: { chatId: string }) => {
     const baseUrl = import.meta.env.VITE_API_URL;
     const chatUrl = `${baseUrl}/chat`;
     const messagesHistoryUrl = `${baseUrl}/chat/messages`;
@@ -113,6 +113,7 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
         await getProjectFiles(chat.project_id);
         setChat(chat);
         setStartChat(true);
+        setProjectName(chat.title);
     }
 
     useEffect(() => {
@@ -258,18 +259,18 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
     };
 
     return (
-        <div className="chat-section h-full flex flex-col gap-2 rounded-lg text-black dark:text-white">
-            <div className="chat flex-1 flex flex-col border border-gray-300 dark:border-gray-700 rounded-lg min-h-0">
-                <div className="chat-header flex items-center justify-center min-h-[40px] h-[40px] bg-gray-200 dark:bg-gray-800">
+        <div className="chat-section h-full flex flex-col gap-2 rounded-lg dark:text-foreground text-foreground colors-smooth">
+            <div className="chat flex-1 flex flex-col border border-border dark:border-border colors-smooth rounded-lg min-h-0">
+                <div className="chat-header flex items-center justify-center min-h-[40px] h-[40px] bg-secondary dark:bg-secondary colors-smooth rounded-t-lg">
                     <h1 className='text-sm font-bold'>{projectName}</h1>
                 </div>
 
-                <div className="chat-content overflow-y-auto break-words p-4 hide-scrollbar text-sm space-y-4" ref={chatContainerRef}>
+                <div className="chat-content overflow-y-auto break-words p-4 hide-scrollbar text-sm space-y-4 bg-background dark:bg-background colors-smooth" ref={chatContainerRef}>
                     {messages.map((message) => (
                         <div key={message.id} className="message-container">
                             {message.role === 'user' ? (
                                 <div className="user-message flex justify-end">
-                                    <div className="bg-blue-500 text-white px-4 py-2 rounded-lg max-w-[80%] break-words">
+                                    <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg max-w-[80%] break-words colors-smooth">
                                         {message.content}
                                     </div>
                                 </div>
@@ -284,7 +285,7 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="prose prose-sm max-w-none dark:prose-invert">
+                                        <div className="prose prose-sm max-w-none dark:prose-invert bg-secondary dark:bg-secondary rounded-lg colors-smooth">
                                             {message.content && (
                                                 <MemoizedMarkdown
                                                     content={message.content}
@@ -300,7 +301,7 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
                 </div>
             </div>
 
-            <div className="prompt-container h-[150px] flex flex-col gap-1 bg-gray-200 dark:bg-gray-800 rounded-lg colors-smooth">
+            <div className="prompt-container h-[150px] flex flex-col gap-1 bg-secondary dark:bg-secondary rounded-lg colors-smooth">
                 <textarea id="user-prompt-area" className="w-full h-full flex-1 resize-none p-1 px-3 py-3 hide-scrollbar focus:border-none focus:outline-none placeholder:text-sm text-sm" placeholder="Enter your prompt here..."
                     onChange={(e) => setUserPromptText(e.target.value)}
                     value={userPromptText}
@@ -313,28 +314,28 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
                 ></textarea>
                 <div className="prompt-actions h-10 px-2 flex items-center justify-between">
                     <div className="prompt-actions-left flex items-center gap-2">
-                        <button className="text-black hover:text-gray-500 colors-smooth dark:text-white bg-white dark:bg-gray-900 rounded-full p-2">
-                            <Paperclip size={16} className="opacity-50" />
+                        <button className="text-primary-foreground hover:text-primary-foreground/50 colors-smooth dark:text-primary-foreground bg-primary dark:bg-primary rounded-full p-2">
+                            <Paperclip size={16} className="" />
                         </button>
                     </div>
 
                     <div className="prompt-actions-right flex items-center gap-2">
-                        <button className="send-prompt text-black hover:text-gray-500 colors-smooth dark:text-white bg-white dark:bg-gray-900 rounded-full p-2"
+                        <button className="send-prompt text-primary-foreground hover:text-primary-foreground/50 colors-smooth dark:text-primary-foreground bg-primary dark:bg-primary rounded-full p-2"
                             onClick={() => {
                                 handleSendPrompt();
                             }}
                             disabled={isStreaming}
                         >
-                            {isStreaming ? <Loader size={16} className="animate-spin opacity-50" /> : <ArrowUp size={16} className="opacity-50" />}
+                            {isStreaming ? <Loader size={16} className="animate-spin opacity-50" /> : <ArrowUp size={16} className="" />}
                         </button>
 
                         {import.meta.env.DEV ? <>
-                            <button className="text-black hover:text-gray-500 colors-smooth dark:text-white bg-white dark:bg-gray-900 rounded-full p-2"
+                            <button className="text-primary-foreground hover:text-primary-foreground/50 colors-smooth dark:text-primary-foreground bg-primary dark:bg-primary rounded-full p-2"
                                 onClick={() => {
                                     setMessages([]);
                                 }}
                             >
-                                <Trash size={16} className="opacity-50" />
+                                <Trash size={16} className="" />
                             </button>
                         </> : null}
                     </div>
@@ -345,4 +346,4 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
     )
 }
 
-export default ChatLayout;
+export default ChatSection;
