@@ -1,4 +1,4 @@
-import ChatLayout from "@/components/chat";
+import ChatLayout from "./components/ChatLayout";
 import { DarkModeToggleButton } from "@/features/dark-mode";
 import WCWorkspace from "@/features/react-wc-workspace";
 import { useWebContainer } from "@/features/react-wc-workspace/webcontainer/useWebContainer";

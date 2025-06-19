@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./features/auth";
 import { Toaster } from "./components/ui/sonner";
 import { Home } from "./pages";
@@ -15,6 +15,7 @@ const NotFound = () => {
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, authLoading } = useAuth();
+  const navigate = useNavigate();
 
   if (authLoading) {
     return <div className="flex items-center justify-center h-screen">
@@ -22,8 +23,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     </div>;
   }
 
-  if (!session) {
-    return <Navigate to="/auth" />;
+  if (!session && !authLoading) {
+    navigate("/auth");
   }
 
   return children;

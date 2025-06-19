@@ -14,10 +14,21 @@ import { useAuth } from "@/features/auth";
 const PromptWindow = () => {
   const newChatId = uuidv4();
   const navigate = useNavigate();
-  const [userPromptText, setUserPromptText] = useState("");
+  const [userPromptText, setUserPromptText] = useState<string>("");
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const { setInitialPromptText, setInitialSelectedImages } = useRootContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { session, authLoading } = useAuth();
+
+  useEffect(() => {
+    if (session && !authLoading) {
+      if (localStorage.getItem("initialPromptText")) {
+        setUserPromptText(localStorage.getItem("initialPromptText") || "");
+        setInitialPromptText(localStorage.getItem("initialPromptText") || "");
+        localStorage.removeItem("initialPromptText");
+      }
+    }
+  }, [session, authLoading]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -31,6 +42,11 @@ const PromptWindow = () => {
   };
 
   const handleStartChat = () => {
+    if (!session) {
+      localStorage.setItem("initialPromptText", userPromptText);
+      navigate("/auth");
+      return;
+    }
     if (userPromptText.trim() === "") {
       toast.error("Please enter a prompt")
       return;
@@ -113,6 +129,7 @@ const PromptWindow = () => {
 }
 
 const TextArea = ({ handleStartChat, userPromptText, setUserPromptText }: { handleStartChat: () => void, userPromptText: string, setUserPromptText: (text: string) => void }) => {
+
   return <textarea id="user-prompt-area" className="w-full h-full flex-1 resize-none px-4 py-4 mb-2 hide-scrollbar focus:border-none focus:outline-none placeholder:text-sm text-sm"
     placeholder="Enter your prompt here... (For example: 'Create a todo app')"
     onChange={(e) => setUserPromptText(e.target.value)}

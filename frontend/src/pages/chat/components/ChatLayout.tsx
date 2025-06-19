@@ -9,6 +9,7 @@ import { ArrowUp, Loader, Paperclip, Trash } from 'lucide-react';
 import { useAuth } from '@/features/auth';
 import { toast } from 'sonner';
 import { type Chat } from '@/contexts/root-context/RootContext';
+
 export interface Message {
     id: string;
     role: 'user' | 'model';
@@ -27,7 +28,6 @@ const ChatLayout = ({ chatId }: { chatId: string }) => {
     const [isStreaming, setIsStreaming] = useState<boolean>(false);
     const { webContainer, ensureDirectoryExists, wcReady, setWcFiles, getFileSystemTree } = useWebContainer();
     const [projectName, setProjectName] = useState<string>("Project");
-
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const { initialPromptText } = useRootContext();
     const [userPromptText, setUserPromptText] = useState<string>(initialPromptText);
