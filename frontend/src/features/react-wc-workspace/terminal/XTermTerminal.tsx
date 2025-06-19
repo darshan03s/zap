@@ -13,7 +13,7 @@ const ANSI_COLORS = {
     "red": "#800000",
     "green": "#008000",
     "yellow": "#808000",
-    "blue": "#000080",
+    "blue": "#0000CD",
     "magenta": "#800080",
     "cyan": "#008080",
     "white": "#c0c0c0",
@@ -29,7 +29,7 @@ const ANSI_COLORS = {
 
 const XTermTerminal = () => {
     const { webContainer } = useWebContainer()
-    const { terminalEl, setShellProcess, setTerminal, setFitAddon, setInputProcess, deleteTerminal } = useTerminal()
+    const { terminalEl, setShellProcess, setTerminal, setFitAddon, setInputProcess, deleteTerminal, isShellReady, setIsShellReady } = useTerminal()
 
     useEffect(() => {
         const terminalInit = async () => {
@@ -40,7 +40,7 @@ const XTermTerminal = () => {
                 convertEol: true,
                 cursorStyle: 'bar',
                 scrollOnUserInput: true,
-                fontFamily: 'Cascadia Code',
+                fontFamily: 'Menlo, "Cascadia Code", "Courier New", monospace',
 
                 theme: {
                     background: '#000000',
@@ -66,6 +66,9 @@ const XTermTerminal = () => {
                     new WritableStream({
                         write(data) {
                             terminal.write(data);
+                            if (!isShellReady && data.includes('~/')) {
+                                setIsShellReady(true)
+                            }
                         },
                     })
                 );
@@ -75,6 +78,16 @@ const XTermTerminal = () => {
                 terminal.onData((data) => {
                     input.write(data);
                 });
+
+                const resizeObserver = new ResizeObserver(() => {
+                    fitAddon.fit();
+                    shellProcess.resize({
+                        cols: terminal.cols,
+                        rows: terminal.rows,
+                    });
+                });
+
+                resizeObserver.observe(terminalEl.current as HTMLElement);
 
                 window.addEventListener('resize', () => {
                     fitAddon.fit();
@@ -93,7 +106,7 @@ const XTermTerminal = () => {
     }, [webContainer]);
 
     return (
-        <div ref={terminalEl} className='w-full overflow-x-auto'></div>
+        <div ref={terminalEl} className={`w-full overflow-x-auto h-full hide-scrollbar bg-black`}></div>
     )
 }
 

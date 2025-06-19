@@ -16,6 +16,8 @@ const TerminalContext = createContext<{
     deleteTerminal: () => void;
     showTerminal: boolean;
     setShowTerminal: (showTerminal: boolean) => void;
+    isShellReady: boolean;
+    setIsShellReady: (isShellReady: boolean) => void;
 } | null>(null);
 
 export default TerminalContext;

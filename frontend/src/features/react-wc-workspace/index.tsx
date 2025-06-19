@@ -337,7 +337,7 @@ const WCWorkspace = ({ hideChatSection, setHideChatSection }: { hideChatSection:
                 {deleteTerminal ? null :
                     <>
                         <div
-                            className={`${showTerminal ? 'block' : 'hidden'} terminal font-mono border-t border-white/20 w-full sticky bottom-0 right-0 flex flex-col hide-scrollbar`}
+                            className={`${showTerminal ? 'block' : 'hidden'} terminal font-mono border-t border-white/20 w-full absolute bottom-0 right-0 flex flex-col hide-scrollbar`}
                             style={{ height: `${terminalHeight}px` }}
                         >
                             {/* Top Resize Handle */}
@@ -348,7 +348,7 @@ const WCWorkspace = ({ hideChatSection, setHideChatSection }: { hideChatSection:
                                 title="Drag to resize"
                             />
 
-                            <div className="terminal-header border-b border-white/10 bg-gray-950 flex items-center justify-between flex-shrink-0">
+                            <div className="terminal-header border-b border-white/10 bg-black flex items-center justify-between flex-shrink-0">
                                 <div className="terminal-header-left py-1 px-2 text-sm font-extrabold text-gray-500 dark:text-gray-400">
                                     JSH
                                 </div>

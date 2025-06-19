@@ -11,6 +11,7 @@ const TerminalProvider = ({ children }: { children: React.ReactNode }) => {
     const [shellProcess, setShellProcess] = useState<WebContainerProcess | null>(null)
     const [inputProcess, setInputProcess] = useState<WritableStreamDefaultWriter | null>(null)
     const [showTerminal, setShowTerminal] = useState(false)
+    const [isShellReady, setIsShellReady] = useState(false)
 
     function deleteTerminal() {
         if (!terminal || !fitAddon || !shellProcess || !inputProcess) {
@@ -43,7 +44,9 @@ const TerminalProvider = ({ children }: { children: React.ReactNode }) => {
             setInputProcess,
             deleteTerminal,
             showTerminal,
-            setShowTerminal
+            setShowTerminal,
+            isShellReady,
+            setIsShellReady
         }}>
             {children}
         </TerminalContext.Provider>
