@@ -7,16 +7,22 @@ import { HomeIcon, Sidebar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTerminal } from "@/features/react-wc-workspace/terminal/useTerminal";
 
 const Chat = () => {
     const { setInitializeWebContainer } = useWebContainer();
     const { id: chatId } = useParams();
     const { isSidebarOpen, setIsSidebarOpen } = useRootContext();
     const [hideChatSection, setHideChatSection] = useState<boolean>(false)
+    const { isShellReady, inputProcess, setShowTerminal } = useTerminal();
 
     useEffect(() => {
         setInitializeWebContainer(true)
-    }, [chatId])
+        if (isShellReady) {
+            setShowTerminal(true)
+            inputProcess?.write("pnpm install && pnpm dev\n")
+        }
+    }, [chatId, isShellReady])
 
     return (
         <>
