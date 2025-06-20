@@ -16,7 +16,7 @@ const MemoizedMarkdownBlock = memo(
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ inline, className, children, ...props }) {
+          code({ inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || '');
 
             return !inline && match ? (
@@ -45,7 +45,7 @@ const MemoizedMarkdownBlock = memo(
             );
           },
           pre({ children, ...props }) {
-            return <div {...props}>{children}</div>;
+            return <pre {...props}>{children}</pre>;
           },
           p({ children, ...props }) {
             return <p {...props} className='p-3'>{children}</p>;
