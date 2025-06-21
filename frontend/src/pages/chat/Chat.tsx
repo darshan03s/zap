@@ -1,6 +1,6 @@
 import { useRootContext } from "@/contexts/root-context";
 import ChatSection from "./components/ChatSection";
-import { DarkModeToggleButton } from "@/features/dark-mode";
+import { ThemeToggleButton } from "@/features/theme";
 import WCWorkspace from "@/features/react-wc-workspace";
 import { useWebContainer } from "@/features/react-wc-workspace/webcontainer/useWebContainer";
 import { HomeIcon, Sidebar } from "lucide-react";
@@ -58,7 +58,7 @@ const Chat = () => {
                         </div>
 
                         <div className="left-bar-bottom flex flex-col gap-2">
-                            <DarkModeToggleButton />
+                            <ThemeToggleButton />
                         </div>
 
                     </div>

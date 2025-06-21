@@ -1,7 +1,7 @@
 import { AvatarFallback, AvatarImage, Avatar } from '@/components/ui/avatar';
 import { useAuth } from '@/features/auth';
 import { Link, useNavigate } from 'react-router-dom';
-import { DarkModeToggleButton } from '@/features/dark-mode';
+import { ThemeToggleButton } from '@/features/theme';
 import {
     Popover,
     PopoverContent,
@@ -97,7 +97,7 @@ const Header = () => {
                 <div className="auth">
                     {authLoading ? <div className="w-8 h-8 bg-accent rounded-full animate-pulse" /> : session ? <UserButton session={session} /> : <SignInButton />}
                 </div>
-                <DarkModeToggleButton />
+                <ThemeToggleButton />
             </div>
         </header>
     );

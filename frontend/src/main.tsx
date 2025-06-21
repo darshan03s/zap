@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "@/App";
 import "@/index.css";
-import { DarkModeProvider } from "@/features/dark-mode";
+import { ThemeProvider } from "@/features/theme";
 import WebContainerProvider from "@/features/react-wc-workspace/webcontainer/WebContainerProvider";
 import TerminalProvider from "@/features/react-wc-workspace/terminal/TerminalProvider";
 import { RootProvider } from "@/contexts/root-context";
@@ -12,13 +12,13 @@ createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <AuthProvider>
       <RootProvider>
-        <DarkModeProvider>
+        <ThemeProvider>
           <WebContainerProvider>
             <TerminalProvider>
               <App />
             </TerminalProvider>
           </WebContainerProvider>
-        </DarkModeProvider>
+        </ThemeProvider>
       </RootProvider>
     </AuthProvider>
   </BrowserRouter>

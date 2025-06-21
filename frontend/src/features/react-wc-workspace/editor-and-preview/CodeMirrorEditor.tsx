@@ -4,7 +4,7 @@ import * as themes from '@uiw/codemirror-themes-all';
 import { acceptCompletion, autocompletion } from '@codemirror/autocomplete';
 import { EditorView, keymap } from '@codemirror/view';
 import { langs } from '@uiw/codemirror-extensions-langs';
-import { useDarkMode } from '@/features/dark-mode';
+import { useTheme } from '@/features/theme';
 import { useWebContainer } from '../webcontainer/useWebContainer';
 import { mapExtToLanguage } from './utils';
 import CodeMirrorMerge from 'react-codemirror-merge';
@@ -17,10 +17,10 @@ const CodeMirrorEditor = ({ showDiff }: { showDiff: boolean }) => {
     const { selectedFile, webContainer } = useWebContainer();
     const [value, setValue] = useState("");
     const [language, setLanguage] = useState<string>("");
-    const { isDarkMode } = useDarkMode();
+    const { theme: currentTheme } = useTheme();
     const lightTheme = themes.vscodeLight;
     const darkTheme = themes.aura;
-    const [theme, setTheme] = useState<"light" | "dark" | "none" | Extension>(isDarkMode ? darkTheme : lightTheme);
+    const [theme, setTheme] = useState<"light" | "dark" | "none" | Extension>(currentTheme === "dark" ? darkTheme : lightTheme);
     const originalContent = selectedFile?.contents || ``;
 
     useEffect(() => {
@@ -75,8 +75,8 @@ const CodeMirrorEditor = ({ showDiff }: { showDiff: boolean }) => {
     ];
 
     useEffect(() => {
-        setTheme(isDarkMode ? darkTheme : lightTheme);
-    }, [isDarkMode, lightTheme, darkTheme]);
+        setTheme(currentTheme === "dark" ? darkTheme : lightTheme);
+    }, [currentTheme, lightTheme, darkTheme]);
 
     const onChange = (val: string) => {
         setValue(val || "");
