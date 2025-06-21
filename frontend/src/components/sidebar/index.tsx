@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { useAuth } from "@/features/auth"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import Logo from "@/components/logo"
 
 const ChatTab = ({ chat }: { chat: Chat }) => {
     const [isRenaming, setIsRenaming] = useState(false);
@@ -175,7 +176,10 @@ export default function Sidebar() {
                     ))}
                 </div>
                 <SheetFooter className="pt-0 flex items-center justify-center">
-                    Zap
+                    <Logo />
+                    <p className="text-sm text-muted-foreground">
+                        Made by <a target="_blank" rel="noopener noreferrer" href="https://github.com/darshan03s" className="text-primary">Darshan</a>
+                    </p>
                 </SheetFooter>
             </SheetContent>
         </Sheet>

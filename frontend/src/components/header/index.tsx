@@ -13,6 +13,7 @@ import supabase from '@/lib/supabase';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { LogOutIcon, SettingsIcon, LogInIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import Logo from '@/components/logo';
 
 const SignInButton = () => {
     const navigate = useNavigate();
@@ -86,12 +87,10 @@ const Header = () => {
     const { session, authLoading } = useAuth();
 
     return (
-        <header className="flex items-center justify-between p-2 h-[70px] dark:bg-background dark:text-foreground bg-background text-foreground px-4 colors-smooth">
+        <header className="flex items-center justify-between p-2 h-[60px] dark:bg-background dark:text-foreground bg-background text-foreground px-4 colors-smooth">
             <div className="header-left">
                 <Link to="/">
-                    <span className="logo font-bold text-2xl">
-                        Zap
-                    </span>
+                    <Logo />
                 </Link>
             </div>
             <div className="header-right flex items-center gap-2">
