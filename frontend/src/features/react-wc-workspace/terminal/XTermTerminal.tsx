@@ -29,7 +29,7 @@ const ANSI_COLORS = {
 
 const XTermTerminal = () => {
     const { webContainer } = useWebContainer()
-    const { terminalEl, setShellProcess, setTerminal, setFitAddon, setInputProcess, deleteTerminal, isShellReady, setIsShellReady } = useTerminal()
+    const { terminalEl, setShellProcess, setTerminal, setFitAddon, setInputProcess, deleteTerminal, isShellReady, setIsShellReady, setShowTerminal } = useTerminal()
 
     useEffect(() => {
         const terminalInit = async () => {
@@ -66,10 +66,9 @@ const XTermTerminal = () => {
                     new WritableStream({
                         write(data) {
                             terminal.write(data);
-                            if (!import.meta.env.DEV) {
-                                if (!isShellReady && data.includes('~/')) {
-                                    setIsShellReady(true)
-                                }
+                            if (!isShellReady && data.includes('~/')) {
+                                setIsShellReady(true)
+                                setShowTerminal(true)
                             }
                         },
                     })

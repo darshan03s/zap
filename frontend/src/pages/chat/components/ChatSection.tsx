@@ -5,10 +5,12 @@ import { devLog } from '@/utils';
 import { parseZapArtifact } from './chat-utils';
 import { MemoizedMarkdown } from './memoized-markdown';
 import { useRootContext } from '@/contexts/root-context';
-import { ArrowUp, Loader, Paperclip, Trash } from 'lucide-react';
+import { ArrowUp, Loader, Paperclip } from 'lucide-react';
 import { useAuth } from '@/features/auth';
 import { toast } from 'sonner';
 import { type Chat } from '@/contexts/root-context/RootContext';
+import { useTerminal } from '@/features/react-wc-workspace/terminal/useTerminal';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export interface Message {
     id: string;
@@ -27,14 +29,15 @@ const ChatSection = ({ chatId }: { chatId: string }) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [isStreaming, setIsStreaming] = useState<boolean>(false);
     const { webContainer, ensureDirectoryExists, wcReady, setWcFiles, getFileSystemTree } = useWebContainer();
+    const { isShellReady } = useTerminal();
     const [projectName, setProjectName] = useState<string>("Project");
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    const { initialPromptText } = useRootContext();
+    const { initialPromptText, initialSelectedImages, setChats } = useRootContext();
+    const [selectedImages, setSelectedImages] = useState<File[]>(initialSelectedImages);
     const [userPromptText, setUserPromptText] = useState<string>(initialPromptText);
     const { session } = useAuth();
     const [startChat, setStartChat] = useState<boolean>(false);
     const [chat, setChat] = useState<Chat | null>(null);
-    const { setChats } = useRootContext();
 
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -186,17 +189,25 @@ const ChatSection = ({ chatId }: { chatId: string }) => {
         setIsStreaming(true);
 
         try {
+            const formData = new FormData();
+            formData.append('prompt', userPrompt);
+            formData.append('chat_id', chatId);
+            formData.append('project_id', chat.project_id);
+            selectedImages.forEach((image) => {
+                formData.append(`images`, image);
+            });
+            setSelectedImages([]);
             const response = await fetch(
                 chatUrl,
                 {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
                         "Authorization": `Bearer ${session?.access_token}`
                     },
-                    body: JSON.stringify({ prompt: userPrompt, chat_id: chatId, project_id: chat?.project_id }),
+                    body: formData
                 }
             );
+
 
             if (!response.ok) {
                 toast.error("Error sending prompt");
@@ -258,6 +269,61 @@ const ChatSection = ({ chatId }: { chatId: string }) => {
         }
     };
 
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files) {
+            setSelectedImages(prev => [...prev, ...Array.from(files)]);
+        }
+    };
+
+    const addImages = (newImages: File[]) => {
+        setSelectedImages(prev => [...prev, ...newImages]);
+    };
+
+    const handlePaste = (e: ClipboardEvent) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        const imageFiles: File[] = [];
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.type.startsWith('image/')) {
+                const file = item.getAsFile();
+                if (file) {
+                    imageFiles.push(file);
+                }
+            }
+        }
+
+        if (imageFiles.length > 0) {
+            e.preventDefault();
+            addImages(imageFiles);
+            toast.success(`${imageFiles.length} image(s) pasted`);
+        }
+    };
+
+    const removeImage = (index: number) => {
+        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    };
+
+    useEffect(() => {
+        const handleGlobalPaste = (e: ClipboardEvent) => {
+            const target = e.target as HTMLElement;
+            const promptContainer = document.querySelector('.prompt-container');
+            if (promptContainer?.contains(target)) {
+                handlePaste(e);
+            }
+        };
+
+        document.addEventListener('paste', handleGlobalPaste);
+        return () => {
+            document.removeEventListener('paste', handleGlobalPaste);
+        };
+    }, []);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     return (
         <div className="chat-section h-full flex flex-col gap-2 rounded-lg dark:text-foreground text-foreground colors-smooth">
             <div className="chat flex-1 flex flex-col border border-border dark:border-border colors-smooth rounded-lg min-h-0">
@@ -302,6 +368,27 @@ const ChatSection = ({ chatId }: { chatId: string }) => {
             </div>
 
             <div className="prompt-container h-[150px] flex flex-col gap-1 bg-secondary dark:bg-secondary rounded-lg colors-smooth">
+                {selectedImages.length > 0 && (
+                    <div className="selected-images-preview p-1">
+                        <div className="flex gap-2 flex-wrap">
+                            {selectedImages.map((file, index) => (
+                                <div key={index} className="relative group">
+                                    <img
+                                        src={URL.createObjectURL(file)}
+                                        alt={`Preview ${index + 1}`}
+                                        className="w-10 h-10 object-cover rounded-lg border border-border"
+                                    />
+                                    <button
+                                        onClick={() => removeImage(index)}
+                                        className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 <textarea id="user-prompt-area" className="w-full h-full flex-1 resize-none p-1 px-3 py-3 hide-scrollbar focus:border-none focus:outline-none placeholder:text-sm text-sm" placeholder="Enter your prompt here..."
                     onChange={(e) => setUserPromptText(e.target.value)}
                     value={userPromptText}
@@ -314,22 +401,49 @@ const ChatSection = ({ chatId }: { chatId: string }) => {
                 ></textarea>
                 <div className="prompt-actions h-10 px-2 flex items-center justify-between">
                     <div className="prompt-actions-left flex items-center gap-2">
-                        <button className="text-primary-foreground hover:text-primary-foreground/50 colors-smooth dark:text-primary-foreground bg-primary dark:bg-primary rounded-full p-2">
-                            <Paperclip size={16} className="" />
-                        </button>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button
+                                    onClick={() => {
+                                        fileInputRef.current?.click();
+                                    }}
+                                    className="text-primary-foreground hover:text-primary-foreground/50 colors-smooth dark:text-primary-foreground bg-primary dark:bg-primary rounded-full p-2">
+                                    <Paperclip size={16} className="" />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Attach images
+                            </TooltipContent>
+                        </Tooltip>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            multiple={true}
+                            id="file-input"
+                            className="hidden"
+                            onChange={handleFileSelect}
+                        />
                     </div>
 
                     <div className="prompt-actions-right flex items-center gap-2">
-                        <button className="send-prompt text-primary-foreground hover:text-primary-foreground/50 colors-smooth dark:text-primary-foreground bg-primary dark:bg-primary rounded-full p-2"
-                            onClick={() => {
-                                handleSendPrompt();
-                            }}
-                            disabled={isStreaming}
-                        >
-                            {isStreaming ? <Loader size={16} className="animate-spin opacity-50" /> : <ArrowUp size={16} className="" />}
-                        </button>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button className={`send-prompt text-primary-foreground hover:text-primary-foreground/50 colors-smooth dark:text-primary-foreground bg-primary dark:bg-primary rounded-full p-2 ${isStreaming || !wcReady || !isShellReady ? 'cursor-wait!' : ''}`}
+                                    onClick={() => {
+                                        handleSendPrompt();
+                                    }}
+                                    disabled={isStreaming || !wcReady || !isShellReady}
+                                >
+                                    {isStreaming || !wcReady || !isShellReady ? <Loader size={16} className="animate-spin" /> : <ArrowUp size={16} className="" />}
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Send prompt
+                            </TooltipContent>
+                        </Tooltip>
 
-                        {import.meta.env.DEV ? <>
+                        {/* {import.meta.env.DEV ? <>
                             <button className="text-primary-foreground hover:text-primary-foreground/50 colors-smooth dark:text-primary-foreground bg-primary dark:bg-primary rounded-full p-2"
                                 onClick={() => {
                                     setMessages([]);
@@ -337,7 +451,7 @@ const ChatSection = ({ chatId }: { chatId: string }) => {
                             >
                                 <Trash size={16} className="" />
                             </button>
-                        </> : null}
+                        </> : null} */}
                     </div>
 
                 </div>

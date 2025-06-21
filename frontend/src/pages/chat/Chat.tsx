@@ -18,6 +18,7 @@ const Chat = () => {
 
     useEffect(() => {
         setInitializeWebContainer(true)
+        if (import.meta.env.DEV) return
         if (isShellReady) {
             setShowTerminal(true)
             inputProcess?.write("pnpm install && pnpm dev\n")

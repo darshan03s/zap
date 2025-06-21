@@ -36,9 +36,51 @@ const PromptWindow = () => {
     }
   };
 
+  const addImages = (newImages: File[]) => {
+    setSelectedImages(prev => [...prev, ...newImages]);
+  };
+
+  const handlePaste = (e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    const imageFiles: File[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          imageFiles.push(file);
+        }
+      }
+    }
+
+    if (imageFiles.length > 0) {
+      e.preventDefault();
+      addImages(imageFiles);
+      toast.success(`${imageFiles.length} image(s) pasted`);
+    }
+  };
+
   const removeImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
   };
+
+  useEffect(() => {
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      const promptContainer = document.querySelector('.prompt-container');
+      if (promptContainer?.contains(target)) {
+        handlePaste(e);
+      }
+    };
+
+    document.addEventListener('paste', handleGlobalPaste);
+    return () => {
+      document.removeEventListener('paste', handleGlobalPaste);
+    };
+  }, []);
 
   const handleStartChat = () => {
     if (!session) {
@@ -79,7 +121,12 @@ const PromptWindow = () => {
         </div>
       </div>
     )}
-    <TextArea handleStartChat={handleStartChat} userPromptText={userPromptText} setUserPromptText={setUserPromptText} />
+    <TextArea
+      handleStartChat={handleStartChat}
+      userPromptText={userPromptText}
+      setUserPromptText={setUserPromptText}
+      onPaste={handlePaste}
+    />
     <div className="prompt-actions h-10 px-3 pb-3 flex items-center justify-between">
       <div className="prompt-actions-left flex items-center gap-2">
         <Tooltip>
@@ -127,19 +174,32 @@ const PromptWindow = () => {
   </div>
 }
 
-const TextArea = ({ handleStartChat, userPromptText, setUserPromptText }: { handleStartChat: () => void, userPromptText: string, setUserPromptText: (text: string) => void }) => {
+const TextArea = ({ handleStartChat, userPromptText, setUserPromptText, onPaste }: { handleStartChat: () => void, userPromptText: string, setUserPromptText: (text: string) => void, onPaste: (e: ClipboardEvent) => void }) => {
 
-  return <textarea id="user-prompt-area" className="w-full h-full flex-1 resize-none px-4 py-4 mb-2 hide-scrollbar focus:border-none focus:outline-none placeholder:text-sm text-sm"
-    placeholder="Enter your prompt here... (For example: 'Create a todo app')"
-    onChange={(e) => setUserPromptText(e.target.value)}
-    value={userPromptText}
-    onKeyDown={(e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleStartChat();
-      }
-    }}
-  ></textarea>
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleTextareaPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const nativeEvent = e.nativeEvent;
+    onPaste(nativeEvent);
+  };
+
+  return (
+    <textarea
+      ref={textareaRef}
+      id="user-prompt-area"
+      className="w-full h-full flex-1 resize-none px-4 py-4 mb-2 hide-scrollbar focus:border-none focus:outline-none placeholder:text-sm text-sm"
+      placeholder="Enter your prompt here... (For example: 'Create a todo app')"
+      onChange={(e) => setUserPromptText(e.target.value)}
+      value={userPromptText}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          handleStartChat();
+        }
+      }}
+      onPaste={handleTextareaPaste}
+    ></textarea>
+  );
 }
 
 const Home = () => {

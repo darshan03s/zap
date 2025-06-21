@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 import { GoogleGenAI } from "@google/genai";
+import multer from "multer";
 import { basePrompt, getSystemPrompt } from "./llm/prompts.js";
 import starterTemplateXML from "./project-templates/templates/reacttsx-xml.js";
 import starterTemplateWC from "./project-templates/templates/reacttsx-wc.js";
@@ -27,6 +28,14 @@ app.use(express.json());
 app.use(cors());
 
 let ai;
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit
+        files: 5, // Max 5 files
+    },
+});
 
 try {
     console.log("Initializing GoogleGenAI...");
@@ -63,7 +72,7 @@ app.post("/chat/create", authenticate, async (req, res) => {
     res.json(chat);
 });
 
-app.post("/chat", authenticate, async (req, res) => {
+app.post("/chat", authenticate, upload.array("images", 5), async (req, res) => {
     if (!ai) {
         return res.status(500).json({
             errorMessage: "AI service is not available.",
@@ -71,6 +80,7 @@ app.post("/chat", authenticate, async (req, res) => {
     }
 
     const { prompt, chat_id, project_id } = req.body;
+
     if (!prompt) {
         return res.status(400).json({
             errorMessage: "Prompt is missing from the request body.",
@@ -82,6 +92,19 @@ app.post("/chat", authenticate, async (req, res) => {
             errorMessage:
                 "Chat ID or Project ID is missing from the request body.",
         });
+    }
+
+    const images = req.files;
+    const imageParts = [];
+    if (images && images.length > 0) {
+        for (const image of images) {
+            imageParts.push({
+                inlineData: {
+                    data: image.buffer.toString("base64"),
+                    mimeType: image.mimetype,
+                },
+            });
+        }
     }
 
     const user_id = req.user.id;
@@ -122,8 +145,17 @@ app.post("/chat", authenticate, async (req, res) => {
             };
         });
     }
-    messages.push({ role: "user", parts: [{ text: prompt }] });
-    await createMessage(user_id, chat_id, "user", [{ text: prompt }], prompt);
+    messages.push({
+        role: "user",
+        parts: [{ text: prompt }, ...imageParts],
+    });
+    await createMessage(
+        user_id,
+        chat_id,
+        "user",
+        [{ text: prompt }, ...imageParts],
+        prompt
+    );
 
     try {
         const { projectName, modelReplyRaw, infoContent } =
