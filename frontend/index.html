@@ -10,7 +10,19 @@
             href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"
             rel="stylesheet"
         />
-        <title>Zap</title>
+        <title>Zap - Create websites by prompting AI</title>
+        <meta name="description" content="Zap - Create websites by prompting AI" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Zap - Create websites by prompting AI" />
+        <meta property="og:description" content="Zap - Create websites by prompting AI" />
+        <meta property="og:image" content="https://zap-ai-live.vercel.app/og-preview.png" />
+        <meta property="og:url" content="https://zap-ai-live.vercel.app" />
+        <meta property="og:site_name" content="Zap" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Zap - Create websites by prompting AI" />
+        <meta name="twitter:description" content="Zap - Create websites by prompting AI" />
+        <meta name="twitter:image" content="https://zap-ai-live.vercel.app/og-preview.png" />
         <style>
             html:not(.loaded) {
                 transition: none !important;
@@ -28,9 +40,8 @@
                     root.classList.remove("light", "dark");
 
                     if (theme === "system") {
-                        const systemTheme = window.matchMedia(
-                            "(prefers-color-scheme: dark)"
-                        ).matches
+                        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+                            .matches
                             ? "dark"
                             : "light";
 
