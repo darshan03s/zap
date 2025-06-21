@@ -1,0 +1,15 @@
+.cm-scroller {
+    scrollbar-width: none;
+}
+
+.cm-scroller::-webkit-scrollbar {
+    display: none;
+}
+
+.cm-editor {
+    height: 100vh;
+}
+
+.cm-mergeView .ͼ1 .cm-scroller, .cm-mergeView .ͼ1 {
+    height: 100vh !important;
+}

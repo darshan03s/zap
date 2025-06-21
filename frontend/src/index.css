@@ -22,18 +22,6 @@ a {
   display: none;
 }
 
-.cm-scroller {
-  scrollbar-width: none;
-}
-
-.cm-scroller::-webkit-scrollbar {
-  display: none;
-}
-
-.cm-editor {
-  height: 100vh;
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;

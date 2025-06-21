@@ -66,8 +66,10 @@ const XTermTerminal = () => {
                     new WritableStream({
                         write(data) {
                             terminal.write(data);
-                            if (!isShellReady && data.includes('~/')) {
-                                setIsShellReady(true)
+                            if (!import.meta.env.DEV) {
+                                if (!isShellReady && data.includes('~/')) {
+                                    setIsShellReady(true)
+                                }
                             }
                         },
                     })

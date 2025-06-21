@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, FilePlus2, FolderPlusIcon, ListCollapseIcon, ListTreeIcon, Maximize2, RotateCcw, SquareArrowOutUpRight, SquareTerminal, Trash, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FileDiff, FilePlus2, FolderPlusIcon, ListCollapseIcon, ListTreeIcon, Maximize2, Minimize2, RotateCcw, SquareArrowOutUpRight, SquareTerminal, Trash, X } from 'lucide-react'
 import Editor from './editor-and-preview/Editor'
 import Preview from './editor-and-preview/Preview'
 import FileTree, { type FileTreeRef } from './webcontainer/FileTree'
@@ -7,6 +7,7 @@ import { useWebContainer } from './webcontainer/useWebContainer'
 import type { WebContainerFiles } from './webcontainer/types'
 import XTermTerminal from './terminal/XTermTerminal'
 import { useTerminal } from './terminal/useTerminal'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 const WCWorkspace = ({ hideChatSection, setHideChatSection }: { hideChatSection: boolean, setHideChatSection: (hideChatSection: boolean) => void }) => {
     const [explorerWidth, setExplorerWidth] = useState(0) // Initial width in pixels
@@ -24,6 +25,8 @@ const WCWorkspace = ({ hideChatSection, setHideChatSection }: { hideChatSection:
     const [previewUrl, setPreviewUrl] = useState('')
     const { wcFiles, wcReady, webContainer, wcServerUrl, initialMount, setInitialMount, selectedFile } = useWebContainer()
     const { fitAddon, deleteTerminal: exitTerminal, showTerminal, setShowTerminal } = useTerminal();
+    const [showDiff, setShowDiff] = useState(false);
+
     useEffect(() => {
         if (wcServerUrl) {
             setPreviewUrl(wcServerUrl)
@@ -300,32 +303,64 @@ const WCWorkspace = ({ hideChatSection, setHideChatSection }: { hideChatSection:
                     </div>
 
                     <div className="preview-header-right flex items-center gap-3">
-                        <button
-                            onClick={() => {
-                                setHideChatSection(!hideChatSection)
-                            }}
-                        >
-                            <Maximize2 className='size-7 text-muted-foreground colors-smooth dark:text-muted-foreground p-1.5 hover:bg-primary/20 rounded-md' />
-                        </button>
-                        <button
-                            disabled={!wcReady}
-                            className='disabled:opacity-50 disabled:cursor-not-allowed! '
-                            onClick={() => {
-                                if (deleteTerminal) {
-                                    setDeleteTerminal(false);
-                                    setShowTerminal(true);
-                                } else {
-                                    setShowTerminal(!showTerminal)
-                                }
-                            }}>
-                            <SquareTerminal className='size-7 text-muted-foreground colors-smooth dark:text-muted-foreground p-1.5 hover:bg-primary/20 rounded-md' />
-                        </button>
+                        {tab === "code" ?
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button
+                                        onClick={() => {
+                                            setShowDiff(!showDiff)
+                                        }}
+                                    >
+                                        <FileDiff className={`size-7 text-muted-foreground colors-smooth dark:text-muted-foreground p-1.5 hover:bg-primary/20 rounded-md ${showDiff ? 'bg-primary/20' : ''}`} />
+                                    </button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    Show Diff
+                                </TooltipContent>
+                            </Tooltip>
+                            :
+                            null}
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button
+                                    onClick={() => {
+                                        setHideChatSection(!hideChatSection)
+                                    }}
+                                >
+                                    {hideChatSection ? <Minimize2 className={`size-7 text-muted-foreground colors-smooth dark:text-muted-foreground p-1.5 hover:bg-primary/20 rounded-md`} /> : <Maximize2 className={`size-7 text-muted-foreground colors-smooth dark:text-muted-foreground p-1.5 hover:bg-primary/20 rounded-md`} />}
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                {hideChatSection ? "Show Chat" : "Hide Chat"}
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button
+                                    disabled={!wcReady}
+                                    className='disabled:opacity-50 disabled:cursor-not-allowed! '
+                                    onClick={() => {
+                                        if (deleteTerminal) {
+                                            setDeleteTerminal(false);
+                                            setShowTerminal(true);
+                                        } else {
+                                            setShowTerminal(!showTerminal)
+                                        }
+                                    }}>
+                                    <SquareTerminal className={`size-7 text-muted-foreground colors-smooth dark:text-muted-foreground p-1.5 hover:bg-primary/20 rounded-md ${showTerminal ? 'bg-primary/20' : ''}`} />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                {showTerminal ? "Hide Terminal" : "Show Terminal"}
+                            </TooltipContent>
+                        </Tooltip>
                         <span title='Webcontainer ready status' className={`webcontainer-readt-indicator size-4 rounded-full ${wcReady ? 'bg-green-500' : 'bg-red-500'}`}></span>
                     </div>
                 </div>
                 <div className={`preview-and-code flex-1 overflow-y-auto hide-scrollbar`}>
                     <div className={`code ${tab === 'code' ? 'block' : 'hidden'}`}>
-                        <Editor explorerWidth={explorerWidth} />
+                        <Editor explorerWidth={explorerWidth} showDiff={showDiff} />
                     </div>
                     <div className={`preview w-full h-full ${tab === 'preview' ? 'block' : 'hidden'}`}>
                         {wcServerUrl ? <Preview url={previewUrl} /> : <div className='w-full h-full flex items-center justify-center'>
