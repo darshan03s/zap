@@ -1,0 +1,165 @@
+'use client'
+
+import { memo, useCallback, useState } from 'react'
+import { useChat } from '@ai-sdk/react'
+import {
+  Attachment,
+  AttachmentPreview,
+  AttachmentRemove,
+  Attachments
+} from '@/components/ai-elements/attachments'
+import type { PromptInputMessage } from '@/components/ai-elements/prompt-input'
+import {
+  PromptInput,
+  PromptInputActionAddAttachments,
+  PromptInputActionMenu,
+  PromptInputActionMenuContent,
+  PromptInputActionMenuTrigger,
+  PromptInputBody,
+  PromptInputFooter,
+  PromptInputHeader,
+  PromptInputSelect,
+  PromptInputSelectContent,
+  PromptInputSelectItem,
+  PromptInputSelectTrigger,
+  PromptInputSelectValue,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+  usePromptInputAttachments
+} from '@/components/ai-elements/prompt-input'
+
+interface AttachmentItemProps {
+  attachment: {
+    id: string
+    type: 'file'
+    filename?: string
+    mediaType: string
+    url: string
+  }
+  onRemove: (id: string) => void
+}
+
+const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
+  const handleRemove = useCallback(() => onRemove(attachment.id), [onRemove, attachment.id])
+  return (
+    <Attachment data={attachment} key={attachment.id} onRemove={handleRemove}>
+      <AttachmentPreview />
+      <AttachmentRemove />
+    </Attachment>
+  )
+})
+
+AttachmentItem.displayName = 'AttachmentItem'
+
+const PromptInputAttachmentsDisplay = () => {
+  const attachments = usePromptInputAttachments()
+
+  const handleRemove = useCallback((id: string) => attachments.remove(id), [attachments])
+
+  if (attachments.files.length === 0) {
+    return null
+  }
+
+  return (
+    <Attachments variant="inline">
+      {attachments.files.map((attachment) => (
+        <AttachmentItem attachment={attachment} key={attachment.id} onRemove={handleRemove} />
+      ))}
+    </Attachments>
+  )
+}
+
+type Model = {
+  id: string
+  name: string
+  provider: string
+}
+
+const models: Model[] = [
+  {
+    id: 'openai/gpt-5.5',
+    name: 'GPT-5.5',
+    provider: 'openai'
+  },
+  {
+    id: 'anthropic/claude-sonnet-5',
+    name: 'Claude Sonnet 5',
+    provider: 'anthropic'
+  },
+  {
+    id: 'google/gemini-3.6-flash',
+    name: 'Gemini 3.6 Flash',
+    provider: 'google'
+  }
+]
+
+export const PromptInputComp = () => {
+  const [text, setText] = useState<string>('')
+  const [model, setModel] = useState<Model>(models[0])
+  const { status } = useChat()
+
+  const handleSubmit = (message: PromptInputMessage) => {
+    const hasText = Boolean(message.text)
+    const hasAttachments = Boolean(message.files?.length)
+    if (!(hasText || hasAttachments)) {
+      return
+    }
+    console.log(message)
+    setText('')
+  }
+
+  return (
+    <div className="size-full">
+      <PromptInput onSubmit={handleSubmit} globalDrop multiple>
+        <PromptInputHeader>
+          <PromptInputAttachmentsDisplay />
+        </PromptInputHeader>
+        <PromptInputBody>
+          <PromptInputTextarea
+            onChange={(e) => setText(e.target.value)}
+            value={text}
+            placeholder="Enter a prompt"
+          />
+        </PromptInputBody>
+        <PromptInputFooter>
+          <PromptInputTools>
+            <PromptInputActionMenu>
+              <PromptInputActionMenuTrigger />
+              <PromptInputActionMenuContent className={'w-fit'}>
+                <PromptInputActionAddAttachments />
+              </PromptInputActionMenuContent>
+            </PromptInputActionMenu>
+            <PromptInputSelect
+              onValueChange={(value) => {
+                console.log(value)
+                setModel(value as Model)
+              }}
+              value={model.name}
+            >
+              <PromptInputSelectTrigger>
+                <PromptInputSelectValue />
+              </PromptInputSelectTrigger>
+              <PromptInputSelectContent className={'p-1 w-fit'}>
+                {models.map((model) => (
+                  <PromptInputSelectItem
+                    key={model.id}
+                    value={model}
+                    className={'flex items-center gap-2'}
+                  >
+                    <img
+                      src={`https://models.dev/logos/${model.provider}.svg`}
+                      className="size-5 dark:invert"
+                    />
+                    <span>{model.name}</span>
+                  </PromptInputSelectItem>
+                ))}
+              </PromptInputSelectContent>
+            </PromptInputSelect>
+          </PromptInputTools>
+          <PromptInputSubmit disabled={!text && !status} status={status} />
+        </PromptInputFooter>
+      </PromptInput>
+    </div>
+  )
+}
