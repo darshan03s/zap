@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import { Brand } from './brand'
 import { ModeToggle } from './mode-toggle'
+import { User } from './user'
 
 export const Header = ({ className }: { className?: string }) => {
   return (
@@ -13,7 +14,8 @@ export const Header = ({ className }: { className?: string }) => {
       <div className="header-left">
         <Brand />
       </div>
-      <div className="header-right">
+      <div className="header-right flex items-center gap-4">
+        <User />
         <ModeToggle />
       </div>
     </header>
