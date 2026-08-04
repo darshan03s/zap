@@ -9,7 +9,9 @@ import { Button, buttonVariants } from './ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from './ui/dropdown-menu'
 
@@ -60,7 +62,12 @@ export const User = () => {
           >
             <Image alt="profile-image" width={100} height={100} src={data?.user.image as string} />
           </DropdownMenuTrigger>
-          <DropdownMenuContent className={'[&_div]:cursor-pointer'}>
+          <DropdownMenuContent className={'[&_div]:cursor-pointer w-fit *:text-xs'}>
+            <DropdownMenuGroup className="flex flex-col items-start p-2 text-xs">
+              <span>{data.user.name}</span>
+              <span className="font-bold">{data.user.email}</span>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut}>
               <LogOut /> Sign out
             </DropdownMenuItem>
