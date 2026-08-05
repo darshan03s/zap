@@ -8,13 +8,11 @@ export function withErrorHandler<T extends unknown[]>(handler: (...args: T) => P
       if (error instanceof ApiError) {
         return Response.json(
           {
-            error: {
-              code: error.code,
-              message: error.message
-            }
+            code: error.code,
+            message: error.message
           },
           {
-            status: error.code
+            status: error.status
           }
         )
       }
@@ -23,10 +21,8 @@ export function withErrorHandler<T extends unknown[]>(handler: (...args: T) => P
 
       return Response.json(
         {
-          error: {
-            code: 500,
-            message: 'Internal server error'
-          }
+          code: 500,
+          message: 'Internal server error'
         },
         {
           status: 500
