@@ -8,8 +8,8 @@ export async function requireSession() {
   })
 
   if (!session) {
-    throw new ApiError('Unauthorized', 401)
+    throw new ApiError('Unauthorized', 'UNAUTHORIZED', 401)
   }
 
-  return session
+  return { session, userId: session.user.id }
 }

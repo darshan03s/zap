@@ -28,6 +28,13 @@ import {
   PromptInputTools,
   usePromptInputAttachments
 } from '@/components/ai-elements/prompt-input'
+import { MODELS } from '@/constants'
+import { api } from '@/lib/api'
+import { authClient } from '@/lib/auth-client'
+import { logger } from '@/lib/logger'
+import { Model } from '@/types'
+import { ApiKeyModal } from './api-key-modal'
+import { toast } from './ui/toast'
 
 interface AttachmentItemProps {
   attachment: {
@@ -70,42 +77,32 @@ const PromptInputAttachmentsDisplay = () => {
   )
 }
 
-type Model = {
-  id: string
-  name: string
-  provider: string
-}
-
-const models: Model[] = [
-  {
-    id: 'openai/gpt-5.5',
-    name: 'GPT-5.5',
-    provider: 'openai'
-  },
-  {
-    id: 'anthropic/claude-sonnet-5',
-    name: 'Claude Sonnet 5',
-    provider: 'anthropic'
-  },
-  {
-    id: 'google/gemini-3.6-flash',
-    name: 'Gemini 3.6 Flash',
-    provider: 'google'
-  }
-]
-
 export const PromptInputComp = () => {
   const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<Model>(models[0])
+  const [model, setModel] = useState<Model>(MODELS[0])
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false)
   const { status } = useChat()
 
-  const handleSubmit = (message: PromptInputMessage) => {
+  const handleSubmit = async (message: PromptInputMessage) => {
     const hasText = Boolean(message.text)
     const hasAttachments = Boolean(message.files?.length)
     if (!(hasText || hasAttachments)) {
       return
     }
-    console.log(message)
+    logger.info({ prompt: message, model })
+    const session = await authClient.getSession()
+
+    if (!session) {
+      toast.add({ type: 'error', description: 'You need to sign in first' })
+      return
+    }
+
+    const { data } = await api.get(`/api-key/check`)
+    logger.info('API key exists: ', data.exists)
+    if (!data.exists) {
+      setShowApiKeyModal(true)
+      return
+    }
     setText('')
   }
 
@@ -141,7 +138,7 @@ export const PromptInputComp = () => {
                 <PromptInputSelectValue />
               </PromptInputSelectTrigger>
               <PromptInputSelectContent className={'p-1 w-fit'}>
-                {models.map((model) => (
+                {MODELS.map((model) => (
                   <PromptInputSelectItem
                     key={model.id}
                     value={model}
@@ -160,6 +157,7 @@ export const PromptInputComp = () => {
           <PromptInputSubmit disabled={!text && !status} status={status} />
         </PromptInputFooter>
       </PromptInput>
+      <ApiKeyModal open={showApiKeyModal} onOpenChange={setShowApiKeyModal} />
     </div>
   )
 }
