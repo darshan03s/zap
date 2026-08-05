@@ -1,5 +1,14 @@
 import { relations } from 'drizzle-orm'
-import { boolean, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
+import {
+  boolean,
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid
+} from 'drizzle-orm/pg-core'
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -73,9 +82,44 @@ export const verification = pgTable(
   (table) => [index('verification_identifier_idx').on(table.identifier)]
 )
 
+export const apiKeyProviderEnum = pgEnum('provider', [
+  'vercel_ai_gateway',
+  'openai',
+  'anthropic',
+  'google'
+])
+
+export const apiKeyModeEnum = pgEnum('api_key_mode', ['free', 'byok'])
+
+export const apiKey = pgTable(
+  'api_key',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    provider: apiKeyProviderEnum('provider').notNull(),
+    apiKeyMode: apiKeyModeEnum('api_key_mode').notNull(),
+    key: text('key').notNull()
+  },
+  (table) => [
+    index('api_key_userId_idx').on(table.userId),
+    uniqueIndex('api_key_user_provider_unique').on(table.userId, table.provider)
+  ]
+)
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
-  accounts: many(account)
+  accounts: many(account),
+  apiKeys: many(apiKey)
+}))
+
+export const apiKeyRelations = relations(apiKey, ({ one }) => ({
+  user: one(user, {
+    fields: [apiKey.userId],
+    references: [user.id]
+  })
 }))
 
 export const sessionRelations = relations(session, ({ one }) => ({
