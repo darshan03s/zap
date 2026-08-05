@@ -5,7 +5,7 @@ const Page = () => {
   return (
     <Main className="flex-1 flex items-center justify-center">
       <div className="w-full max-w-xl space-y-2">
-        <p className="text-4xl font-mono text-center">Create.Customize.Copy</p>
+        <p className="text-4xl font-mono text-center">Create.Preview.Copy</p>
         <div className="text-center text-muted-foreground text-xs">Create components using AI</div>
         <PromptInputComp />
       </div>
