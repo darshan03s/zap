@@ -83,7 +83,7 @@ export const ApiKeyModal = ({
             <Key /> Use default API key
           </Button>
           <p className="text-center text-xs text-destructive">
-            Only get 3 generations max with default key
+            Max 3 generations allowed with default key
           </p>
         </div>
       </div>
