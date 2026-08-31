@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm'
 import {
   boolean,
   index,
+  integer,
   pgEnum,
   pgTable,
   text,
@@ -109,15 +110,43 @@ export const apiKey = pgTable(
   ]
 )
 
-export const userRelations = relations(user, ({ many }) => ({
+export const generationLimit = pgTable(
+  'generation_limit',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    generationCount: integer('generation_count').default(0).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull()
+  },
+  (table) => [
+    index('generation_limit_userId_idx').on(table.userId),
+    uniqueIndex('generation_limit_user_unique').on(table.userId)
+  ]
+)
+
+export const userRelations = relations(user, ({ many, one }) => ({
   sessions: many(session),
   accounts: many(account),
-  apiKeys: many(apiKey)
+  apiKeys: many(apiKey),
+  generationLimit: one(generationLimit)
 }))
 
 export const apiKeyRelations = relations(apiKey, ({ one }) => ({
   user: one(user, {
     fields: [apiKey.userId],
+    references: [user.id]
+  })
+}))
+
+export const generationLimitRelations = relations(generationLimit, ({ one }) => ({
+  user: one(user, {
+    fields: [generationLimit.userId],
     references: [user.id]
   })
 }))

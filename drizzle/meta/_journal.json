@@ -15,6 +15,13 @@
       "when": 1785904529663,
       "tag": "0001_add_api_key",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788183386217,
+      "tag": "0002_careless_grey_gargoyle",
+      "breakpoints": true
     }
   ]
 }

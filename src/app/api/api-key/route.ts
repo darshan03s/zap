@@ -1,4 +1,5 @@
 import { apiKeyRepository } from '@/db/repository/apiKeyRepository'
+import { generationLimitRepository } from '@/db/repository/generationLimitRepository'
 import { env } from '@/env'
 import { withErrorHandler } from '@/lib/api-handler'
 import { encrypt } from '@/lib/encryption'
@@ -34,6 +35,8 @@ export const POST = withErrorHandler(async (req: Request) => {
       key: `${iv}:${authTag}:${encrypted}`
     })
   }
+
+  await generationLimitRepository.create(userId)
 
   return Response.json({}, { status: 201 })
 })
