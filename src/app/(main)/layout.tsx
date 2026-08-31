@@ -5,7 +5,7 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
         <AppSidebar />
         <div className="flex flex-col flex-1">
           <Header />
