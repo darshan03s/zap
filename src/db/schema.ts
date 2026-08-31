@@ -130,11 +130,29 @@ export const generationLimit = pgTable(
   ]
 )
 
+export const project = pgTable(
+  'project',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull()
+  },
+  (table) => [index('project_userId_idx').on(table.userId)]
+)
+
 export const userRelations = relations(user, ({ many, one }) => ({
   sessions: many(session),
   accounts: many(account),
   apiKeys: many(apiKey),
-  generationLimit: one(generationLimit)
+  generationLimit: one(generationLimit),
+  projects: many(project)
 }))
 
 export const apiKeyRelations = relations(apiKey, ({ one }) => ({
@@ -147,6 +165,13 @@ export const apiKeyRelations = relations(apiKey, ({ one }) => ({
 export const generationLimitRelations = relations(generationLimit, ({ one }) => ({
   user: one(user, {
     fields: [generationLimit.userId],
+    references: [user.id]
+  })
+}))
+
+export const projectRelations = relations(project, ({ one }) => ({
+  user: one(user, {
+    fields: [project.userId],
     references: [user.id]
   })
 }))
