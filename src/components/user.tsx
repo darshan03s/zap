@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { LogIn, LogOut } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
@@ -18,6 +19,7 @@ import {
 export const User = () => {
   const { data, isPending } = authClient.useSession()
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   async function signIn() {
     await authClient.signIn.social({
@@ -27,6 +29,7 @@ export const User = () => {
 
   async function signOut() {
     await authClient.signOut()
+    queryClient.removeQueries({ queryKey: ['projects'] })
     router.push('/')
   }
 

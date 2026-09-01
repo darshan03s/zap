@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { isAxiosError } from 'axios'
 import { Ellipsis, Pencil, Trash } from 'lucide-react'
 import { Modal } from '@/components/modal'
 import {
@@ -25,6 +26,7 @@ import {
 import { Item, ItemActions, ItemContent, ItemGroup } from '@/components/ui/item'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Project, deleteProject, getProjects, updateProject } from '@/lib/requests/project'
+import { authClient } from '@/lib/auth-client'
 import { Button } from './ui/button'
 import { DialogFooter } from './ui/dialog'
 import { Input } from './ui/input'
@@ -178,15 +180,36 @@ export const ProjectsList = () => {
   const queryClient = useQueryClient()
   const [renameProject, setRenameProject] = useState<Project | null>(null)
   const [deleteProjectState, setDeleteProjectState] = useState<Project | null>(null)
+  const { data: session, isPending: isSessionPending } = authClient.useSession()
 
   const {
     data: projects,
     isPending,
-    isError
+    isError,
+    error
   } = useQuery({
     queryKey: ['projects'],
-    queryFn: getProjects
+    queryFn: getProjects,
+    enabled: !!session
   })
+
+  if (isSessionPending) {
+    return (
+      <ItemGroup className="p-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-8 w-full rounded-lg" />
+        ))}
+      </ItemGroup>
+    )
+  }
+
+  if (!session) {
+    return (
+      <p className="px-4 py-2 text-xs text-muted-foreground flex items-center justify-center h-full">
+        Login required
+      </p>
+    )
+  }
 
   if (isPending) {
     return (
@@ -199,9 +222,11 @@ export const ProjectsList = () => {
   }
 
   if (isError) {
+    const isUnauthorized = isAxiosError(error) && error.response?.status === 401
+
     return (
       <p className="px-4 py-2 text-xs text-muted-foreground flex items-center justify-center h-full">
-        Failed to load projects
+        {isUnauthorized ? 'Login required' : 'Failed to load projects'}
       </p>
     )
   }
