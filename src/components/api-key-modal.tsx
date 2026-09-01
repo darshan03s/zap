@@ -14,9 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 
 export const ApiKeyModal = ({
   open,
+  onCreateApiKeySuccess,
   onOpenChange
 }: {
   open: boolean
+  onCreateApiKeySuccess: () => void
   onOpenChange: Dispatch<SetStateAction<boolean>>
 }) => {
   const [selectedProvider, setSelectedProvider] = useState<Provider>(PROVIDERS[0])
@@ -24,7 +26,7 @@ export const ApiKeyModal = ({
   const createApiKeyMutation = useMutation({
     mutationFn: createApiKey,
     onSuccess: () => {
-      onOpenChange(false)
+      onCreateApiKeySuccess()
     }
   })
 

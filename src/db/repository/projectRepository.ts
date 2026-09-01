@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { project } from '@/db/schema'
 
@@ -13,7 +13,7 @@ export const projectRepository = {
   },
 
   getByUserId: (userId: string) => {
-    return db.select().from(project).where(eq(project.userId, userId))
+    return db.select().from(project).where(eq(project.userId, userId)).orderBy(desc(project.createdAt))
   },
 
   updateById: (id: string, userId: string, data: Partial<typeof project.$inferInsert>) => {

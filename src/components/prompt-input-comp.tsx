@@ -2,6 +2,7 @@
 
 import { memo, useCallback, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Attachment,
   AttachmentPreview,
@@ -32,6 +33,7 @@ import { MODELS } from '@/constants'
 import { api } from '@/lib/api'
 import { authClient } from '@/lib/auth-client'
 import { logger } from '@/lib/logger'
+import { createProject as createProjectRequest } from '@/lib/requests/project'
 import { Model } from '@/types'
 import { ApiKeyModal } from './api-key-modal'
 import { toast } from './ui/toast'
@@ -82,6 +84,17 @@ export const PromptInputComp = () => {
   const [model, setModel] = useState<Model>(MODELS[0])
   const [showApiKeyModal, setShowApiKeyModal] = useState(false)
   const { status } = useChat()
+  const queryClient = useQueryClient()
+  const createProjectMutation = useMutation({
+    mutationFn: createProjectRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+    }
+  })
+
+  async function createProject(promptText: string) {
+    await createProjectMutation.mutateAsync({ text: promptText })
+  }
 
   const handleSubmit = async (message: PromptInputMessage) => {
     const hasText = Boolean(message.text)
@@ -103,7 +116,27 @@ export const PromptInputComp = () => {
       setShowApiKeyModal(true)
       return
     }
-    setText('')
+
+    try {
+      if (text) {
+        await createProject(text)
+      }
+      setText('')
+    } catch {
+      toast.add({ type: 'error', description: 'Failed to create project' })
+    }
+  }
+
+  async function onCreateApiKeySuccess() {
+    setShowApiKeyModal(false)
+    try {
+      if (text) {
+        await createProject(text)
+      }
+      setText('')
+    } catch {
+      toast.add({ type: 'error', description: 'Failed to create project' })
+    }
   }
 
   return (
@@ -157,7 +190,7 @@ export const PromptInputComp = () => {
           <PromptInputSubmit disabled={!text && !status} status={status} />
         </PromptInputFooter>
       </PromptInput>
-      <ApiKeyModal open={showApiKeyModal} onOpenChange={setShowApiKeyModal} />
+      <ApiKeyModal open={showApiKeyModal} onCreateApiKeySuccess={onCreateApiKeySuccess} onOpenChange={setShowApiKeyModal} />
     </div>
   )
 }
