@@ -1,11 +1,21 @@
 'use client'
 
-import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import { Dispatch, SetStateAction, useState } from 'react'
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Ellipsis, Pencil, Trash } from 'lucide-react'
 import { Modal } from '@/components/modal'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +24,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Item, ItemActions, ItemContent, ItemGroup } from '@/components/ui/item'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getProjects, Project, updateProject } from '@/lib/requests/project'
+import { Project, deleteProject, getProjects, updateProject } from '@/lib/requests/project'
 import { Button } from './ui/button'
 import { DialogFooter } from './ui/dialog'
 import { Input } from './ui/input'
 import { toast } from './ui/toast'
 
-const ProjectOptions = ({ onRename }: { onRename: () => void }) => {
+const ProjectOptions = ({ onRename, onDelete }: { onRename: () => void; onDelete: () => void }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -32,7 +42,7 @@ const ProjectOptions = ({ onRename }: { onRename: () => void }) => {
         <DropdownMenuItem onClick={onRename}>
           <Pencil /> Rename
         </DropdownMenuItem>
-        <DropdownMenuItem variant="destructive">
+        <DropdownMenuItem variant="destructive" onClick={onDelete}>
           <Trash /> Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -109,11 +119,65 @@ const RenameProjectDialog = ({
   )
 }
 
+const DeleteProjectDialog = ({
+  project,
+  open,
+  onOpenChange,
+  onSuccess
+}: {
+  project: Project
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSuccess: () => void
+}) => {
+  const deleteProjectMutation = useMutation({
+    mutationFn: deleteProject,
+    onSuccess: () => {
+      onSuccess()
+      onOpenChange(false)
+    }
+  })
+
+  async function handleDelete() {
+    try {
+      await deleteProjectMutation.mutateAsync({ id: project.id })
+    } catch {
+      toast.add({ type: 'error', description: 'Failed to delete project' })
+    }
+  }
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete project</AlertDialogTitle>
+          <AlertDialogDescription>
+            <p>Are you sure you want to delete:</p>
+            <p className="font-bold truncate max-w-xs">&quot;{project.title}&quot;</p>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={() => void handleDelete()}
+            disabled={deleteProjectMutation.isPending}
+          >
+            {deleteProjectMutation.isPending ? 'Deleting...' : 'Delete'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
 export const ProjectsList = () => {
   const params = useParams()
+  const router = useRouter()
   const projectId = params.projectId as string
   const queryClient = useQueryClient()
   const [renameProject, setRenameProject] = useState<Project | null>(null)
+  const [deleteProjectState, setDeleteProjectState] = useState<Project | null>(null)
 
   const {
     data: projects,
@@ -168,6 +232,24 @@ export const ProjectsList = () => {
           }}
         />
       )}
+      {deleteProjectState && (
+        <DeleteProjectDialog
+          key={deleteProjectState.id}
+          project={deleteProjectState}
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              setDeleteProjectState(null)
+            }
+          }}
+          onSuccess={() => {
+            if (deleteProjectState.id === projectId) {
+              router.push('/')
+            }
+            queryClient.invalidateQueries({ queryKey: ['projects'] })
+          }}
+        />
+      )}
       <ItemGroup className="p-1">
         {projects.map((project) => (
           <Item
@@ -182,7 +264,10 @@ export const ProjectsList = () => {
               </Link>
             </ItemContent>
             <ItemActions className="shrink-0">
-              <ProjectOptions onRename={() => setRenameProject(project)} />
+              <ProjectOptions
+                onRename={() => setRenameProject(project)}
+                onDelete={() => setDeleteProjectState(project)}
+              />
             </ItemActions>
           </Item>
         ))}
