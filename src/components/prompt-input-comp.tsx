@@ -1,6 +1,7 @@
 'use client'
 
 import { memo, useCallback, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useChat } from '@ai-sdk/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -80,6 +81,7 @@ const PromptInputAttachmentsDisplay = () => {
 }
 
 export const PromptInputComp = () => {
+  const router = useRouter()
   const [text, setText] = useState<string>('')
   const [model, setModel] = useState<Model>(MODELS[0])
   const [showApiKeyModal, setShowApiKeyModal] = useState(false)
@@ -87,8 +89,9 @@ export const PromptInputComp = () => {
   const queryClient = useQueryClient()
   const createProjectMutation = useMutation({
     mutationFn: createProjectRequest,
-    onSuccess: () => {
+    onSuccess: (project) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
+      router.push(`/project/${project.id}`)
     }
   })
 
@@ -190,7 +193,11 @@ export const PromptInputComp = () => {
           <PromptInputSubmit disabled={!text && !status} status={status} />
         </PromptInputFooter>
       </PromptInput>
-      <ApiKeyModal open={showApiKeyModal} onCreateApiKeySuccess={onCreateApiKeySuccess} onOpenChange={setShowApiKeyModal} />
+      <ApiKeyModal
+        open={showApiKeyModal}
+        onCreateApiKeySuccess={onCreateApiKeySuccess}
+        onOpenChange={setShowApiKeyModal}
+      />
     </div>
   )
 }
