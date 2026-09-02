@@ -1,7 +1,7 @@
-const Page = async ({ params }: { params: Promise<{ projectId: string }> }) => {
-  const { projectId } = await params
+import { Workspace } from '@/components/workspace'
 
-  return <div>Project {projectId}</div>
+const Page = ({ params }: { params: Promise<{ projectId: string }> }) => {
+  return <Workspace />
 }
 
 export default Page

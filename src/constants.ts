@@ -11,18 +11,18 @@ export const PROVIDER_NAMES: Record<Provider, string> = {
 
 export const MODELS: Model[] = [
   {
-    id: 'openai/gpt-5.5',
-    name: 'GPT-5.5',
+    id: 'openai/gpt-4o',
+    name: 'GPT-4o',
     provider: 'openai'
   },
   {
-    id: 'anthropic/claude-sonnet-5',
-    name: 'Claude Sonnet 5',
+    id: 'anthropic/claude-3-haiku',
+    name: 'Claude 3 Haiku',
     provider: 'anthropic'
   },
   {
-    id: 'google/gemini-3.6-flash',
-    name: 'Gemini 3.6 Flash',
+    id: 'google/gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash',
     provider: 'google'
   }
 ]
