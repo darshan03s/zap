@@ -95,8 +95,8 @@ export const PromptInputComp = () => {
     }
   })
 
-  async function createProject(promptText: string) {
-    await createProjectMutation.mutateAsync({ text: promptText })
+  async function createProject(message: PromptInputMessage) {
+    await createProjectMutation.mutateAsync({ text: message.text, attachments: message.files })
   }
 
   const handleSubmit = async (message: PromptInputMessage) => {
@@ -122,7 +122,7 @@ export const PromptInputComp = () => {
 
     try {
       if (text) {
-        await createProject(text)
+        await createProject(message)
       }
       setText('')
     } catch {
@@ -132,14 +132,6 @@ export const PromptInputComp = () => {
 
   async function onCreateApiKeySuccess() {
     setShowApiKeyModal(false)
-    try {
-      if (text) {
-        await createProject(text)
-      }
-      setText('')
-    } catch {
-      toast.add({ type: 'error', description: 'Failed to create project' })
-    }
   }
 
   return (

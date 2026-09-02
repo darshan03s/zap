@@ -1,5 +1,6 @@
 import z from 'zod'
 import { api } from '../api'
+import { FileUIPart } from 'ai'
 
 export type Project = {
   id: string
@@ -10,7 +11,8 @@ export type Project = {
 }
 
 export const CreateProjectRequest = z.object({
-  text: z.string().min(1)
+  text: z.string().min(1),
+  attachments: z.array(z.custom<FileUIPart>())
 })
 
 export const UpdateProjectRequest = z.object({
@@ -27,7 +29,7 @@ export async function getProjects() {
   return data.projects
 }
 
-export async function createProject(params: { text: string }) {
+export async function createProject(params: { text: string; attachments: FileUIPart[] }) {
   const { data } = await api.post<{ project: Project }>('/projects', params)
   return data.project
 }
