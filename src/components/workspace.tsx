@@ -16,6 +16,8 @@ import { Main } from './main'
 import { PromptInputComp } from './prompt-input-comp'
 import { toast } from './ui/toast'
 
+const autoRespondedProjectIds = new Set<string>()
+
 export const Workspace = ({
   projectId,
   initialMessages
@@ -42,11 +44,16 @@ export const Workspace = ({
 
   useEffect(() => {
     const lastMessage = initialMessages.at(-1)
-    if (lastMessage?.role !== 'user' || hasAutoResponded.current) {
+    if (
+      lastMessage?.role !== 'user' ||
+      hasAutoResponded.current ||
+      autoRespondedProjectIds.has(projectId)
+    ) {
       return
     }
 
     hasAutoResponded.current = true
+    autoRespondedProjectIds.add(projectId)
     sendMessage(undefined, {
       body: {
         model: model.id,

@@ -18,9 +18,24 @@ function saveMessage(message: UIMessage, projectId: string) {
 }
 
 export async function POST(req: Request) {
-  const { messages, model, projectId }: { messages: UIMessage[], model: LanguageModel, projectId: string } = await req.json();
+  const {
+    messages,
+    model,
+    projectId,
+    trigger,
+    messageId
+  }: {
+    messages: UIMessage[]
+    model: LanguageModel
+    projectId: string
+    trigger?: 'submit-message' | 'regenerate-message' | 'resume-stream'
+    messageId?: string
+  } = await req.json()
 
-  saveMessage(messages.at(-1)!, projectId)
+  const lastMessage = messages.at(-1)!
+  if (lastMessage.role === 'user' && trigger === 'submit-message' && messageId == null) {
+    saveMessage(lastMessage, projectId)
+  }
 
   const result = streamText({
     model: model,
