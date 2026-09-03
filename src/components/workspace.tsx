@@ -26,10 +26,7 @@ export const Workspace = ({
   initialMessages: UIMessage[]
 }) => {
   const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<Model>(() => {
-    const savedModel = localStorage.getItem('model')
-    return MODELS.find((m) => m.id === savedModel) ?? MODELS[0]
-  })
+  const [model, setModel] = useState<Model>(MODELS[0])
   const { messages, sendMessage, status } = useChat({
     messages: initialMessages,
     id: projectId,
@@ -41,6 +38,15 @@ export const Workspace = ({
     }
   })
   const hasAutoResponded = useRef(false)
+
+  useEffect(() => {
+    const savedModel = localStorage.getItem('model')
+    if (!savedModel) return
+    const foundModel = MODELS.find((m) => m.id === savedModel)
+    if (foundModel) {
+      setModel(foundModel)
+    }
+  }, [])
 
   useEffect(() => {
     const lastMessage = initialMessages.at(-1)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { PromptInputMessage } from '@/components/ai-elements/prompt-input'
@@ -17,10 +17,7 @@ import { toast } from './ui/toast'
 export const HomePromptInput = () => {
   const router = useRouter()
   const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<Model>(() => {
-    const savedModel = localStorage.getItem('model')
-    return MODELS.find((m) => m.id === savedModel) ?? MODELS[0]
-  })
+  const [model, setModel] = useState<Model>(MODELS[0])
   const [showApiKeyModal, setShowApiKeyModal] = useState(false)
   const queryClient = useQueryClient()
   const createProjectMutation = useMutation({
@@ -30,6 +27,15 @@ export const HomePromptInput = () => {
       router.push(`/project/${project.id}`)
     }
   })
+
+  useEffect(() => {
+    const savedModel = localStorage.getItem('model')
+    if (!savedModel) return
+    const foundModel = MODELS.find((m) => m.id === savedModel)
+    if (foundModel) {
+      setModel(foundModel)
+    }
+  }, [])
 
   async function createProject(message: PromptInputMessage) {
     await createProjectMutation.mutateAsync({ text: message.text, attachments: message.files })
