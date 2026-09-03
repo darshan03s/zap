@@ -1,3 +1,4 @@
+import { messagesRepository } from '@/db/repository/messageRepository';
 import {
   streamText,
   UIMessage,
@@ -6,15 +7,20 @@ import {
   toUIMessageStream,
   LanguageModel,
 } from 'ai';
+import { GatewayRateLimitError } from '@ai-sdk/gateway'
 
-function saveMessage(message: UIMessage) {
-  console.log("Saving message", message);
+function saveMessage(message: UIMessage, projectId: string) {
+  messagesRepository.create({
+    projectId: projectId,
+    parts: message.parts,
+    role: message.role,
+  })
 }
 
 export async function POST(req: Request) {
-  const { messages, model }: { messages: UIMessage[], model: LanguageModel } = await req.json();
+  const { messages, model, projectId }: { messages: UIMessage[], model: LanguageModel, projectId: string } = await req.json();
 
-  saveMessage(messages.at(-1)!)
+  saveMessage(messages.at(-1)!, projectId)
 
   const result = streamText({
     model: model,
@@ -23,8 +29,15 @@ export async function POST(req: Request) {
 
   return createUIMessageStreamResponse({
     stream: toUIMessageStream({
-      stream: result.stream, onEnd: (endObj) => {
-        saveMessage(endObj.responseMessage)
+      stream: result.stream,
+      onEnd: (endObj) => {
+        saveMessage(endObj.responseMessage, projectId)
+      },
+      onError: (error) => {
+        if (error instanceof GatewayRateLimitError) {
+          return 'Free tier requests on this model are rate-limited'
+        }
+        return "Something went wrong"
       }
     }),
   });

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { useChat } from '@ai-sdk/react'
+import { UIMessage, useChat } from '@ai-sdk/react'
 import {
   Conversation,
   ConversationContent,
@@ -14,9 +14,25 @@ import { Model } from '@/types'
 import { PromptInputMessage } from './ai-elements/prompt-input'
 import { Main } from './main'
 import { PromptInputComp } from './prompt-input-comp'
+import { toast } from './ui/toast'
 
-export const Workspace = () => {
-  const { messages, sendMessage, status } = useChat()
+export const Workspace = ({
+  projectId,
+  initialMessages
+}: {
+  projectId: string
+  initialMessages: UIMessage[]
+}) => {
+  const { messages, sendMessage, status } = useChat({
+    messages: initialMessages,
+    id: projectId,
+    onError: (error) => {
+      toast.add({
+        title: 'Error',
+        description: error.message
+      })
+    }
+  })
   const [text, setText] = useState<string>('')
   const [model, setModel] = useState<Model>(MODELS[0])
 
@@ -31,7 +47,8 @@ export const Workspace = () => {
       {
         body: {
           model: model.id,
-          userInput: message.text
+          userInput: message.text,
+          projectId: projectId
         }
       }
     )

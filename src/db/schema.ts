@@ -148,6 +148,8 @@ export const project = pgTable(
   (table) => [index('project_userId_idx').on(table.userId)]
 )
 
+export const messageRoleEnum = pgEnum('message_role', ['user', 'assistant', 'system'])
+
 export const message = pgTable(
   'message',
   {
@@ -156,6 +158,7 @@ export const message = pgTable(
       .notNull()
       .references(() => project.id, { onDelete: 'cascade' }),
     parts: jsonb('parts').notNull(),
+    role: messageRoleEnum('role').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull()
   },
   (table) => [index('message_projectId_idx').on(table.projectId)]
