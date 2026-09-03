@@ -1,8 +1,10 @@
+import { messagesRepository } from '@/db/repository/messageRepository'
 import { projectRepository } from '@/db/repository/projectRepository'
 import { withErrorHandler } from '@/lib/api-handler'
 import { ApiError } from '@/lib/errors'
 import { requireSession } from '@/lib/guards'
 import { CreateProjectRequest, DeleteProjectRequest, UpdateProjectRequest } from '@/lib/requests/project'
+import { UIMessage } from 'ai'
 
 export const GET = withErrorHandler(async () => {
   const { userId } = await requireSession()
@@ -24,6 +26,17 @@ export const POST = withErrorHandler(async (req: Request) => {
   const [project] = await projectRepository.create({
     userId,
     title: parsed.data.text
+  })
+
+  const parts = [
+    ...parsed.data.attachments.map((attachment) => ({ type: 'file', filename: attachment.filename, mediaType: attachment.mediaType, url: attachment.url })),
+    { type: 'text', text: parsed.data.text }
+  ] as UIMessage['parts']
+
+  messagesRepository.create({
+    projectId: project.id,
+    role: 'user',
+    parts
   })
 
   return Response.json({ project }, { status: 201 })

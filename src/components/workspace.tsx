@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { UIMessage, useChat } from '@ai-sdk/react'
 import {
@@ -23,6 +23,11 @@ export const Workspace = ({
   projectId: string
   initialMessages: UIMessage[]
 }) => {
+  const [text, setText] = useState<string>('')
+  const [model, setModel] = useState<Model>(() => {
+    const savedModel = localStorage.getItem('model')
+    return MODELS.find((m) => m.id === savedModel) ?? MODELS[0]
+  })
   const { messages, sendMessage, status } = useChat({
     messages: initialMessages,
     id: projectId,
@@ -33,11 +38,22 @@ export const Workspace = ({
       })
     }
   })
-  const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<Model>(() => {
-    const savedModel = localStorage.getItem('model')
-    return MODELS.find((m) => m.id === savedModel) ?? MODELS[0]
-  })
+  const hasAutoResponded = useRef(false)
+
+  useEffect(() => {
+    const lastMessage = initialMessages.at(-1)
+    if (lastMessage?.role !== 'user' || hasAutoResponded.current) {
+      return
+    }
+
+    hasAutoResponded.current = true
+    sendMessage(undefined, {
+      body: {
+        model: model.id,
+        projectId
+      }
+    })
+  }, [initialMessages, model.id, projectId, sendMessage])
 
   function handleSubmit(message: PromptInputMessage) {
     const hasText = Boolean(message.text)
