@@ -124,7 +124,7 @@ export const PromptInputComp = ({
                   className={'flex items-center gap-2'}
                 >
                   <img
-                    src={`https://models.dev/logos/${model.provider}.svg`}
+                    src={`/provider-logos/${model.provider}.svg`}
                     className="size-5 dark:invert"
                   />
                   <span>{model.name}</span>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { UIMessage, useChat } from '@ai-sdk/react'
+import 'streamdown/styles.css'
 import {
   Conversation,
   ConversationContent,
@@ -15,6 +16,7 @@ import { PromptInputMessage } from './ai-elements/prompt-input'
 import { Main } from './main'
 import { PromptInputComp } from './prompt-input-comp'
 import { toast } from './ui/toast'
+import { WebContainerIDE } from './webcontainer-ide'
 
 const autoRespondedProjectIds = new Set<string>()
 
@@ -89,8 +91,8 @@ export const Workspace = ({
 
   return (
     <Main className="flex gap-2 flex-1 max-h-(--main-full-height)">
-      <div className="w-5/12 flex flex-col h-full p-4 gap-2">
-        <Conversation className="border-2 rounded-lg">
+      <div className="w-5/12 flex flex-col h-full gap-2 py-2 pl-2">
+        <Conversation className="border rounded-lg">
           <ConversationContent>
             {messages.map((message) => (
               <Message from={message.role} key={message.id}>
@@ -134,7 +136,19 @@ export const Workspace = ({
         />
       </div>
 
-      <div className="flex-1"></div>
+      <div className="flex-1 py-2 pr-2">
+        <WebContainerIDE
+          className="h-full"
+          loadFromSnapshot={'/api/snapshot'}
+          disableCreateFile
+          disableCreateFolder
+          disableDeleting
+          disableMoving
+          disableRenaming
+          editorReadOnly
+          terminalReadOnly
+        />
+      </div>
     </Main>
   )
 }
