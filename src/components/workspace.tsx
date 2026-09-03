@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useChat } from '@ai-sdk/react'
 import {
   Conversation,
@@ -20,8 +21,13 @@ export const Workspace = () => {
   const [model, setModel] = useState<Model>(MODELS[0])
 
   function handleSubmit(message: PromptInputMessage) {
+    const hasText = Boolean(message.text)
+    const hasAttachments = Boolean(message.files?.length)
+    if (!(hasText || hasAttachments)) {
+      return
+    }
     sendMessage(
-      { text: message.text },
+      { text: message.text, files: message.files ?? [] },
       {
         body: {
           model: model.id,
@@ -42,6 +48,15 @@ export const Workspace = () => {
                 <MessageContent>
                   {message.parts.map((part, i) => {
                     switch (part.type) {
+                      case 'file':
+                        return (
+                          <Image
+                            src={part.url}
+                            alt={part.filename ?? ''}
+                            width={100}
+                            height={100}
+                          />
+                        )
                       case 'text':
                         return (
                           <MessageResponse key={`${message.id}-${i}`}>{part.text}</MessageResponse>
