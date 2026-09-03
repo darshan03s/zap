@@ -34,7 +34,10 @@ export const Workspace = ({
     }
   })
   const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<Model>(MODELS[0])
+  const [model, setModel] = useState<Model>(() => {
+    const savedModel = localStorage.getItem('model')
+    return MODELS.find((m) => m.id === savedModel) ?? MODELS[0]
+  })
 
   function handleSubmit(message: PromptInputMessage) {
     const hasText = Boolean(message.text)
@@ -95,7 +98,10 @@ export const Workspace = ({
           text={text}
           onTextInputChange={(text) => setText(text)}
           model={model}
-          onModelChange={(model) => setModel(model)}
+          onModelChange={(model) => {
+            setModel(model)
+            localStorage.setItem('model', model.id as string)
+          }}
         />
       </div>
 

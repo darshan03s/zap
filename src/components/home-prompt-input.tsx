@@ -17,7 +17,10 @@ import { toast } from './ui/toast'
 export const HomePromptInput = () => {
   const router = useRouter()
   const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<Model>(MODELS[0])
+  const [model, setModel] = useState<Model>(() => {
+    const savedModel = localStorage.getItem('model')
+    return MODELS.find((m) => m.id === savedModel) ?? MODELS[0]
+  })
   const [showApiKeyModal, setShowApiKeyModal] = useState(false)
   const queryClient = useQueryClient()
   const createProjectMutation = useMutation({
@@ -74,7 +77,10 @@ export const HomePromptInput = () => {
         text={text}
         onTextInputChange={(text) => setText(text)}
         model={model}
-        onModelChange={(model) => setModel(model)}
+        onModelChange={(model) => {
+          setModel(model)
+          localStorage.setItem('model', model.id as string)
+        }}
       />
       <ApiKeyModal
         open={showApiKeyModal}
