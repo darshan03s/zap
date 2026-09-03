@@ -29,6 +29,13 @@
       "when": 1788193874862,
       "tag": "0003_add_project_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788433087052,
+      "tag": "0004_add_message_schema",
+      "breakpoints": true
     }
   ]
 }

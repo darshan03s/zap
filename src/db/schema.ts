@@ -3,6 +3,7 @@ import {
   boolean,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -147,6 +148,19 @@ export const project = pgTable(
   (table) => [index('project_userId_idx').on(table.userId)]
 )
 
+export const message = pgTable(
+  'message',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    projectId: uuid('project_id')
+      .notNull()
+      .references(() => project.id, { onDelete: 'cascade' }),
+    parts: jsonb('parts').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull()
+  },
+  (table) => [index('message_projectId_idx').on(table.projectId)]
+)
+
 export const userRelations = relations(user, ({ many, one }) => ({
   sessions: many(session),
   accounts: many(account),
@@ -169,10 +183,18 @@ export const generationLimitRelations = relations(generationLimit, ({ one }) => 
   })
 }))
 
-export const projectRelations = relations(project, ({ one }) => ({
+export const projectRelations = relations(project, ({ one, many }) => ({
   user: one(user, {
     fields: [project.userId],
     references: [user.id]
+  }),
+  messages: many(message)
+}))
+
+export const messageRelations = relations(message, ({ one }) => ({
+  project: one(project, {
+    fields: [message.projectId],
+    references: [project.id]
   })
 }))
 
