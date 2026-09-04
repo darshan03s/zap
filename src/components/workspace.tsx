@@ -20,6 +20,22 @@ import { WebContainerIDE } from './webcontainer-ide'
 
 const autoRespondedProjectIds = new Set<string>()
 
+export function HorizontalEllipsis() {
+  return (
+    <div className="flex items-center gap-1 text-zinc-500">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="size-1.5 rounded-full bg-current animate-bounce"
+          style={{
+            animationDelay: `${i * 120}ms`
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 export const Workspace = ({
   projectId,
   initialMessages
@@ -119,6 +135,7 @@ export const Workspace = ({
                 </MessageContent>
               </Message>
             ))}
+            {status === 'submitted' && <HorizontalEllipsis />}
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
