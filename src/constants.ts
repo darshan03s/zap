@@ -11,8 +11,8 @@ export const PROVIDER_NAMES: Record<Provider, string> = {
 
 export const MODELS: Model[] = [
   {
-    id: 'openai/gpt-4o',
-    name: 'GPT-4o',
+    id: 'openai/gpt-4.1',
+    name: 'GPT-4.1',
     provider: 'openai'
   },
   {

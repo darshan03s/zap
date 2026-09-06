@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { UIMessage, useChat } from '@ai-sdk/react'
 import { FileSystemTree } from '@webcontainer/api'
+import { type DynamicToolUIPart, type ToolUIPart, getToolName, isToolUIPart } from 'ai'
 import 'streamdown/styles.css'
 import {
   Conversation,
@@ -35,6 +36,29 @@ export function HorizontalEllipsis() {
       ))}
     </div>
   )
+}
+
+function ToolInvocationDisplay({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
+  const toolName = getToolName(part)
+
+  switch (part.state) {
+    case 'output-available':
+      return (
+        <div className="rounded-md border bg-muted/50 px-3 py-2 font-mono text-xs">
+          <div className="font-medium">Tool: {toolName}</div>
+        </div>
+      )
+    case 'output-error':
+      return (
+        <div className="text-destructive text-xs">
+          Tool: {toolName}
+          <br />
+          <pre>{JSON.stringify(part.errorText, null, 2)}</pre>
+        </div>
+      )
+    default:
+      return null
+  }
 }
 
 export const Workspace = ({
@@ -117,6 +141,10 @@ export const Workspace = ({
               <Message from={message.role} key={message.id}>
                 <MessageContent>
                   {message.parts.map((part, i) => {
+                    if (isToolUIPart(part)) {
+                      return <ToolInvocationDisplay key={`${message.id}-${i}`} part={part} />
+                    }
+
                     switch (part.type) {
                       case 'file':
                         return (

@@ -1,4 +1,4 @@
-import { messagesRepository } from '@/db/repository/messageRepository';
+import { messagesRepository } from '@/db/repository/messageRepository'
 import {
   streamText,
   UIMessage,
@@ -6,8 +6,10 @@ import {
   createUIMessageStreamResponse,
   toUIMessageStream,
   LanguageModel,
-} from 'ai';
+  isStepCount
+} from 'ai'
 import { GatewayRateLimitError } from '@ai-sdk/gateway'
+import { createChatTools } from './tools'
 
 function saveMessage(message: UIMessage, projectId: string) {
   messagesRepository.create({
@@ -37,10 +39,14 @@ export async function POST(req: Request) {
     saveMessage(lastMessage, projectId)
   }
 
+  const tools = createChatTools(projectId)
+
   const result = streamText({
     model: model,
-    messages: await convertToModelMessages(messages),
-  });
+    messages: await convertToModelMessages(messages, { tools }),
+    tools,
+    stopWhen: isStepCount(5)
+  })
 
   return createUIMessageStreamResponse({
     stream: toUIMessageStream({
