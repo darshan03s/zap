@@ -43,6 +43,17 @@ const getFileTreeOutputSchema = z.object({
   error: z.string().optional()
 })
 
+const writeFileInputSchema = z.object({
+  path: z.string().describe('Path to the file to write.'),
+  content: z.string().describe('Content to write to the file.')
+})
+
+const writeFileOutputSchema = z.object({
+  path: z.string().optional(),
+  created: z.boolean().optional(),
+  error: z.string().optional()
+})
+
 type FileTreeEntry = {
   id: string
   name: string
@@ -189,6 +200,25 @@ export function createChatTools(projectId: string) {
         return {
           path: folder.path,
           tree: renderAsciiFileTree(folder, childrenMap)
+        }
+      }
+    }),
+    writeFile: tool({
+      description: 'Write content to a file at the given path. Creates the file if it does not exist.',
+      inputSchema: writeFileInputSchema,
+      outputSchema: writeFileOutputSchema,
+      execute: async ({ path, content }) => {
+        try {
+          const result = await fileRepository.upsertFile(projectId, path, content)
+
+          return {
+            path: result.file.path,
+            created: result.created
+          }
+        } catch (error) {
+          return {
+            error: error instanceof Error ? error.message : 'Failed to write file'
+          }
         }
       }
     })

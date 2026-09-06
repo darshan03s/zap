@@ -10,7 +10,7 @@ import { ConversationComp } from './conversation-comp'
 import { Main } from './main'
 import { PromptInputComp } from './prompt-input-comp'
 import { toast } from './ui/toast'
-import { WebContainerIDE } from './webcontainer-ide'
+import { WebContainerIDE, useWebContainer } from './webcontainer-ide'
 
 const autoRespondedProjectIds = new Set<string>()
 
@@ -25,6 +25,7 @@ export const Workspace = ({
 }) => {
   const [text, setText] = useState<string>('')
   const [model, setModel] = useState<Model>(MODELS[0])
+  const { writeFile } = useWebContainer()
   const { messages, sendMessage, status } = useChat({
     messages: initialMessages,
     id: projectId,
@@ -33,6 +34,13 @@ export const Workspace = ({
         title: 'Error',
         description: error.message
       })
+    },
+    onToolCall: (toolCallObj) => {
+      const toolName = toolCallObj.toolCall.toolName
+      const tooInput = toolCallObj.toolCall.input as { path: string; content: string }
+      if (toolName === 'writeFile') {
+        writeFile(tooInput.path, tooInput.content)
+      }
     }
   })
   const hasAutoResponded = useRef(false)
