@@ -16,6 +16,7 @@ import {
   ConversationScrollButton
 } from './ai-elements/conversation'
 import { Message, MessageContent, MessageResponse } from './ai-elements/message'
+import { Badge } from './ui/badge'
 
 function HorizontalEllipsis() {
   return (
@@ -39,8 +40,10 @@ function ToolInvocationDisplay({ part }: { part: ToolUIPart | DynamicToolUIPart 
   switch (part.state) {
     case 'output-available':
       return (
-        <div className="rounded-md border bg-muted/50 px-3 py-2 font-mono text-xs">
-          <div className="font-medium">Tool: {toolName}</div>
+        <div className="font-mono text-xs">
+          <Badge variant="default" className="h-6">
+            Tool: {toolName}
+          </Badge>
         </div>
       )
     case 'output-error':

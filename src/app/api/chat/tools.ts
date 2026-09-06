@@ -20,6 +20,16 @@ const lsOutputSchema = z.object({
   error: z.string().optional()
 })
 
+const readFileInputSchema = z.object({
+  filepath: z.string().describe('Path to the file to read.')
+})
+
+const readFileOutputSchema = z.object({
+  path: z.string().optional(),
+  content: z.string().optional(),
+  error: z.string().optional()
+})
+
 export function createChatTools(projectId: string) {
   return {
     ls: tool({
@@ -47,6 +57,33 @@ export function createChatTools(projectId: string) {
 
         const entries = await fileRepository.listByParentId(projectId, parent.id)
         return { entries }
+      }
+    }),
+    readFile: tool({
+      description: 'Read the content of a file at the given path in the project filesystem.',
+      inputSchema: readFileInputSchema,
+      outputSchema: readFileOutputSchema,
+      execute: async ({ filepath }) => {
+        const normalizedPath = filepath.trim()
+
+        if (!normalizedPath) {
+          return { error: 'Filepath is required' }
+        }
+
+        const fileEntry = await fileRepository.getByPath(projectId, normalizedPath)
+
+        if (!fileEntry) {
+          return { error: `File not found: ${normalizedPath}` }
+        }
+
+        if (fileEntry.type !== 'file') {
+          return { error: `Not a file: ${normalizedPath}` }
+        }
+
+        return {
+          path: fileEntry.path,
+          content: fileEntry.content ?? ''
+        }
       }
     })
   }
