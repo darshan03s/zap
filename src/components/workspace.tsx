@@ -1,65 +1,18 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
 import { UIMessage, useChat } from '@ai-sdk/react'
 import { FileSystemTree } from '@webcontainer/api'
-import { type DynamicToolUIPart, type ToolUIPart, getToolName, isToolUIPart } from 'ai'
-import 'streamdown/styles.css'
-import {
-  Conversation,
-  ConversationContent,
-  ConversationScrollButton
-} from '@/components/ai-elements/conversation'
-import { Message, MessageContent, MessageResponse } from '@/components/ai-elements/message'
 import { MODELS } from '@/constants'
 import { Model } from '@/types'
 import { PromptInputMessage } from './ai-elements/prompt-input'
+import { ConversationComp } from './conversation-comp'
 import { Main } from './main'
 import { PromptInputComp } from './prompt-input-comp'
 import { toast } from './ui/toast'
 import { WebContainerIDE } from './webcontainer-ide'
 
 const autoRespondedProjectIds = new Set<string>()
-
-export function HorizontalEllipsis() {
-  return (
-    <div className="flex items-center gap-1 text-zinc-500">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="size-1.5 rounded-full bg-current animate-bounce"
-          style={{
-            animationDelay: `${i * 120}ms`
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
-function ToolInvocationDisplay({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
-  const toolName = getToolName(part)
-
-  switch (part.state) {
-    case 'output-available':
-      return (
-        <div className="rounded-md border bg-muted/50 px-3 py-2 font-mono text-xs">
-          <div className="font-medium">Tool: {toolName}</div>
-        </div>
-      )
-    case 'output-error':
-      return (
-        <div className="text-destructive text-xs">
-          Tool: {toolName}
-          <br />
-          <pre>{JSON.stringify(part.errorText, null, 2)}</pre>
-        </div>
-      )
-    default:
-      return null
-  }
-}
 
 export const Workspace = ({
   projectId,
@@ -135,42 +88,7 @@ export const Workspace = ({
   return (
     <Main className="flex gap-2 flex-1 max-h-(--main-full-height)">
       <div className="w-5/12 flex flex-col h-full gap-2 py-2 pl-2">
-        <Conversation className="border rounded-lg">
-          <ConversationContent>
-            {messages.map((message) => (
-              <Message from={message.role} key={message.id}>
-                <MessageContent>
-                  {message.parts.map((part, i) => {
-                    if (isToolUIPart(part)) {
-                      return <ToolInvocationDisplay key={`${message.id}-${i}`} part={part} />
-                    }
-
-                    switch (part.type) {
-                      case 'file':
-                        return (
-                          <Image
-                            src={part.url}
-                            alt={part.filename ?? ''}
-                            width={100}
-                            height={100}
-                          />
-                        )
-                      case 'text':
-                        return (
-                          <MessageResponse key={`${message.id}-${i}`}>{part.text}</MessageResponse>
-                        )
-                      default:
-                        return null
-                    }
-                  })}
-                </MessageContent>
-              </Message>
-            ))}
-            {status === 'submitted' && <HorizontalEllipsis />}
-          </ConversationContent>
-          <ConversationScrollButton />
-        </Conversation>
-
+        <ConversationComp messages={messages} status={status} />
         <PromptInputComp
           status={status}
           handleSubmit={handleSubmit}
