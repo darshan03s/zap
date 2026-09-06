@@ -282,7 +282,7 @@ export const ProjectsList = () => {
             className="flex-nowrap overflow-hidden p-0 px-2 hover:bg-muted min-h-8"
           >
             <ItemContent className="min-w-0 overflow-hidden *:text-xs">
-              <Link href={`/project/${project.id}`} className="block min-w-0 truncate text-sm">
+              <Link href={`/project/${project.id}`} className="flex min-w-0 truncate text-sm h-6 items-center">
                 {project.title}
               </Link>
             </ItemContent>

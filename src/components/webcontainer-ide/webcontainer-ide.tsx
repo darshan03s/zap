@@ -84,7 +84,7 @@ export const Comp = () => {
   return (
     <div
       className={cn(
-        'ide-container relative flex h-(--ide-height) w-(--ide-width) flex-col rounded-lg overflow-clip border [--ide-height:--spacing(140)] [--ide-width:--spacing(240)]',
+        'ide-container relative flex h-(--ide-height) w-full flex-col rounded-lg overflow-clip border [--ide-height:--spacing(140)] [--ide-width:--spacing(240)]',
         className
       )}
     >
