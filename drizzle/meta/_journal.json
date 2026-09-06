@@ -43,6 +43,13 @@
       "when": 1788434829187,
       "tag": "0005_add_message_role",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788677259539,
+      "tag": "0006_add_file_table",
+      "breakpoints": true
     }
   ]
 }

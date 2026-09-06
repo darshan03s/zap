@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm'
 import {
+  type AnyPgColumn,
   boolean,
   index,
   integer,
@@ -148,6 +149,8 @@ export const project = pgTable(
   (table) => [index('project_userId_idx').on(table.userId)]
 )
 
+export const fileTypeEnum = pgEnum('file_type', ['file', 'directory'])
+
 export const messageRoleEnum = pgEnum('message_role', ['user', 'assistant', 'system'])
 
 export const message = pgTable(
@@ -162,6 +165,33 @@ export const message = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull()
   },
   (table) => [index('message_projectId_idx').on(table.projectId)]
+)
+
+export const file = pgTable(
+  'file',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    projectId: uuid('project_id')
+      .notNull()
+      .references(() => project.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    path: text('path').notNull(),
+    parentId: uuid('parent_id').references((): AnyPgColumn => file.id, {
+      onDelete: 'cascade'
+    }),
+    type: fileTypeEnum('type').notNull(),
+    content: text('content'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull()
+  },
+  (table) => [
+    uniqueIndex('files_project_path_unique').on(table.projectId, table.path),
+    index('files_parent_idx').on(table.projectId, table.parentId),
+    index('files_path_idx').on(table.projectId, table.path)
+  ]
 )
 
 export const userRelations = relations(user, ({ many, one }) => ({
@@ -191,13 +221,29 @@ export const projectRelations = relations(project, ({ one, many }) => ({
     fields: [project.userId],
     references: [user.id]
   }),
-  messages: many(message)
+  messages: many(message),
+  files: many(file)
 }))
 
 export const messageRelations = relations(message, ({ one }) => ({
   project: one(project, {
     fields: [message.projectId],
     references: [project.id]
+  })
+}))
+
+export const fileRelations = relations(file, ({ one, many }) => ({
+  project: one(project, {
+    fields: [file.projectId],
+    references: [project.id]
+  }),
+  parent: one(file, {
+    fields: [file.parentId],
+    references: [file.id],
+    relationName: 'fileHierarchy'
+  }),
+  children: many(file, {
+    relationName: 'fileHierarchy'
   })
 }))
 

@@ -1,3 +1,4 @@
+import { fileRepository } from '@/db/repository/fileRepository'
 import { messagesRepository } from '@/db/repository/messageRepository'
 import { projectRepository } from '@/db/repository/projectRepository'
 import { withErrorHandler } from '@/lib/api-handler'
@@ -27,6 +28,8 @@ export const POST = withErrorHandler(async (req: Request) => {
     userId,
     title: parsed.data.text
   })
+
+  await fileRepository.seedFromBaseTemplate(project.id)
 
   const parts = [
     ...parsed.data.attachments.map((attachment) => ({ type: 'file', filename: attachment.filename, mediaType: attachment.mediaType, url: attachment.url })),

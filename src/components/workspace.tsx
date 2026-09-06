@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { UIMessage, useChat } from '@ai-sdk/react'
+import { FileSystemTree } from '@webcontainer/api'
 import 'streamdown/styles.css'
 import {
   Conversation,
@@ -38,10 +39,12 @@ export function HorizontalEllipsis() {
 
 export const Workspace = ({
   projectId,
-  initialMessages
+  initialMessages,
+  fileSystemTree
 }: {
   projectId: string
   initialMessages: UIMessage[]
+  fileSystemTree: FileSystemTree
 }) => {
   const [text, setText] = useState<string>('')
   const [model, setModel] = useState<Model>(MODELS[0])
@@ -156,7 +159,7 @@ export const Workspace = ({
       <div className="flex-1 py-2 pr-2">
         <WebContainerIDE
           className="h-full"
-          loadFromSnapshot={'/api/snapshot'}
+          loadFromSnapshot={fileSystemTree}
           disableCreateFile
           disableCreateFolder
           disableDeleting
