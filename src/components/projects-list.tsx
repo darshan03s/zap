@@ -35,10 +35,8 @@ import { toast } from './ui/toast'
 const ProjectOptions = ({ onRename, onDelete }: { onRename: () => void; onDelete: () => void }) => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="ghost" size="icon">
-          <Ellipsis />
-        </Button>
+      <DropdownMenuTrigger className="cursor-pointer">
+        <Ellipsis className="size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className={'p-2 space-y-2 *:text-xs'}>
         <DropdownMenuItem onClick={onRename}>
@@ -153,9 +151,9 @@ const DeleteProjectDialog = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete project</AlertDialogTitle>
-          <AlertDialogDescription>
-            <p>Are you sure you want to delete:</p>
-            <p className="font-bold truncate max-w-xs">&quot;{project.title}&quot;</p>
+          <AlertDialogDescription className="flex flex-col gap-2">
+            <span>Are you sure you want to delete:</span>
+            <span className="font-bold truncate max-w-xs">&quot;{project.title}&quot;</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -281,7 +279,7 @@ export const ProjectsList = () => {
             key={project.id}
             size="xs"
             variant={projectId === project.id ? 'muted' : 'default'}
-            className="flex-nowrap overflow-hidden p-0 px-2 hover:bg-muted"
+            className="flex-nowrap overflow-hidden p-0 px-2 hover:bg-muted min-h-8"
           >
             <ItemContent className="min-w-0 overflow-hidden *:text-xs">
               <Link href={`/project/${project.id}`} className="block min-w-0 truncate text-sm">
