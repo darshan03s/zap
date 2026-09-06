@@ -10,6 +10,7 @@ import {
 } from 'ai'
 import { GatewayRateLimitError } from '@ai-sdk/gateway'
 import { createChatTools } from './tools'
+import { getSystemPrompt } from './system-prompt'
 
 function saveMessage(message: UIMessage, projectId: string) {
   messagesRepository.create({
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
     model: model,
     messages: await convertToModelMessages(messages, { tools }),
     tools,
+    instructions: getSystemPrompt(),
     stopWhen: isStepCount(5)
   })
 

@@ -97,7 +97,7 @@ export const Workspace = ({
 
   return (
     <Main className="flex gap-2 flex-1 max-h-(--main-full-height)">
-      <div className="w-4/12 flex flex-col h-full gap-2 py-2 pl-2">
+      <div className="w-120 flex flex-col h-full gap-2 py-2 pl-2">
         <ConversationComp messages={messages} status={status} />
         <PromptInputComp
           status={status}
@@ -122,7 +122,7 @@ export const Workspace = ({
           disableMoving
           disableRenaming
           editorReadOnly
-          terminalReadOnly
+          terminalReadOnly={process.env.NODE_ENV === 'production'}
           editorTheme={resolvedTheme as 'light' | 'dark'}
         />
       </div>

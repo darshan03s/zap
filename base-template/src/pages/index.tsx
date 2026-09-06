@@ -1,3 +1,5 @@
+import { Component } from '@/components/user-components/component'
+
 export const Index = () => {
-  return <main>main</main>
+  return <Component />
 }
