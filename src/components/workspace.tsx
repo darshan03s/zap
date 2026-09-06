@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { UIMessage, useChat } from '@ai-sdk/react'
 import { FileSystemTree } from '@webcontainer/api'
+import { useTheme } from 'next-themes'
 import { MODELS } from '@/constants'
 import { Model } from '@/types'
 import { PromptInputMessage } from './ai-elements/prompt-input'
@@ -26,6 +27,7 @@ export const Workspace = ({
   const [text, setText] = useState<string>('')
   const [model, setModel] = useState<Model>(MODELS[0])
   const { writeFile } = useWebContainer()
+  const { resolvedTheme } = useTheme()
   const { messages, sendMessage, status } = useChat({
     messages: initialMessages,
     id: projectId,
@@ -121,6 +123,7 @@ export const Workspace = ({
           disableRenaming
           editorReadOnly
           terminalReadOnly
+          editorTheme={resolvedTheme as 'light' | 'dark'}
         />
       </div>
     </Main>
