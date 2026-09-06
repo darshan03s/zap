@@ -15,7 +15,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:migrate:prod": "dotenv -e .env.production -- pnpm db:migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "file-tree": "tsx src/lib/file-tree.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,css,md,html,mjs}": "prettier --write",
