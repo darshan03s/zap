@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ChatStatus } from 'ai'
 import type { PromptInputMessage } from '@/components/ai-elements/prompt-input'
 import { MODELS } from '@/constants'
 import { api } from '@/lib/api'
@@ -19,6 +20,7 @@ export const HomePromptInput = () => {
   const [text, setText] = useState<string>('')
   const [model, setModel] = useState<Model>(MODELS[0])
   const [showApiKeyModal, setShowApiKeyModal] = useState(false)
+  const [status, setStatus] = useState<ChatStatus>('ready')
   const queryClient = useQueryClient()
   const createProjectMutation = useMutation({
     mutationFn: createProjectRequest,
@@ -64,11 +66,14 @@ export const HomePromptInput = () => {
 
     try {
       if (text) {
+        setStatus('submitted')
         await createProject(message)
       }
-      setText('')
     } catch {
       toast.add({ type: 'error', description: 'Failed to create project' })
+    } finally {
+      setText('')
+      setStatus('ready')
     }
   }
 
@@ -87,6 +92,7 @@ export const HomePromptInput = () => {
           setModel(model)
           localStorage.setItem('model', model.id as string)
         }}
+        status={status}
       />
       <ApiKeyModal
         open={showApiKeyModal}

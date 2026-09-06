@@ -25,8 +25,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Item, ItemActions, ItemContent, ItemGroup } from '@/components/ui/item'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Project, deleteProject, getProjects, updateProject } from '@/lib/requests/project'
 import { authClient } from '@/lib/auth-client'
+import { Project, deleteProject, getProjects, updateProject } from '@/lib/requests/project'
 import { Button } from './ui/button'
 import { DialogFooter } from './ui/dialog'
 import { Input } from './ui/input'
@@ -288,7 +288,7 @@ export const ProjectsList = () => {
                 {project.title}
               </Link>
             </ItemContent>
-            <ItemActions className="shrink-0">
+            <ItemActions className="shrink-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-200">
               <ProjectOptions
                 onRename={() => setRenameProject(project)}
                 onDelete={() => setDeleteProjectState(project)}
