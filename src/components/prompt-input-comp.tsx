@@ -2,11 +2,12 @@
 
 import { Key, memo, useCallback } from 'react'
 import { ChatStatus } from 'ai'
+import { ImageIcon } from 'lucide-react'
 import {
   PromptInput,
-  PromptInputActionAddAttachments,
   PromptInputActionMenu,
   PromptInputActionMenuContent,
+  PromptInputActionMenuItem,
   PromptInputActionMenuTrigger,
   PromptInputBody,
   PromptInputFooter,
@@ -54,6 +55,20 @@ const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
 
 AttachmentItem.displayName = 'AttachmentItem'
 
+const AddAttachmentsMenuItem = () => {
+  const attachments = usePromptInputAttachments()
+
+  const handleClick = useCallback(() => {
+    attachments.openFileDialog()
+  }, [attachments])
+
+  return (
+    <PromptInputActionMenuItem onClick={handleClick}>
+      <ImageIcon className="mr-2 size-4" /> Add images
+    </PromptInputActionMenuItem>
+  )
+}
+
 const PromptInputAttachmentsDisplay = () => {
   const attachments = usePromptInputAttachments()
 
@@ -90,7 +105,7 @@ export const PromptInputComp = ({
   status
 }: PromptInputCompProps) => {
   return (
-    <PromptInput onSubmit={handleSubmit} globalDrop multiple>
+    <PromptInput onSubmit={handleSubmit} globalDrop multiple accept="image/*">
       <PromptInputHeader>
         <PromptInputAttachmentsDisplay />
       </PromptInputHeader>
@@ -106,7 +121,7 @@ export const PromptInputComp = ({
           <PromptInputActionMenu>
             <PromptInputActionMenuTrigger />
             <PromptInputActionMenuContent className={'w-fit'}>
-              <PromptInputActionAddAttachments />
+              <AddAttachmentsMenuItem />
             </PromptInputActionMenuContent>
           </PromptInputActionMenu>
           <PromptInputSelect
