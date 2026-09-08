@@ -18,6 +18,10 @@ import { apiKeyRepository } from '@/db/repository/apiKeyRepository'
 import { ApiError } from '@/lib/errors'
 import { decrypt } from '@/lib/encryption'
 import { env } from '@/env'
+import { createOpenAI } from '@ai-sdk/openai'
+import { createAnthropic } from '@ai-sdk/anthropic'
+import { createGoogle } from '@ai-sdk/google'
+import { logger } from '@/lib/logger'
 
 function parseStoredKey(key: string) {
   const [iv, authTag, encrypted] = key.split(':')
@@ -55,7 +59,25 @@ export async function POST(req: Request) {
 
   const apiKey = storedKey.key === 'free' ? env.AI_GATEWAY_API_KEY : parseStoredKey(storedKey.key)
 
-  const gateway = createGateway({ apiKey: apiKey })
+  let modelId;
+
+  if (storedKey.provider === 'openai' && storedKey.apiKeyMode === 'byok') {
+    const gateway = createOpenAI({ apiKey: apiKey })
+    modelId = gateway(model.toString().replace('openai/', ''))
+  } else if (storedKey.provider === 'anthropic' && storedKey.apiKeyMode === 'byok') {
+    const gateway = createAnthropic({ apiKey: apiKey })
+    modelId = gateway(model.toString().replace('anthropic/', ''))
+  }
+  else if (storedKey.provider === 'google' && storedKey.apiKeyMode === 'byok') {
+    const gateway = createGoogle({ apiKey: apiKey })
+    modelId = gateway(model.toString().replace('google/', ''))
+  }
+  else {
+    const gateway = createGateway({ apiKey: apiKey })
+    modelId = gateway(model as GatewayModelId)
+  }
+
+  logger.info(`Using provider: ${storedKey.provider}, model: ${modelId}, mode: ${storedKey.apiKeyMode}`)
 
   const lastMessage = messages.at(-1)!
   if (lastMessage.role === 'user' && trigger === 'submit-message' && messageId == null) {
@@ -65,7 +87,7 @@ export async function POST(req: Request) {
   const tools = createChatTools(projectId)
 
   const result = streamText({
-    model: gateway(model as GatewayModelId),
+    model: modelId,
     messages: await convertToModelMessages(messages, { tools }),
     tools,
     instructions: getSystemPrompt(),

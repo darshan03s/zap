@@ -1,16 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ChatStatus } from 'ai'
 import type { PromptInputMessage } from '@/components/ai-elements/prompt-input'
-import { MODELS } from '@/constants'
 import { api } from '@/lib/api'
 import { authClient } from '@/lib/auth-client'
 import { logger } from '@/lib/logger'
 import { createProject as createProjectRequest } from '@/lib/requests/project'
-import { Model } from '@/types'
+import { useModelStore } from '@/stores/model-store'
 import { ApiKeyModal } from './api-key-modal'
 import { PromptInputComp } from './prompt-input-comp'
 import { toast } from './ui/toast'
@@ -18,7 +17,7 @@ import { toast } from './ui/toast'
 export const HomePromptInput = () => {
   const router = useRouter()
   const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<Model>(MODELS[0])
+  const { model, setModel } = useModelStore()
   const [showApiKeyModal, setShowApiKeyModal] = useState(false)
   const [status, setStatus] = useState<ChatStatus>('ready')
   const queryClient = useQueryClient()
@@ -29,15 +28,6 @@ export const HomePromptInput = () => {
       router.push(`/project/${project.id}`)
     }
   })
-
-  useEffect(() => {
-    const savedModel = localStorage.getItem('model')
-    if (!savedModel) return
-    const foundModel = MODELS.find((m) => m.id === savedModel)
-    if (foundModel) {
-      setModel(foundModel)
-    }
-  }, [])
 
   async function createProject(message: PromptInputMessage) {
     await createProjectMutation.mutateAsync({ text: message.text, attachments: message.files })
@@ -90,7 +80,6 @@ export const HomePromptInput = () => {
         model={model}
         onModelChange={(model) => {
           setModel(model)
-          localStorage.setItem('model', model.id as string)
         }}
         status={status}
       />

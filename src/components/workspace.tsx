@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { UIMessage, useChat } from '@ai-sdk/react'
 import { FileSystemTree } from '@webcontainer/api'
 import { useTheme } from 'next-themes'
-import { MODELS } from '@/constants'
-import { Model } from '@/types'
+import { useModelStore } from '@/stores/model-store'
 import { PromptInputMessage } from './ai-elements/prompt-input'
 import { ConversationComp } from './conversation-comp'
 import { Main } from './main'
@@ -25,7 +24,7 @@ export const Workspace = ({
   fileSystemTree: FileSystemTree
 }) => {
   const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<Model>(MODELS[0])
+  const { model, setModel } = useModelStore()
   const { writeFile } = useWebContainer()
   const { resolvedTheme } = useTheme()
   const { messages, sendMessage, status } = useChat({
@@ -46,15 +45,6 @@ export const Workspace = ({
     }
   })
   const hasAutoResponded = useRef(false)
-
-  useEffect(() => {
-    const savedModel = localStorage.getItem('model')
-    if (!savedModel) return
-    const foundModel = MODELS.find((m) => m.id === savedModel)
-    if (foundModel) {
-      setModel(foundModel)
-    }
-  }, [])
 
   useEffect(() => {
     const lastMessage = initialMessages.at(-1)
@@ -107,7 +97,6 @@ export const Workspace = ({
           model={model}
           onModelChange={(model) => {
             setModel(model)
-            localStorage.setItem('model', model.id as string)
           }}
         />
       </div>

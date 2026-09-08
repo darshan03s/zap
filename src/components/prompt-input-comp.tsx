@@ -132,6 +132,7 @@ export const PromptInputComp = ({
               <PromptInputSelectValue />
             </PromptInputSelectTrigger>
             <PromptInputSelectContent className={'p-1 w-fit'}>
+              <span className="pl-2 text-xs">Free</span>
               {MODELS.map((model) => (
                 <PromptInputSelectItem
                   key={model.id as Key | null | undefined}
