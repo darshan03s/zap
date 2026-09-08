@@ -1,9 +1,8 @@
 import { Model, Provider } from './types'
 
-export const PROVIDERS = ['vercel_ai_gateway', 'anthropic', 'openai', 'google'] as const
+export const PROVIDERS = ['anthropic', 'openai', 'google'] as const
 
 export const PROVIDER_NAMES: Record<Provider, string> = {
-  vercel_ai_gateway: 'Vercel AI Gateway',
   anthropic: 'Anthropic',
   openai: 'OpenAI',
   google: 'Google'
