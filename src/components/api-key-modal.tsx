@@ -32,6 +32,7 @@ export const ApiKeyModal = ({
     mutationFn: createApiKey,
     onSuccess: () => {
       onCreateApiKeySuccess()
+      setApiKey('')
       queryClient.invalidateQueries({ queryKey: ['apiKeys'] })
     }
   })
