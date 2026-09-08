@@ -1,7 +1,7 @@
 'use client'
 
 import { Dispatch, SetStateAction, useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Key } from 'lucide-react'
 import { PROVIDERS, PROVIDER_NAMES } from '@/constants'
 import { createApiKey } from '@/lib/requests/api-key'
@@ -15,18 +15,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 export const ApiKeyModal = ({
   open,
   onCreateApiKeySuccess,
-  onOpenChange
+  onOpenChange,
+  showCloseButton,
+  disablePointerDismissal
 }: {
   open: boolean
   onCreateApiKeySuccess: () => void
   onOpenChange: Dispatch<SetStateAction<boolean>>
+  showCloseButton?: boolean
+  disablePointerDismissal?: boolean
 }) => {
   const [selectedProvider, setSelectedProvider] = useState<Provider>(PROVIDERS[0])
   const [apiKey, setApiKey] = useState('')
+  const queryClient = useQueryClient()
   const createApiKeyMutation = useMutation({
     mutationFn: createApiKey,
     onSuccess: () => {
       onCreateApiKeySuccess()
+      queryClient.invalidateQueries({ queryKey: ['apiKeys'] })
     }
   })
 
@@ -45,8 +51,8 @@ export const ApiKeyModal = ({
       description="Set API key for using AI"
       open={open}
       onOpenChange={onOpenChange}
-      showCloseButton={false}
-      disablePointerDismissal
+      showCloseButton={showCloseButton}
+      disablePointerDismissal={disablePointerDismissal}
     >
       <div className="space-y-4">
         <Input

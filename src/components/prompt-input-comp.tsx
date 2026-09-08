@@ -1,6 +1,7 @@
 'use client'
 
 import { Key, memo, useCallback } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { ChatStatus } from 'ai'
 import { ImageIcon } from 'lucide-react'
 import {
@@ -23,7 +24,9 @@ import {
   PromptInputTools,
   usePromptInputAttachments
 } from '@/components/ai-elements/prompt-input'
-import { MODELS } from '@/constants'
+import { ANTHROPIC_MODELS, GOOGLE_MODELS, MODELS, OPENAI_MODELS } from '@/constants'
+import { authClient } from '@/lib/auth-client'
+import { getApiKeys } from '@/lib/requests/api-key'
 import { Model } from '@/types'
 import {
   Attachment,
@@ -31,6 +34,8 @@ import {
   AttachmentRemove,
   Attachments
 } from './ai-elements/attachments'
+import { Separator } from './ui/separator'
+import { Skeleton } from './ui/skeleton'
 
 interface AttachmentItemProps {
   attachment: {
@@ -87,6 +92,110 @@ const PromptInputAttachmentsDisplay = () => {
   )
 }
 
+const isModel = (value: unknown): value is Model =>
+  typeof value === 'object' &&
+  value !== null &&
+  'id' in value &&
+  'name' in value &&
+  'provider' in value
+
+const ModelSelector = () => {
+  const { data: session, isPending: isSessionPending } = authClient.useSession()
+  const { data: apiKeys } = useQuery({
+    queryKey: ['apiKeys'],
+    queryFn: getApiKeys,
+    enabled: !!session
+  })
+
+  const isLoadingByokModels = isSessionPending || (!!session && apiKeys === undefined)
+
+  const hasAnthropicApiKey = apiKeys?.some(
+    (apiKey) => apiKey.provider === 'anthropic' && apiKey.apiKeyMode === 'byok'
+  )
+  const hasOpenAiApiKey = apiKeys?.some(
+    (apiKey) => apiKey.provider === 'openai' && apiKey.apiKeyMode === 'byok'
+  )
+  const hasGoogleApiKey = apiKeys?.some(
+    (apiKey) => apiKey.provider === 'google' && apiKey.apiKeyMode === 'byok'
+  )
+
+  return (
+    <PromptInputSelectContent className={'p-1 w-fit'}>
+      {isLoadingByokModels ? (
+        <Skeleton className="mb-1 h-10 w-full" />
+      ) : (
+        <>
+          {hasAnthropicApiKey && (
+            <>
+              <span className="pl-2 text-xs opacity-50">Anthropic</span>
+              {ANTHROPIC_MODELS.map((model) => (
+                <PromptInputSelectItem
+                  key={model.id as Key | null | undefined}
+                  value={model}
+                  className={'flex items-center gap-2'}
+                >
+                  <img
+                    src={`/provider-logos/${model.provider}.svg`}
+                    className="size-5 dark:invert"
+                  />
+                  <span>{model.name}</span>
+                </PromptInputSelectItem>
+              ))}
+            </>
+          )}
+          {hasOpenAiApiKey && (
+            <>
+              <span className="pl-2 text-xs opacity-50">OpenAI</span>
+              {OPENAI_MODELS.map((model) => (
+                <PromptInputSelectItem
+                  key={model.id as Key | null | undefined}
+                  value={model}
+                  className={'flex items-center gap-2'}
+                >
+                  <img
+                    src={`/provider-logos/${model.provider}.svg`}
+                    className="size-5 dark:invert"
+                  />
+                  <span>{model.name}</span>
+                </PromptInputSelectItem>
+              ))}
+            </>
+          )}
+          {hasGoogleApiKey && (
+            <>
+              <span className="pl-2 text-xs opacity-50">Google</span>
+              {GOOGLE_MODELS.map((model) => (
+                <PromptInputSelectItem
+                  key={model.id as Key | null | undefined}
+                  value={model}
+                  className={'flex items-center gap-2'}
+                >
+                  <img
+                    src={`/provider-logos/${model.provider}.svg`}
+                    className="size-5 dark:invert"
+                  />
+                  <span>{model.name}</span>
+                </PromptInputSelectItem>
+              ))}
+            </>
+          )}
+        </>
+      )}
+      <span className="pl-2 text-xs opacity-50">Free</span>
+      {MODELS.map((model) => (
+        <PromptInputSelectItem
+          key={model.id as Key | null | undefined}
+          value={model}
+          className={'flex items-center gap-2'}
+        >
+          <img src={`/provider-logos/${model.provider}.svg`} className="size-5 dark:invert" />
+          <span>{model.name}</span>
+        </PromptInputSelectItem>
+      ))}
+    </PromptInputSelectContent>
+  )
+}
+
 interface PromptInputCompProps {
   handleSubmit: (message: PromptInputMessage) => void
   text: string
@@ -104,6 +213,8 @@ export const PromptInputComp = ({
   onModelChange,
   status
 }: PromptInputCompProps) => {
+  const selectedModel = model ?? MODELS[0]
+
   return (
     <PromptInput onSubmit={handleSubmit} globalDrop multiple accept="image/*">
       <PromptInputHeader>
@@ -125,28 +236,21 @@ export const PromptInputComp = ({
             </PromptInputActionMenuContent>
           </PromptInputActionMenu>
           <PromptInputSelect
-            onValueChange={(value) => onModelChange(value as Model)}
-            value={model.name}
+            value={selectedModel}
+            itemToStringLabel={(value) => (isModel(value) ? value.name : '')}
+            isItemEqualToValue={(itemValue, value) =>
+              isModel(itemValue) && isModel(value) && itemValue.id === value.id
+            }
+            onValueChange={(value) => {
+              if (isModel(value)) {
+                onModelChange(value)
+              }
+            }}
           >
             <PromptInputSelectTrigger>
-              <PromptInputSelectValue />
+              <PromptInputSelectValue placeholder="Select model" />
             </PromptInputSelectTrigger>
-            <PromptInputSelectContent className={'p-1 w-fit'}>
-              <span className="pl-2 text-xs">Free</span>
-              {MODELS.map((model) => (
-                <PromptInputSelectItem
-                  key={model.id as Key | null | undefined}
-                  value={model}
-                  className={'flex items-center gap-2'}
-                >
-                  <img
-                    src={`/provider-logos/${model.provider}.svg`}
-                    className="size-5 dark:invert"
-                  />
-                  <span>{model.name}</span>
-                </PromptInputSelectItem>
-              ))}
-            </PromptInputSelectContent>
+            <ModelSelector />
           </PromptInputSelect>
         </PromptInputTools>
         <PromptInputSubmit disabled={!text && !status} status={status} />

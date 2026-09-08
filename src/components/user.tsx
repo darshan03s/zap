@@ -1,11 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
-import { LogIn, LogOut } from 'lucide-react'
+import { Key, LogIn, LogOut } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
+import { ApiKeyModal } from './api-key-modal'
 import { Button, buttonVariants } from './ui/button'
 import {
   DropdownMenu,
@@ -20,6 +22,7 @@ export const User = () => {
   const { data, isPending } = authClient.useSession()
   const router = useRouter()
   const queryClient = useQueryClient()
+  const [openApiKeyModal, setOpenApiKeyModal] = useState(false)
 
   async function signIn() {
     await authClient.signIn.social({
@@ -71,12 +74,24 @@ export const User = () => {
               <span className="font-bold">{data.user.email}</span>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={signOut}>
-              <LogOut /> Sign out
-            </DropdownMenuItem>
+            <div className="space-y-2 *:text-xs">
+              <DropdownMenuItem onClick={() => setOpenApiKeyModal(true)}>
+                <Key /> API Key
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut}>
+                <LogOut /> Sign out
+              </DropdownMenuItem>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       )}
+      <ApiKeyModal
+        open={openApiKeyModal}
+        onCreateApiKeySuccess={() => setOpenApiKeyModal(false)}
+        onOpenChange={setOpenApiKeyModal}
+        showCloseButton={true}
+        disablePointerDismissal={false}
+      />
     </div>
   )
 }

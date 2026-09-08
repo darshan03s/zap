@@ -15,3 +15,11 @@ export const CreateApiKeyRequest = z.object({
   provider: z.enum([...PROVIDERS, 'default']),
   apiKey: z.string()
 })
+
+export const getApiKeys = async () => {
+  const response = await api.get('/api-key')
+  return response.data as {
+    provider: Provider
+    apiKeyMode: 'free' | 'byok'
+  }[]
+}

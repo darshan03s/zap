@@ -19,6 +19,10 @@ export const apiKeyRepository = {
     return result
   },
 
+  getAllByUserId: async (userId: string) => {
+    return db.select().from(apiKey).where(eq(apiKey.userId, userId))
+  },
+
   updateByUserId: (userId: string, data: Partial<typeof apiKey.$inferInsert>) => {
     return db.update(apiKey).set(data).where(eq(apiKey.userId, userId)).returning()
   },

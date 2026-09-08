@@ -39,3 +39,18 @@ export const POST = withErrorHandler(async (req: Request) => {
 
   return Response.json({}, { status: 201 })
 })
+
+export const GET = withErrorHandler(async (req: Request) => {
+  const { userId } = await requireSession()
+
+  const apiKey = await apiKeyRepository.getAllByUserId(userId)
+
+  const models = apiKey.map((key) => {
+    return {
+      provider: key.provider,
+      apiKeyMode: key.apiKeyMode,
+    }
+  })
+
+  return Response.json(models, { status: 200 })
+})
