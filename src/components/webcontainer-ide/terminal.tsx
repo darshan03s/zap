@@ -5,7 +5,7 @@ import { WebContainerProcess } from '@webcontainer/api'
 import { FitAddon } from '@xterm/addon-fit'
 import { IDisposable, Terminal as XtermTerminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
-import { TerminalIcon, X } from 'lucide-react'
+import { Copy, Hammer, Pause, Play, RotateCcw, TerminalIcon, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useProps, useTerminal, useWebContainer } from './hooks'
@@ -19,7 +19,12 @@ export const Terminal = () => {
     isTerminalStarted,
     setIsTerminalStarted,
     isTerminalOpen,
-    setIsTerminalOpen
+    setIsTerminalOpen,
+    getTerminalOutput,
+    startDevServer,
+    stopDevServer,
+    restartDevServer,
+    runBuild
   } = useTerminal()
   const { terminalReadOnly, hideTerminal, openTerminal, terminalTheme } = useProps()
   const terminalEleRef = useRef<HTMLDivElement | null>(null)
@@ -158,14 +163,73 @@ export const Terminal = () => {
         <span className="text-foreground [&_svg]:text-foreground flex items-center gap-2 font-mono text-xs [&_svg]:size-3">
           <TerminalIcon /> Terminal
         </span>
-        <Button
-          variant={'ghost'}
-          size={'icon-xs'}
-          onClick={() => setIsTerminalOpen(false)}
-          title="Close"
-        >
-          <X />
-        </Button>
+        <div className="flex items-center gap-2">
+          {process.env.NODE_ENV === 'development' && (
+            <div>
+              <Button
+                variant={'ghost'}
+                size={'icon-xs'}
+                onClick={() => {
+                  runBuild()
+                }}
+                disabled={!isMounted}
+              >
+                <Hammer />
+              </Button>
+              <Button
+                variant={'ghost'}
+                size={'icon-xs'}
+                onClick={() => {
+                  restartDevServer()
+                }}
+                disabled={!isMounted}
+              >
+                <RotateCcw />
+              </Button>
+              <Button
+                variant={'ghost'}
+                size={'icon-xs'}
+                onClick={() => {
+                  stopDevServer()
+                }}
+                disabled={!isMounted}
+              >
+                <Pause />
+              </Button>
+              <Button
+                variant={'ghost'}
+                size={'icon-xs'}
+                onClick={() => {
+                  startDevServer()
+                }}
+                disabled={!isMounted}
+              >
+                <Play />
+              </Button>
+              <Button
+                variant={'ghost'}
+                size={'icon-xs'}
+                onClick={() => {
+                  const { text } = getTerminalOutput()
+                  if (text) {
+                    navigator.clipboard.writeText(text)
+                  }
+                }}
+                disabled={!isMounted}
+              >
+                <Copy />
+              </Button>
+            </div>
+          )}
+          <Button
+            variant={'ghost'}
+            size={'icon-xs'}
+            onClick={() => setIsTerminalOpen(false)}
+            title="Close"
+          >
+            <X />
+          </Button>
+        </div>
       </div>
       <div
         ref={terminalEleRef}
