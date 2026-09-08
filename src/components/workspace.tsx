@@ -97,7 +97,7 @@ export const Workspace = ({
 
   return (
     <Main className="grid grid-cols-3 gap-2">
-      <div className="max-h-(--main-full-height) col-span-1 flex flex-col h-full gap-2 py-2 pl-2">
+      <div className="max-h-(--main-full-height) min-h-(--main-full-height) col-span-1 flex flex-col h-full gap-2 py-2 pl-2">
         <ConversationComp messages={messages} status={status} />
         <PromptInputComp
           status={status}
@@ -112,7 +112,7 @@ export const Workspace = ({
         />
       </div>
 
-      <div className="max-h-(--main-full-height) col-span-2 py-2 pr-2">
+      <div className="max-h-(--main-full-height) min-h-(--main-full-height) col-span-2 py-2 pr-2">
         <WebContainerIDE
           className="h-full"
           loadFromSnapshot={fileSystemTree}
