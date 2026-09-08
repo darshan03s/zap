@@ -1,6 +1,5 @@
 import { apiKeyRepository } from '@/db/repository/apiKeyRepository'
 import { generationLimitRepository } from '@/db/repository/generationLimitRepository'
-import { env } from '@/env'
 import { withErrorHandler } from '@/lib/api-handler'
 import { encrypt } from '@/lib/encryption'
 import { ApiError } from '@/lib/errors'
@@ -18,16 +17,16 @@ export const POST = withErrorHandler(async (req: Request) => {
 
   const { provider, apiKey } = parsed.data
 
-  const { iv, authTag, encrypted } = encrypt(apiKey)
 
   if (provider === 'default') {
     await apiKeyRepository.create({
       userId,
       provider: 'vercel_ai_gateway',
       apiKeyMode: 'free',
-      key: env.AI_GATEWAY_API_KEY
+      key: 'free'
     })
   } else {
+    const { iv, authTag, encrypted } = encrypt(apiKey)
     await apiKeyRepository.create({
       userId,
       provider,
