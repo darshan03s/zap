@@ -25,7 +25,7 @@ export const Workspace = ({
 }) => {
   const [text, setText] = useState<string>('')
   const { model, setModel } = useModelStore()
-  const { writeFile } = useWebContainer()
+  const { writeFile, activePath } = useWebContainer()
   const { resolvedTheme } = useTheme()
   const { messages, sendMessage, status } = useChat({
     messages: initialMessages,
@@ -38,9 +38,16 @@ export const Workspace = ({
     },
     onToolCall: (toolCallObj) => {
       const toolName = toolCallObj.toolCall.toolName
-      const tooInput = toolCallObj.toolCall.input as { path: string; content: string }
+      const toolInput = toolCallObj.toolCall.input as {
+        path: string
+        content: string
+        filepath: string
+      }
       if (toolName === 'writeFile') {
-        writeFile(tooInput.path, tooInput.content)
+        writeFile(toolInput.path, toolInput.content)
+      }
+      if (toolName === 'activeFilePath') {
+        void activePath(toolInput.filepath)
       }
     }
   })

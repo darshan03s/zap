@@ -54,6 +54,15 @@ const writeFileOutputSchema = z.object({
   error: z.string().optional()
 })
 
+const activeFilePathInputSchema = z.object({
+  filepath: z.string().describe('Path to the file to focus in the user editor.')
+})
+
+const activeFilePathOutputSchema = z.object({
+  path: z.string().optional(),
+  error: z.string().optional()
+})
+
 type FileTreeEntry = {
   id: string
   name: string
@@ -220,6 +229,31 @@ export function createChatTools(projectId: string) {
             error: error instanceof Error ? error.message : 'Failed to write file'
           }
         }
+      }
+    }),
+    activeFilePath: tool({
+      description:
+        'Focus the user editor on a file at the given path. Use this when you want the user to view a specific file, such as after creating or updating a component.',
+      inputSchema: activeFilePathInputSchema,
+      outputSchema: activeFilePathOutputSchema,
+      execute: async ({ filepath }) => {
+        const normalizedPath = filepath.trim()
+
+        if (!normalizedPath) {
+          return { error: 'Filepath is required' }
+        }
+
+        const fileEntry = await fileRepository.getByPath(projectId, normalizedPath)
+
+        if (!fileEntry) {
+          return { error: `File not found: ${normalizedPath}` }
+        }
+
+        if (fileEntry.type !== 'file') {
+          return { error: `Not a file: ${normalizedPath}` }
+        }
+
+        return { path: fileEntry.path }
       }
     })
   }
