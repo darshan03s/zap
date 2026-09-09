@@ -247,7 +247,7 @@ export function createChatTools(projectId: string) {
     }),
     activeFilePath: tool({
       description:
-        'Focus the user editor on a file at the given path. Use this when you want the user to view a specific file, such as after creating or updating a component.',
+        'Focus the user editor on a file at the given path. Use this when you want the user to view a specific file, such as after creating or updating a component. Make sure the file path is correct',
       inputSchema: activeFilePathInputSchema,
       outputSchema: activeFilePathOutputSchema,
       execute: async ({ filepath }) => {
@@ -257,17 +257,7 @@ export function createChatTools(projectId: string) {
           return { error: 'Filepath is required' }
         }
 
-        const fileEntry = await fileRepository.getByPath(projectId, normalizedPath)
-
-        if (!fileEntry) {
-          return { error: `File not found: ${normalizedPath}` }
-        }
-
-        if (fileEntry.type !== 'file') {
-          return { error: `Not a file: ${normalizedPath}` }
-        }
-
-        return { path: fileEntry.path }
+        return { path: normalizedPath }
       }
     }),
     getLastCommandOutput: tool({
