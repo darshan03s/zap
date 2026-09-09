@@ -281,8 +281,8 @@ export const ProjectsList = () => {
             variant={projectId === project.id ? 'muted' : 'default'}
             className="flex-nowrap overflow-hidden p-0 px-2 hover:bg-muted min-h-8"
           >
-            <ItemContent className="min-w-0 overflow-hidden *:text-xs">
-              <Link href={`/project/${project.id}`} className="flex min-w-0 truncate text-sm h-6 items-center">
+            <ItemContent className="min-w-0 overflow-hidden *:text-xs flex">
+              <Link href={`/project/${project.id}`} className="min-w-0 text-sm truncate">
                 {project.title}
               </Link>
             </ItemContent>
