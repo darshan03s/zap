@@ -22,6 +22,7 @@ import { createOpenAI } from '@ai-sdk/openai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogle } from '@ai-sdk/google'
 import { FREE_MODELS } from '@/constants'
+import { logger } from '@/lib/logger'
 
 function parseStoredKey(key: string) {
   const [iv, authTag, encrypted] = key.split(':')
@@ -29,6 +30,9 @@ function parseStoredKey(key: string) {
 }
 
 function saveMessage(message: UIMessage, projectId: string) {
+  if (projectId === 'test') {
+    return
+  }
   messagesRepository.create({
     projectId: projectId,
     parts: message.parts,
@@ -127,6 +131,7 @@ export async function POST(req: Request) {
         saveMessage(endObj.responseMessage, projectId)
       },
       onError: (error) => {
+        logger.error(error)
         if (error instanceof GatewayRateLimitError) {
           return 'Free tier requests on this model are rate-limited'
         }

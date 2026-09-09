@@ -5,7 +5,7 @@ import { WebContainerProcess } from '@webcontainer/api'
 import { FitAddon } from '@xterm/addon-fit'
 import { IDisposable, Terminal as XtermTerminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
-import { Copy, Hammer, Pause, Play, RotateCcw, TerminalIcon, X } from 'lucide-react'
+import { Copy, Hammer, Play, RotateCcw, Square, TerminalIcon, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useProps, useTerminal, useWebContainer } from './hooks'
@@ -164,63 +164,66 @@ export const Terminal = () => {
           <TerminalIcon /> Terminal
         </span>
         <div className="flex items-center gap-2">
-          {process.env.NODE_ENV === 'development' && (
-            <div>
-              <Button
-                variant={'ghost'}
-                size={'icon-xs'}
-                onClick={() => {
-                  runBuild()
-                }}
-                disabled={!isMounted}
-              >
-                <Hammer />
-              </Button>
-              <Button
-                variant={'ghost'}
-                size={'icon-xs'}
-                onClick={() => {
-                  restartDevServer()
-                }}
-                disabled={!isMounted}
-              >
-                <RotateCcw />
-              </Button>
-              <Button
-                variant={'ghost'}
-                size={'icon-xs'}
-                onClick={() => {
-                  stopDevServer()
-                }}
-                disabled={!isMounted}
-              >
-                <Pause />
-              </Button>
-              <Button
-                variant={'ghost'}
-                size={'icon-xs'}
-                onClick={() => {
-                  startDevServer()
-                }}
-                disabled={!isMounted}
-              >
-                <Play />
-              </Button>
-              <Button
-                variant={'ghost'}
-                size={'icon-xs'}
-                onClick={() => {
-                  const { text } = getTerminalOutput(undefined, true)
-                  if (text) {
-                    navigator.clipboard.writeText(text)
-                  }
-                }}
-                disabled={!isMounted}
-              >
-                <Copy />
-              </Button>
-            </div>
-          )}
+          <div>
+            <Button
+              variant={'ghost'}
+              size={'icon-xs'}
+              onClick={() => {
+                runBuild()
+              }}
+              disabled={!isMounted}
+              title="Run Build"
+            >
+              <Hammer />
+            </Button>
+            <Button
+              variant={'ghost'}
+              size={'icon-xs'}
+              onClick={() => {
+                restartDevServer()
+              }}
+              disabled={!isMounted}
+              title="Restart Dev Server"
+            >
+              <RotateCcw />
+            </Button>
+            <Button
+              variant={'ghost'}
+              size={'icon-xs'}
+              onClick={() => {
+                stopDevServer()
+              }}
+              disabled={!isMounted}
+              title="Stop Dev Server"
+            >
+              <Square />
+            </Button>
+            <Button
+              variant={'ghost'}
+              size={'icon-xs'}
+              onClick={() => {
+                startDevServer()
+              }}
+              disabled={!isMounted}
+              title="Start Dev Server"
+            >
+              <Play />
+            </Button>
+            <Button
+              variant={'ghost'}
+              size={'icon-xs'}
+              onClick={() => {
+                const { text } = getTerminalOutput(undefined, true)
+                if (text) {
+                  navigator.clipboard.writeText(text)
+                }
+              }}
+              disabled={!isMounted}
+              title="Copy Terminal Output"
+            >
+              <Copy />
+            </Button>
+          </div>
           <Button
             variant={'ghost'}
             size={'icon-xs'}
