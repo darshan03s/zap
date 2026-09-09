@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { Code, Eye, PanelLeft, PanelRight, Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
@@ -20,19 +20,24 @@ export const WebContainerIDE = ({ ...props }: WebContainerIDEProps) => {
   )
 }
 
+let pendingMountOperation = Promise.resolve()
+let mountGeneration = 0
+
 export const Comp = () => {
   const { isMounted, wc, setIsMounted, setServerUrl, activePath } = useWebContainer()
   const { view, toggleView } = useIde()
   const { toggleFileSystem, fileSystemOpen, setFs } = useFileSystem()
   const { setIsTerminalOpen } = useTerminal()
   const { loadFromSnapshot, className, hideTerminal } = useProps()
-  const cleanupRef = useRef<Promise<void>>(Promise.resolve())
 
   useEffect(() => {
     let cancelled = false
+    const generation = ++mountGeneration
+
+    setIsMounted(false)
 
     async function init() {
-      await cleanupRef.current
+      await pendingMountOperation
 
       if (cancelled || !wc) return
 
@@ -46,7 +51,7 @@ export const Comp = () => {
         }
       }
 
-      if (!cancelled) {
+      if (!cancelled && generation === mountGeneration) {
         setIsMounted(true)
       }
     }
@@ -56,7 +61,7 @@ export const Comp = () => {
     return () => {
       cancelled = true
 
-      cleanupRef.current = (async () => {
+      pendingMountOperation = (async () => {
         if (!wc) return
 
         const entries = await wc.fs.readdir('/')
@@ -69,10 +74,12 @@ export const Comp = () => {
             })
           )
         )
-        setFs({})
-        setIsMounted(false)
-        setServerUrl('')
-        activePath('')
+
+        if (generation === mountGeneration) {
+          setFs({})
+          setServerUrl('')
+          activePath('')
+        }
       })()
     }
   }, [wc, loadFromSnapshot])
