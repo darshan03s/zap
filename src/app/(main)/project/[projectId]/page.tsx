@@ -19,6 +19,7 @@ const Page = async ({ params }: { params: Promise<{ projectId: string }> }) => {
 
   return (
     <Workspace
+      key={projectId}
       projectId={projectId}
       initialMessages={initialMessages}
       fileSystemTree={fileSystemTree}
