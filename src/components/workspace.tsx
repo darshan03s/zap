@@ -45,6 +45,7 @@ export const Workspace = ({
         path: string
         content: string
         filepath: string
+        lastN: number
       }
       if (toolName === 'writeFile') {
         writeFile(toolInput.path, toolInput.content)
@@ -55,7 +56,15 @@ export const Workspace = ({
       if (toolName === 'getLastCommandOutput') {
         const { text } = getTerminalOutput(undefined, true)
         addToolOutput({
-          tool: 'readWebContainerFile',
+          tool: 'getLastCommandOutput',
+          toolCallId: toolCall.toolCallId,
+          output: { outputText: text }
+        })
+      }
+      if (toolName === 'getTerminalOutput') {
+        const { text } = getTerminalOutput(toolInput.lastN)
+        addToolOutput({
+          tool: 'getTerminalOutput',
           toolCallId: toolCall.toolCallId,
           output: { outputText: text }
         })
