@@ -71,7 +71,7 @@ export const ConversationComp = ({
       <ConversationContent>
         {messages.map((message) => (
           <Message from={message.role} key={message.id}>
-            <MessageContent>
+            <MessageContent className="has-data-[streamdown=code-block]:w-full">
               {message.parts.map((part, i) => {
                 if (isToolUIPart(part)) {
                   return <ToolInvocationDisplay key={`${message.id}-${i}`} part={part} />

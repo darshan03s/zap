@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { UIMessage, useChat } from '@ai-sdk/react'
 import { FileSystemTree } from '@webcontainer/api'
+import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
 import { useTheme } from 'next-themes'
 import { useModelStore } from '@/stores/model-store'
 import { PromptInputMessage } from './ai-elements/prompt-input'
@@ -10,7 +11,7 @@ import { ConversationComp } from './conversation-comp'
 import { Main } from './main'
 import { PromptInputComp } from './prompt-input-comp'
 import { toast } from './ui/toast'
-import { WebContainerIDE, useWebContainer } from './webcontainer-ide'
+import { WebContainerIDE, useTerminal, useWebContainer } from './webcontainer-ide'
 
 const autoRespondedProjectIds = new Set<string>()
 
@@ -26,8 +27,9 @@ export const Workspace = ({
   const [text, setText] = useState<string>('')
   const { model, setModel } = useModelStore()
   const { writeFile, activePath } = useWebContainer()
+  const { getTerminalOutput } = useTerminal()
   const { resolvedTheme } = useTheme()
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, addToolOutput } = useChat({
     messages: initialMessages,
     id: projectId,
     onError: (error) => {
@@ -36,9 +38,10 @@ export const Workspace = ({
         description: error.message
       })
     },
-    onToolCall: (toolCallObj) => {
-      const toolName = toolCallObj.toolCall.toolName
-      const toolInput = toolCallObj.toolCall.input as {
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    onToolCall: ({ toolCall }) => {
+      const toolName = toolCall.toolName
+      const toolInput = toolCall.input as {
         path: string
         content: string
         filepath: string
@@ -48,6 +51,14 @@ export const Workspace = ({
       }
       if (toolName === 'activeFilePath') {
         void activePath(toolInput.filepath)
+      }
+      if (toolName === 'getLastCommandOutput') {
+        const { text } = getTerminalOutput(undefined, true)
+        addToolOutput({
+          tool: 'readWebContainerFile',
+          toolCallId: toolCall.toolCallId,
+          output: { outputText: text }
+        })
       }
     }
   })

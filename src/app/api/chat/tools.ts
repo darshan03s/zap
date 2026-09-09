@@ -63,6 +63,12 @@ const activeFilePathOutputSchema = z.object({
   error: z.string().optional()
 })
 
+const getLastCommandOutputInputSchema = z.object({})
+
+const getLastCommandOutputOutputSchema = z.object({
+  outputText: z.string().optional(),
+})
+
 type FileTreeEntry = {
   id: string
   name: string
@@ -255,6 +261,12 @@ export function createChatTools(projectId: string) {
 
         return { path: fileEntry.path }
       }
+    }),
+    getLastCommandOutput: tool({
+      description:
+        'Get the last command executed in the terminal and its output. Use this to inspect build errors, dev server logs, or npm command results.',
+      inputSchema: getLastCommandOutputInputSchema,
+      outputSchema: getLastCommandOutputOutputSchema
     })
   }
 }
