@@ -26,7 +26,7 @@ export const Workspace = ({
 }) => {
   const [text, setText] = useState<string>('')
   const { model, setModel } = useModelStore()
-  const { writeFile, activePath } = useWebContainer()
+  const { writeFile, activePath, syncActiveFile } = useWebContainer()
   const { getTerminalOutput } = useTerminal()
   const { resolvedTheme } = useTheme()
   const { messages, sendMessage, status, addToolOutput } = useChat({
@@ -48,7 +48,9 @@ export const Workspace = ({
         lastN: number
       }
       if (toolName === 'writeFile') {
-        writeFile(toolInput.path, toolInput.content)
+        writeFile(toolInput.path, toolInput.content).then(() => {
+          void syncActiveFile()
+        })
       }
       if (toolName === 'activeFilePath') {
         void activePath(toolInput.filepath)
