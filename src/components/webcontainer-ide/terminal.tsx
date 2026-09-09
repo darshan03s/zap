@@ -210,7 +210,7 @@ export const Terminal = () => {
                 variant={'ghost'}
                 size={'icon-xs'}
                 onClick={() => {
-                  const { text } = getTerminalOutput()
+                  const { text } = getTerminalOutput(undefined, true)
                   if (text) {
                     navigator.clipboard.writeText(text)
                   }

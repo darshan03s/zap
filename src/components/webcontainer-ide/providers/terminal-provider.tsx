@@ -17,7 +17,10 @@ type TerminalContext = {
   isTerminalOpen: boolean
   setIsTerminalOpen: Dispatch<SetStateAction<boolean>>
   writeToTerminal: WriteToTerminal
-  getTerminalOutput: (lastN?: number) => { text: string; lines: string[] }
+  getTerminalOutput: (
+    lastN?: number,
+    fromLastShellPrompt?: boolean
+  ) => { text: string; lines: string[] }
   startDevServer: () => void
   stopDevServer: () => void
   restartDevServer: () => void
@@ -40,19 +43,54 @@ export const TerminalProvider = ({ children }: { children: React.ReactNode }) =>
     }, 300)
   }
 
-  const getTerminalOutput = (lastN?: number) => {
+  const getTerminalOutput = (lastN?: number, lastCommand?: boolean) => {
     terminalRef.current?.selectAll()
+
     const selection = terminalRef.current?.getSelection()
-    if (selection) {
-      const lines = selection.split('\n')
-      const cleanedLines = lines.filter((line) => line.trim() !== '')
-      const lastNLines = lastN ? cleanedLines.slice(-lastN) : cleanedLines
-      const text = lastNLines.join('\n')
+
+    if (!selection) {
       terminalRef.current?.clearSelection()
-      return { text, lines: lastNLines }
+      return { text: '', lines: [] }
     }
+
+    const lines = selection.split('\n')
+    const cleanedLines = lines.filter((line) => line.trim() !== '')
+
+    let outputLines = cleanedLines
+
+    if (lastCommand) {
+      const promptIndices = cleanedLines.reduce<number[]>((indices, line, index) => {
+        if (line.trim() === '~/project') {
+          indices.push(index)
+        }
+
+        return indices
+      }, [])
+
+      const lastPromptIndex = promptIndices.at(-1)
+
+      if (lastPromptIndex !== undefined) {
+        const linesAfterLastPrompt = cleanedLines.slice(lastPromptIndex + 1)
+        const isIdle = linesAfterLastPrompt.length === 1 && linesAfterLastPrompt[0].trim() === '❯'
+
+        if (isIdle) {
+          const secondLastPromptIndex = promptIndices.at(-2)
+
+          if (secondLastPromptIndex !== undefined) {
+            outputLines = cleanedLines.slice(secondLastPromptIndex, lastPromptIndex)
+          }
+        } else {
+          outputLines = cleanedLines.slice(lastPromptIndex)
+        }
+      }
+    }
+
+    const lastNLines = lastN ? outputLines.slice(-lastN) : outputLines
+    const text = lastNLines.join('\n')
+
     terminalRef.current?.clearSelection()
-    return { text: '', lines: [] }
+
+    return { text, lines: lastNLines }
   }
 
   const startDevServer = () => {
