@@ -151,7 +151,7 @@ export const Workspace = ({
           disableRenaming
           editorReadOnly
           terminalReadOnly={process.env.NODE_ENV === 'production'}
-          openTerminal={process.env.NODE_ENV !== 'production'}
+          openTerminal
           editorTheme={resolvedTheme as 'light' | 'dark'}
         />
       </div>
