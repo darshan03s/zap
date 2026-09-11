@@ -22,7 +22,7 @@ export const Workspace = ({
 }: {
   projectId: string
   initialMessages: UIMessage[]
-  fileSystemTree: FileSystemTree
+  fileSystemTree: FileSystemTree | string
 }) => {
   const [text, setText] = useState<string>('')
   const { model, setModel } = useModelStore()
