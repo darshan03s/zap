@@ -94,6 +94,15 @@ ${BASE_TEMPLATE}
 - Use these tools to get context of terminal output
 - You can keep calling \`getTerminalOutput\` for 10 lines, 20 lines etc to get more context
 
+# Packages to use from package.json
+
+- date-fns - For date related operations
+- lucide-react - For icons
+- motion - For animations
+- react-hook-form - For building forms
+- zod - For data validation
+- fuse.js - For fuzzy search
+
 # Limitations
 
 - You cannot install new packages
