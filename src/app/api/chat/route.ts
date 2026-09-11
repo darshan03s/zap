@@ -121,7 +121,7 @@ export async function POST(req: Request) {
     messages: await convertToModelMessages(messages, { tools }),
     tools,
     instructions: getSystemPrompt(),
-    stopWhen: isStepCount(5)
+    stopWhen: isStepCount(7)
   })
 
   return createUIMessageStreamResponse({

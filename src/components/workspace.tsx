@@ -118,6 +118,8 @@ export const Workspace = ({
       startDevServer()
     }, 2000)
 
+    activePath('src/pages/index.tsx')
+
     return () => clearTimeout(timeout)
   }, [isMounted, startDevServer, isTerminalStarted])
 

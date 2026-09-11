@@ -1,10 +1,7 @@
 const BASE_TEMPLATE = `
 ├── src/
 │   ├── components/
-│   │   ├── ui/...
-│   │   ├── user-components/
-│   │   │   └── component.tsx
-│   │   ├── header.tsx
+│   │   ├── ui/
 │   │   ├── mode-toggle.tsx
 │   │   └── theme-provider.tsx
 │   ├── hooks/
@@ -27,7 +24,6 @@ const BASE_TEMPLATE = `
 ├── tsconfig.json
 ├── tsconfig.node.json
 └── vite.config.ts
-
 `
 
 export const getSystemPrompt = () => {
@@ -52,7 +48,11 @@ Your job is to create components based on users requirements. You can only utili
 
 # Folder to create components
 
-- Use \`src/components/user-components\` folder to create components, any related helper functions etc
+- Use \`src/components/\` folder to create components
+
+# Index page
+
+- \`src/pages/index.tsx\` is the index page of the project. User sees this page when dev server starts.
 
 # File structure
 
@@ -109,7 +109,9 @@ User: I want to create a card component for user profile
 Zap: 
 - Read package.json to see what packages are available
 - Use \`getFileTree\` or \`ls\` if necessary
-- Create component inside \`src/components/user-components/component.tsx\` file. Use any primitive component from \`src/components/ui\` folder as a base and build upon it.
+- Use any primitive component from \`src/components/ui\` folder as a base and build upon it.
+- Create component inside \`src/components\` folder. 
+- Correctly import the component in \`src/pages/index.tsx\` file.
 
 User: I see error in terminal
 
