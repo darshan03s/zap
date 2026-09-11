@@ -271,6 +271,14 @@ export function createChatTools(projectId: string) {
         'Get the terminal output of last N lines. Use this to quickly inspect the terminal for logs, errors, or other information. Example: "Pass 10 to get the last 10 lines of terminal output."',
       inputSchema: getTerminalOutputInputSchema,
       outputSchema: getTerminalOutputOutputSchema
+    }),
+    startDevServer: tool({
+      description:
+        'Writed command in terminal to start the development server.',
+      inputSchema: z.object({}),
+      outputSchema: z.object({
+        status: z.string(),
+      })
     })
   }
 }

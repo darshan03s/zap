@@ -27,7 +27,7 @@ export const Workspace = ({
   const [text, setText] = useState<string>('')
   const { model, setModel } = useModelStore()
   const { writeFile, activePath, syncActiveFile, isMounted } = useWebContainer()
-  const { getTerminalOutput, startDevServer, isTerminalStarted, isTerminalOpen } = useTerminal()
+  const { getTerminalOutput, startDevServer, isTerminalStarted } = useTerminal()
   const { resolvedTheme } = useTheme()
   const { messages, sendMessage, status, addToolOutput } = useChat({
     messages: initialMessages,
@@ -71,6 +71,22 @@ export const Workspace = ({
           output: { outputText: text }
         })
       }
+      if (toolName === 'startDevServer') {
+        try {
+          startDevServer()
+          addToolOutput({
+            tool: 'startDevServer',
+            toolCallId: toolCall.toolCallId,
+            output: { status: 'command fired to start development server' }
+          })
+        } catch (error) {
+          addToolOutput({
+            tool: 'startDevServer',
+            toolCallId: toolCall.toolCallId,
+            output: { status: (error as Error).message }
+          })
+        }
+      }
     }
   })
   const hasAutoResponded = useRef(false)
@@ -96,14 +112,14 @@ export const Workspace = ({
   }, [initialMessages, model.id, projectId, sendMessage])
 
   useEffect(() => {
-    if (!isMounted || !isTerminalStarted || !isTerminalOpen) return
+    if (!isMounted || !isTerminalStarted) return
 
     const timeout = setTimeout(() => {
       startDevServer()
     }, 2000)
 
     return () => clearTimeout(timeout)
-  }, [isMounted, startDevServer, isTerminalStarted, isTerminalOpen])
+  }, [isMounted, startDevServer, isTerminalStarted])
 
   function handleSubmit(message: PromptInputMessage) {
     const hasText = Boolean(message.text)
