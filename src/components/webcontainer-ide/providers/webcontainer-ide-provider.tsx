@@ -24,7 +24,7 @@ export const WebContainerIDEProvider = ({
   children: React.ReactNode
   rootDir?: string
 }) => {
-  const [view, setView] = useState<View>('editor')
+  const [view, setView] = useState<View>('preview')
 
   const toggleView: ToggleView = () => {
     setView((prev) => {

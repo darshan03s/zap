@@ -26,8 +26,8 @@ export const Workspace = ({
 }) => {
   const [text, setText] = useState<string>('')
   const { model, setModel } = useModelStore()
-  const { writeFile, activePath, syncActiveFile } = useWebContainer()
-  const { getTerminalOutput } = useTerminal()
+  const { writeFile, activePath, syncActiveFile, isMounted } = useWebContainer()
+  const { getTerminalOutput, startDevServer, isTerminalStarted, isTerminalOpen } = useTerminal()
   const { resolvedTheme } = useTheme()
   const { messages, sendMessage, status, addToolOutput } = useChat({
     messages: initialMessages,
@@ -94,6 +94,16 @@ export const Workspace = ({
       }
     })
   }, [initialMessages, model.id, projectId, sendMessage])
+
+  useEffect(() => {
+    if (!isMounted || !isTerminalStarted || !isTerminalOpen) return
+
+    const timeout = setTimeout(() => {
+      startDevServer()
+    }, 2000)
+
+    return () => clearTimeout(timeout)
+  }, [isMounted, startDevServer, isTerminalStarted, isTerminalOpen])
 
   function handleSubmit(message: PromptInputMessage) {
     const hasText = Boolean(message.text)
