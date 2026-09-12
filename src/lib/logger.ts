@@ -39,7 +39,7 @@ export const logger = {
   dir: (value: unknown, options?: Parameters<typeof console.dir>[1]) => {
     if (isDev) {
       console.log(`[Zap] ${time()} ${c.blue}[DIR]${c.reset}`)
-      console.dir(`[Zap] ${value}`, options)
+      console.dir(value, options)
     }
   }
 }

@@ -3,6 +3,7 @@
 import { DragEvent, useEffect } from 'react'
 import { ResizablePanel } from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
+import { logger } from '@/lib/logger'
 import { cn } from '@/lib/utils'
 import { useFileSystem, useProps, useWebContainer } from '../hooks'
 import { getParentFolder } from '../utils'
@@ -22,33 +23,54 @@ export const FileSystem = () => {
     hoveredPath,
     setHoveredPath,
     endFsItemMove,
-    handleFsItemDrop,
-    isIgnoredPath
+    handleFsItemDrop
   } = useFileSystem()
   const { isMounted, rootDir, wc } = useWebContainer()
-  const { disableCreateFolder, disableCreateFile, disableMoving, onRenameEvent, onChangeEvent } =
-    useProps()
+  const { disableCreateFolder, disableCreateFile, disableMoving } = useProps()
+
+  logger.info('[FS-OBJECT]', fs)
 
   useEffect(() => {
     if (!wc || !isMounted) return
 
-    const watcher = wc.fs.watch('/', { recursive: true }, async (event, fsItem) => {
-      if (isIgnoredPath(String(fsItem))) return
-      if (event === 'change') {
-        if (onChangeEvent) {
-          onChangeEvent(String(fsItem))
-        }
-      }
-      if (event === 'rename') {
-        const parentFolder = getParentFolder(String(fsItem))
-        await loadFolderItems(parentFolder)
-        if (onRenameEvent) {
-          onRenameEvent(String(fsItem))
-        }
-      }
-    })
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null
+    let pendingEventCount = 0
+    const affectedParents = new Set<string>()
 
-    return () => watcher.close()
+    const unsubscribe = wc.internal.watchPaths(
+      { path: `${rootDir}/**`, exclude: ['node_modules', '.git'] },
+      (events) => {
+        pendingEventCount += events.length
+
+        for (const event of events) {
+          const eventType = event.type
+          if (eventType === 'change') continue
+          const path = event.path
+          const normalizedPath = path.replace(`/home/${rootDir}/`, '')
+          logger.info(`${eventType} ${normalizedPath}`)
+          affectedParents.add(getParentFolder(normalizedPath))
+        }
+
+        if (debounceTimer) clearTimeout(debounceTimer)
+        debounceTimer = setTimeout(() => {
+          const topmostParent = [...affectedParents].sort(
+            (a, b) => a.split('/').filter(Boolean).length - b.split('/').filter(Boolean).length
+          )[0]
+
+          logger.info(`[FS-EVENT] watch events ended (${pendingEventCount} events)`)
+          if (topmostParent) {
+            loadFolderItems(topmostParent)
+          }
+          pendingEventCount = 0
+          affectedParents.clear()
+        }, 200)
+      }
+    )
+
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      unsubscribe()
+    }
   }, [wc, isMounted])
 
   useEffect(() => {

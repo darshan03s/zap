@@ -1,6 +1,7 @@
 'use client'
 
 import { Dispatch, RefObject, SetStateAction, createContext, useRef, useState } from 'react'
+import { logger } from '@/lib/logger'
 import { IGNORED_FOLDERS } from '../constants'
 import { useIde, useWebContainer } from '../hooks'
 import { FsItemDrag, ReadDirEntry } from '../types'
@@ -97,6 +98,7 @@ export const FileSystemProvider = ({ children }: { children: React.ReactNode }) 
 
   const loadFolderItems: LoadFolderItems = async (path) => {
     if (isIgnoredPath(path)) return
+    logger.info(`[FS-LOAD] Loading folder items for ${path}`)
     try {
       const items = await readDir(
         path,

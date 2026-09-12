@@ -53,15 +53,6 @@ export type WebContainerIDEProps = {
    */
   openTerminal?: boolean
   /**
-   * Called after a rename event from the WebContainer file system.
-   */
-  onRenameEvent?: (fsItem: string) => void
-
-  /**
-   * Called after a change event from the WebContainer file system.
-   */
-  onChangeEvent?: (fsItem: string) => void
-  /**
    * Sets terminal theme
    */
   terminalTheme?: ITheme

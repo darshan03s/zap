@@ -98,6 +98,50 @@ export const FsItem = ({ item }: { item: ReadDirEntry }) => {
     }
   }
 
+  const deleteActionsRef = useRef<HTMLDivElement>(null)
+  const deleteConfirmRef = useRef<HTMLButtonElement>(null)
+  const deleteDismissEnabledRef = useRef(false)
+
+  useEffect(() => {
+    if (!isDeleting) {
+      deleteDismissEnabledRef.current = false
+      return
+    }
+
+    deleteConfirmRef.current?.focus()
+
+    const dismissOnPointerDown = (e: MouseEvent | TouchEvent) => {
+      if (!deleteDismissEnabledRef.current) return
+      const target = e.target as Node
+      if (deleteActionsRef.current?.contains(target)) return
+      setIsDeleting(false)
+    }
+
+    const enableDismissId = window.setTimeout(() => {
+      deleteDismissEnabledRef.current = true
+    }, 0)
+
+    const listenerId = window.setTimeout(() => {
+      document.addEventListener('mousedown', dismissOnPointerDown)
+      document.addEventListener('touchstart', dismissOnPointerDown)
+    }, 0)
+
+    return () => {
+      clearTimeout(enableDismissId)
+      clearTimeout(listenerId)
+      deleteDismissEnabledRef.current = false
+      document.removeEventListener('mousedown', dismissOnPointerDown)
+      document.removeEventListener('touchstart', dismissOnPointerDown)
+    }
+  }, [isDeleting])
+
+  function handleDeleteBlurCapture(e: React.FocusEvent<HTMLDivElement>) {
+    if (!deleteDismissEnabledRef.current) return
+    const next = e.relatedTarget as Node | null
+    if (next && deleteActionsRef.current?.contains(next)) return
+    setIsDeleting(false)
+  }
+
   function startDeletingFolder() {
     setIsDeleting(true)
   }
@@ -201,14 +245,18 @@ export const FsItem = ({ item }: { item: ReadDirEntry }) => {
             item.name
           )}
         </ItemContent>
-        <ItemActions>
+        <ItemActions onClick={(e) => e.stopPropagation()}>
           {isDeleting ? (
-            <ButtonGroup onClick={(e) => e.stopPropagation()}>
+            <ButtonGroup
+              ref={deleteActionsRef}
+              onBlurCapture={handleDeleteBlurCapture}
+              onClick={(e) => e.stopPropagation()}
+            >
               <Button
+                autoFocus
+                ref={deleteConfirmRef}
                 variant={'destructive'}
                 size={'icon-xs'}
-                autoFocus
-                onBlur={() => setIsDeleting(false)}
                 onClick={deleteFsItem}
               >
                 <Check />
