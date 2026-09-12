@@ -14,32 +14,32 @@ const isDev = process.env.NODE_ENV === 'development'
 export const logger = {
   log: (...args: unknown[]) => {
     if (isDev) {
-      console.log(`${time()} ${c.blue}[LOG]${c.reset}`, ...args)
+      console.log(`[Zap] ${time()} ${c.blue}[LOG]${c.reset}`, ...args)
     }
   },
 
   info: (...args: unknown[]) => {
     if (isDev) {
-      console.info(`${time()} ${c.green}[INFO]${c.reset}`, ...args)
+      console.info(`[Zap] ${time()} ${c.green}[INFO]${c.reset}`, ...args)
     }
   },
 
   warn: (...args: unknown[]) => {
     if (isDev) {
-      console.warn(`${time()} ${c.yellow}[WARN]${c.reset}`, ...args)
+      console.warn(`[Zap] ${time()} ${c.yellow}[WARN]${c.reset}`, ...args)
     }
   },
 
   error: (...args: unknown[]) => {
     if (isDev) {
-      console.error(`${time()} ${c.red}[ERROR]${c.reset}`, ...args)
+      console.error(`[Zap] ${time()} ${c.red}[ERROR]${c.reset}`, ...args)
     }
   },
 
   dir: (value: unknown, options?: Parameters<typeof console.dir>[1]) => {
     if (isDev) {
-      console.log(`${time()} ${c.blue}[DIR]${c.reset}`)
-      console.dir(value, options)
+      console.log(`[Zap] ${time()} ${c.blue}[DIR]${c.reset}`)
+      console.dir(`[Zap] ${value}`, options)
     }
   }
 }
