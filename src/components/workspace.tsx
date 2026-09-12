@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { UIMessage, useChat } from '@ai-sdk/react'
+import { vscodeDark, vscodeLight } from '@uiw/codemirror-theme-vscode'
 import { FileSystemTree } from '@webcontainer/api'
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
 import { useTheme } from 'next-themes'
@@ -171,7 +172,7 @@ export const Workspace = ({
           editorReadOnly={projectId !== 'test'}
           terminalReadOnly={process.env.NODE_ENV === 'production'}
           openTerminal
-          editorTheme={resolvedTheme as 'light' | 'dark'}
+          editorTheme={resolvedTheme === 'light' ? vscodeLight : vscodeDark}
         />
       </div>
     </Main>

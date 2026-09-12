@@ -1,3 +1,4 @@
+import { Extension } from '@uiw/react-codemirror'
 import { WebContainer } from '@webcontainer/api'
 import { ITheme } from '@xterm/xterm'
 
@@ -15,7 +16,7 @@ export type WebContainerIDEProps = {
   /**
    * Application theme
    */
-  editorTheme?: 'light' | 'dark'
+  editorTheme?: 'light' | 'dark' | Extension
   /**
    * Prevents editing the file content.
    */
