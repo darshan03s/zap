@@ -38,7 +38,7 @@ const ProjectOptions = ({ onRename, onDelete }: { onRename: () => void; onDelete
       <DropdownMenuTrigger className="cursor-pointer">
         <Ellipsis className="size-4" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className={'p-2 space-y-2 *:text-xs'}>
+      <DropdownMenuContent className={'[&_div]:cursor-pointer *:text-xs [&_svg]:size-3!'}>
         <DropdownMenuItem onClick={onRename}>
           <Pencil /> Rename
         </DropdownMenuItem>

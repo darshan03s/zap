@@ -20,7 +20,7 @@ import { Badge } from './ui/badge'
 
 function HorizontalEllipsis() {
   return (
-    <div className="flex items-center gap-1 text-zinc-500">
+    <div className="flex items-center gap-1 text-primary">
       {[0, 1, 2].map((i) => (
         <span
           key={i}
@@ -67,11 +67,11 @@ export const ConversationComp = ({
   status: ChatStatus
 }) => {
   return (
-    <Conversation className="border rounded-lg">
+    <Conversation className="[&>div]:no-scrollbar">
       <ConversationContent>
         {messages.map((message) => (
           <Message from={message.role} key={message.id}>
-            <MessageContent className="has-data-[streamdown=code-block]:w-full">
+            <MessageContent className="has-data-[streamdown=code-block]:w-full group-[.is-user]:bg-primary/20! dark:group-[.is-user]:bg-muted! group-[.is-user]:text-foreground!">
               {message.parts.map((part, i) => {
                 if (isToolUIPart(part)) {
                   return <ToolInvocationDisplay key={`${message.id}-${i}`} part={part} />

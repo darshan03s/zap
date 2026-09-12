@@ -1,10 +1,4 @@
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarTrigger
-} from '@/components/ui/sidebar'
+import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger } from '@/components/ui/sidebar'
 import { Brand } from './brand'
 import { ProjectsList } from './projects-list'
 
@@ -18,7 +12,6 @@ export function AppSidebar() {
       <SidebarContent>
         <ProjectsList />
       </SidebarContent>
-      <SidebarFooter />
     </Sidebar>
   )
 }
