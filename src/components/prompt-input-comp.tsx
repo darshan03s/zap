@@ -34,7 +34,6 @@ import {
   AttachmentRemove,
   Attachments
 } from './ai-elements/attachments'
-import { Separator } from './ui/separator'
 import { Skeleton } from './ui/skeleton'
 
 interface AttachmentItemProps {
