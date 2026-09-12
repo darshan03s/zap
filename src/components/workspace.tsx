@@ -112,6 +112,7 @@ export const Workspace = ({
   }, [initialMessages, model.id, projectId, sendMessage])
 
   useEffect(() => {
+    if (projectId === 'test') return
     if (!isMounted || !isTerminalStarted) return
 
     const timeout = setTimeout(() => {
@@ -162,12 +163,12 @@ export const Workspace = ({
         <WebContainerIDE
           className="h-full"
           loadFromSnapshot={fileSystemTree}
-          disableCreateFile
-          disableCreateFolder
-          disableDeleting
-          disableMoving
-          disableRenaming
-          editorReadOnly
+          disableCreateFile={projectId !== 'test'}
+          disableCreateFolder={projectId !== 'test'}
+          disableDeleting={projectId !== 'test'}
+          disableMoving={projectId !== 'test'}
+          disableRenaming={projectId !== 'test'}
+          editorReadOnly={projectId !== 'test'}
           terminalReadOnly={process.env.NODE_ENV === 'production'}
           openTerminal
           editorTheme={resolvedTheme as 'light' | 'dark'}
